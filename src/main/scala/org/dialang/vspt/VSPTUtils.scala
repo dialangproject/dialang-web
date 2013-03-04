@@ -1,15 +1,14 @@
 package org.dialang.vspt
 
-import java.sql.{DriverManager, Connection}
+import java.sql.{Connection,Statement}
 
 import org.dialang.db.DB
 
 class VSPTUtils {
 
-  Class.forName("org.postgresql.Driver")
-  val conn = DriverManager.getConnection("jdbc:postgresql:DIALANG","dialangadmin","dialangadmin")
+  val db = DB
 
-  val db = new DB
+  val conn = db.getConnection
 
   val levels:Map[String,Vector[(String,Int,Int)]] = db.getVSPTLevels
 

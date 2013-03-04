@@ -5,7 +5,6 @@ import javax.servlet.http._
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 
-import org.dialang.db.DB
 import org.dialang.model.DialangSession
 import org.dialang.scoring.ScoringMethods
 
@@ -23,19 +22,16 @@ class StartTest extends DialangServlet {
     val saSubmitted = cookieMap.getOrElse("saSubmitted","")
     val vsptZScore = cookieMap.getOrElse("vsptZScore","")
     val saPPE = cookieMap.getOrElse("saPPE","")
+    val bookletId = cookieMap.getOrElse("bookletId","")
 
-    if(tl == "" || skill == "" || vsptSubmitted == "" || saSubmitted == "" || vsptZScore == "" || saPPE == "") {
+    if(tl == "" || skill == "" || vsptSubmitted == "" || saSubmitted == "" || vsptZScore == "" || saPPE == "" || bookletId == "") {
       // This should not happen. The skill should be set by now.
     }
 
-    val bookletId = scoringMethods.calculateBookletId(new DialangSession(cookieMap))
-
-    val cookie = getUpdatedCookie(req,Map("bookletId" -> bookletId.toString))
-
-    resp.addCookie(cookie)
-
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.setContentType("text/html")
-    resp.sendRedirect("content/testintro/" + al + ".html")
+    resp.getWriter.write("<html><body><h1>Starting test in " + tl + "#" + skill + ". Booklet ID: " + bookletId + "</h1></body></html>")
+    resp.getWriter.close()
+    //resp.sendRedirect("content/testintro/" + al + ".html")
   }
 }

@@ -10,7 +10,7 @@ import org.dialang.vspt.VSPTUtils
 
 class ScoreVSPT extends DialangServlet {
 
-  val db = new DB
+  val db = DB
   val vsptUtils = new VSPTUtils
 
   override def doPost(req: HttpServletRequest, resp: HttpServletResponse) {

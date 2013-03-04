@@ -5,19 +5,12 @@ import javax.servlet.http._
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 
-import org.dialang.db.DB
 import org.dialang.model.DialangSession
 import org.dialang.scoring.ScoringMethods
 
 class RecordSA extends DialangServlet {
 
-  var db:DB = null
   val scoringMethods = new ScoringMethods
-
-  override def init() {
-    println("INIT")
-    db = new DB
-  }
 
   override def doPost(req: HttpServletRequest, resp: HttpServletResponse) {
     val al = req.getParameter("al")

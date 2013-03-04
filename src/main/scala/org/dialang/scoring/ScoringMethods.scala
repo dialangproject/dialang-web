@@ -9,7 +9,7 @@ import org.dialang.model.DialangSession
  */
 class ScoringMethods {
 
-  val db = new DB
+  val db = DB
 
   /**
    * Need this for all cases. The assignments tells you which booklet to assign for a given lang/skill/pe.
