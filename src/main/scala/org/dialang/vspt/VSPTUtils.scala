@@ -1,14 +1,10 @@
 package org.dialang.vspt
 
-import java.sql.{Connection,Statement}
-
 import org.dialang.db.DB
 
 class VSPTUtils {
 
   val db = DB
-
-  val conn = db.getConnection
 
   val levels:Map[String,Vector[(String,Int,Int)]] = db.getVSPTLevels
 
@@ -26,29 +22,28 @@ class VSPTUtils {
   }
 
   private def getZScore(tl:String,responses:Map[String,Boolean]):Double = {
+
     val REAL = 1
     val FAKE = 0
     var yesResponses = Array(0,0)
     var noResponses = Array(0,0)
-    // TODO: Move this into DB layer
-    val st = conn.createStatement
-    val rs = st.executeQuery("SELECT words.word_id,words.word,words.valid,words.weight FROM vsp_test_word,words WHERE locale = '" + tl + "' AND vsp_test_word.word_id = words.word_id")
-    while(rs.next) {
-      val id = rs.getString("WORD_ID")
-      val word = rs.getString("WORD")
-      val valid = rs.getBoolean("VALID")
-      val weight = rs.getInt("WEIGHT")
+
+    db.getVSPTWords(tl).foreach(t => {
+      val id = t._1
+      val word = t._2
+      val valid = t._3
+      val weight = t._4
+
       val wordType = if(valid) REAL else FAKE
 
       if(responses.contains(id)) {
-        if(responses(id))
+        if(responses(id)) {
           yesResponses(wordType) += 1
-        else
+        } else {
           noResponses(wordType) += 1
+        }
       }
-    }
-    rs.close
-    st.close
+    })
 
     // number of real words answered in test:
     val X = yesResponses(REAL) + noResponses(REAL)

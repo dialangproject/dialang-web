@@ -31,33 +31,31 @@ class RecordSA extends DialangServlet {
       }
     })
 
-    val cookieMap = getCookieMap(req)
-    val tl = cookieMap.getOrElse("tl","")
-    val skill = cookieMap.getOrElse("skill","")
-    val vsptSubmitted = cookieMap.getOrElse("vsptSubmitted","")
-    val vsptZScore = cookieMap.getOrElse("vsptZScore","")
+    val dialangSession = getDialangSession(req)
 
-    if(tl == "" || skill == "" || vsptSubmitted == "" || vsptZScore == "") {
+    if(dialangSession.tl == "" || dialangSession.skill == "") {
       // This should not happen. The skill should be set by now.
     }
 
-    val dialangSession = new DialangSession(cookieMap)
+    val saPPE = scoringMethods.getSaPPE(dialangSession.skill,responses.toMap)
 
-    val saPPE = scoringMethods.getSaPPE(skill,responses.toMap)
+    dataCapture.logSAResponsesAndPPE(dialangSession.sessionId,responses.toMap,saPPE)
 
     dialangSession.saSubmitted = true
     dialangSession.saPPE = saPPE
 
-    val bookletId = scoringMethods.calculateBookletId(new DialangSession(cookieMap))
+    val bookletId = scoringMethods.calculateBookletId(dialangSession)
+
+    val bookletLength = 0//db.getBookletLength(bookletId)
 
     println("BOOKLET ID: " + bookletId)
 
-    val cookie = getUpdatedCookie(req,Map("saPPE" -> saPPE.toString,"saSubmitted" -> "true","bookletId" -> bookletId.toString))
+    val cookie = getUpdatedCookie(req,Map("saPPE" -> saPPE.toString,"saSubmitted" -> "true","bookletId" -> bookletId.toString,"bookletLength" -> bookletLength.toString, "currentBasketNumber" -> "0"))
 
     resp.addCookie(cookie)
 
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.setContentType("text/html")
-    resp.sendRedirect("content/testintro/" + al + ".html")
+    resp.sendRedirect(staticContentRoot + "testintro/" + al + ".html")
   }
 }

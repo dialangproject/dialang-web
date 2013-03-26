@@ -1,6 +1,8 @@
 package org.dialang.servlets
 
-import javax.servlet.http._
+import java.io.IOException
+import javax.servlet.ServletException
+import javax.servlet.http.{HttpServletRequest,HttpServletResponse}
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
@@ -12,7 +14,10 @@ class StartTest extends DialangServlet {
 
   val scoringMethods = new ScoringMethods
 
+  @throws[ServletException]
+  @throws[IOException]
   override def doGet(req: HttpServletRequest, resp: HttpServletResponse) {
+
     val al = req.getParameter("al")
 
     val cookieMap = getCookieMap(req)

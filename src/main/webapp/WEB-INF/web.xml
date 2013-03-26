@@ -11,35 +11,74 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
         <res-auth>Container</res-auth>
     </resource-ref>
 
+    <resource-ref>
+        <description>Connection Pool</description>
+        <res-ref-name>jdbc/dialangdatacapture</res-ref-name>
+        <res-type>javax.sql.Datasource</res-type>
+        <res-auth>Container</res-auth>
+    </resource-ref>
+
     <servlet>
-        <servlet-name>scorevspt</servlet-name>
-        <servlet-class>org.dialang.servlets.ScoreVSPT</servlet-class>
+        <servlet-name>launch</servlet-name>
+        <servlet-class>org.dialang.servlets.LTILaunch</servlet-class>
+        <init-param>
+            <param-name>staticContentRoot</param-name>
+            <param-value>html/</param-value>
+        </init-param>
     </servlet>
 
     <servlet>
         <servlet-name>settls</servlet-name>
         <servlet-class>org.dialang.servlets.SetTLS</servlet-class>
+        <init-param>
+            <param-name>staticContentRoot</param-name>
+            <param-value>html/</param-value>
+        </init-param>
     </servlet>
+
+    <servlet>
+        <servlet-name>scorevspt</servlet-name>
+        <servlet-class>org.dialang.servlets.ScoreVSPT</servlet-class>
+        <init-param>
+            <param-name>staticContentRoot</param-name>
+            <param-value>html/</param-value>
+        </init-param>
+    </servlet>
+
 
     <servlet>
         <servlet-name>recordsa</servlet-name>
         <servlet-class>org.dialang.servlets.RecordSA</servlet-class>
+        <init-param>
+            <param-name>staticContentRoot</param-name>
+            <param-value>html/</param-value>
+        </init-param>
     </servlet>
 
     <servlet>
         <servlet-name>starttest</servlet-name>
         <servlet-class>org.dialang.servlets.StartTest</servlet-class>
+        <init-param>
+            <param-name>staticContentRoot</param-name>
+            <param-value>html/</param-value>
+        </init-param>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>scorevspt</servlet-name>
-        <url-pattern>/scorevspt</url-pattern>
+        <servlet-name>launch</servlet-name>
+        <url-pattern>/launch</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>settls</servlet-name>
         <url-pattern>/settls</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>scorevspt</servlet-name>
+        <url-pattern>/scorevspt</url-pattern>
+    </servlet-mapping>
+
 
     <servlet-mapping>
         <servlet-name>recordsa</servlet-name>

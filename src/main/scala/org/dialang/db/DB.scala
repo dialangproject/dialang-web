@@ -1,6 +1,6 @@
 package org.dialang.db
 
-import java.sql.{DriverManager,Connection,Statement}
+import java.sql.{DriverManager,Connection,Statement,SQLException}
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ListBuffer,HashMap,ArrayBuffer}
@@ -15,8 +15,43 @@ object DB {
   val ctx = new InitialContext
   val ds = ctx.lookup("java:comp/env/jdbc/dialang").asInstanceOf[DataSource];
 
-  def getConnection = {
-    ds.getConnection
+  def getVSPTWords(tl:String): List[Tuple4[String,String,Boolean,Int]] = {
+
+    val tuples = new ListBuffer[Tuple4[String,String,Boolean,Int]]
+
+    var conn:Connection = null
+    var st:Statement = null
+    try {
+      conn = ds.getConnection
+      st = conn.createStatement
+      val rs = st.executeQuery("SELECT words.word_id,words.word,words.valid,words.weight FROM vsp_test_word,words WHERE locale = '" + tl + "' AND vsp_test_word.word_id = words.word_id")
+      while(rs.next) {
+        val id = rs.getString("WORD_ID")
+        val word = rs.getString("WORD")
+        val valid = rs.getBoolean("VALID")
+        val weight = rs.getInt("WEIGHT")
+        tuples += ((id,word,valid,weight))
+      }
+      rs.close
+    } finally {
+      if(st != null) {
+        try {
+          st.close
+        } catch {
+          case e:SQLException =>
+        }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close
+        } catch {
+          case e:SQLException =>
+        }
+      }
+    }
+
+    tuples.toList
   }
 
   def getPreestAssign = {
@@ -55,11 +90,19 @@ object DB {
       new PreestAssign(assign.toMap)
     } finally {
       if(st != null) {
-        st.close()
+        try {
+          st.close()
+        } catch {
+          case e:SQLException =>
+        }
       }
 
       if(conn != null) {
-        conn.close()
+        try {
+          conn.close()
+        } catch {
+          case e:SQLException =>
+        }
       }
     }
   }
@@ -85,16 +128,23 @@ object DB {
       }
 
       rs.close
-      st.close
 
       preestWeights
     } finally {
       if(st != null) {
-        st.close()
+        try {
+          st.close()
+        } catch {
+          case e:SQLException =>
+        }
       }
 
       if(conn != null) {
-        conn.close()
+        try {
+          conn.close()
+        } catch {
+          case e:SQLException =>
+        }
       }
     }
   }
@@ -120,7 +170,6 @@ object DB {
       }
 
       rs.close
-      st.close
 
       // Make it all immutable and return it
       val levels = new HashMap[String,Vector[(String,Int,Int)]]
@@ -128,11 +177,19 @@ object DB {
       levels.toMap
     } finally {
       if(st != null) {
-        st.close()
+        try {
+          st.close()
+        } catch {
+          case e:SQLException =>
+        }
       }
 
       if(conn != null) {
-        conn.close()
+        try {
+          conn.close()
+        } catch {
+          case e:SQLException =>
+        }
       }
     }
   }
@@ -157,15 +214,22 @@ object DB {
         skillMap.get(skill).get += (rs.getString("wid") -> rs.getInt("weight"))
       }
       rs.close
-      st.close
       skillMap.toMap
     } finally {
       if(st != null) {
-        st.close()
+        try {
+          st.close()
+        } catch {
+          case e:SQLException =>
+        }
       }
 
       if(conn != null) {
-        conn.close()
+        try {
+          conn.close()
+        } catch {
+          case e:SQLException =>
+        }
       }
     }
   }
@@ -187,15 +251,22 @@ object DB {
                           ,rs.getInt("grade") )
       }
       rs.close
-      st.close
       saGrades
     } finally {
       if(st != null) {
-        st.close()
+        try {
+          st.close()
+        } catch {
+          case e:SQLException =>
+        }
       }
 
       if(conn != null) {
-        conn.close()
+        try {
+          conn.close()
+        } catch {
+          case e:SQLException =>
+        }
       }
     }
   }

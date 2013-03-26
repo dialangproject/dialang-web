@@ -1,6 +1,8 @@
 package org.dialang.servlets
 
-import javax.servlet.http._
+import java.io.IOException
+import javax.servlet.ServletException
+import javax.servlet.http.{HttpServletRequest,HttpServletResponse}
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
@@ -13,7 +15,12 @@ class ScoreVSPT extends DialangServlet {
   val db = DB
   val vsptUtils = new VSPTUtils
 
+  @throws[IOException]
+  @throws[ServletException]
   override def doPost(req: HttpServletRequest, resp: HttpServletResponse) {
+
+    val dialangSession = getDialangSession(req)
+
     val al = req.getParameter("al")
     val tl = req.getParameter("tl")
 
@@ -35,6 +42,10 @@ class ScoreVSPT extends DialangServlet {
     // This is a Tuple3 of zscore, meara score and level.
     val (zScore,mearaScore,level) = vsptUtils.getLevel(tl,responses.toMap)
 
+    val sessionId = dialangSession.sessionId
+
+    dataCapture.logVSPTResponsesAndScores(sessionId,responses.toMap,zScore,mearaScore,level)
+
     val cookie = getUpdatedCookie(req, Map("vsptZScore" -> zScore.toString
                                               ,"vsptMearaScore" -> mearaScore.toString
                                               ,"vsptLevel" -> level
@@ -44,6 +55,6 @@ class ScoreVSPT extends DialangServlet {
 
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.setContentType("text/html")
-    resp.sendRedirect("content/vsptfeedback/" + al + "/" + level + ".html")
+    resp.sendRedirect(staticContentRoot + "vsptfeedback/" + al + "/" + level + ".html")
   }
 }

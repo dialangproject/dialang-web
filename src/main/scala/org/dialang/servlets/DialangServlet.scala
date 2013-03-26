@@ -2,11 +2,24 @@ package org.dialang.servlets
 
 import javax.servlet.http._
 
+import org.dialang.datacapture.DataCapture
+import org.dialang.model.DialangSession
+
 import java.net.{URLEncoder,URLDecoder}
 
 import scala.collection.mutable.HashMap
 
-class DialangServlet extends HttpServlet{
+class DialangServlet extends HttpServlet {
+
+  protected lazy val staticContentRoot = {
+      getInitParameter("staticContentRoot")
+    }
+
+  protected lazy val dataCapture = {
+      new DataCapture
+    }
+
+  def getDialangSession(req: HttpServletRequest) = (new DialangSession(getCookieMap(req)))
 
   def getUpdatedCookie(req: HttpServletRequest, state: Map[String,String],ignoreCurrent: Boolean = false): Cookie = {
 
@@ -49,4 +62,6 @@ class DialangServlet extends HttpServlet{
       mutableMap.toMap
     }
   }
+
+  def getCookieValue(req: HttpServletRequest, key: String) = getCookieMap(req).getOrElse(key,"")
 }
