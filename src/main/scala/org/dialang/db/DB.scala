@@ -1,6 +1,6 @@
 package org.dialang.db
 
-import java.sql.{DriverManager,Connection,Statement,SQLException}
+import java.sql.{DriverManager,Connection,Statement,PreparedStatement,SQLException}
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ListBuffer,HashMap,ArrayBuffer}
@@ -252,6 +252,38 @@ object DB {
       }
       rs.close
       saGrades
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
+        } catch {
+          case e:SQLException =>
+        }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch {
+          case e:SQLException =>
+        }
+      }
+    }
+  }
+
+  def getSecret(consumerKey: String) = {
+    var conn:Connection = null
+    var st:PreparedStatement = null
+    try {
+      conn = ds.getConnection
+      st = conn.prepareStatement("SELECT secret FROM lti_consumers WHERE consumer_key = ?")
+      st.setString(1,consumerKey)
+      val rs = st.executeQuery
+      if(rs.next) {
+        rs.getString("secret")
+      } else {
+        ""
+      }
     } finally {
       if(st != null) {
         try {

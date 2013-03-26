@@ -12,7 +12,7 @@ class DataCapture {
   val ds = ctx.lookup("java:comp/env/jdbc/dialangdatacapture").asInstanceOf[DataSource]
 
   @throws[Exception]
-  def createSession(userId:String, al:String, tl:String, skill:String, ipAddress:String) = {
+  def createSession(userId:String, consumerKey:String, al:String, tl:String, skill:String, ipAddress:String) = {
 
     var conn:Connection = null
     var st:PreparedStatement = null
@@ -22,13 +22,14 @@ class DataCapture {
     try {
       conn = ds.getConnection
       lastIdSt = conn.createStatement
-      st = conn.prepareStatement("INSERT INTO sessions (user_id,al,tl,skill,ip_address,started) VALUES(?,?,?,?,?,?)")
+      st = conn.prepareStatement("INSERT INTO sessions (user_id,consumer_key,al,tl,skill,ip_address,started) VALUES(?,?,?,?,?,?,?)")
       st.setString(1,userId)
-      st.setString(2,al)
-      st.setString(3,tl)
-      st.setString(4,skill)
-      st.setString(5,ipAddress)
-      st.setLong(6,new Date().getTime)
+      st.setString(2,consumerKey)
+      st.setString(3,al)
+      st.setString(4,tl)
+      st.setString(5,skill)
+      st.setString(6,ipAddress)
+      st.setLong(7,new Date().getTime)
       if(st.executeUpdate == 1) {
         lastIdRS = lastIdSt.executeQuery("SELECT currval('sessions_session_id_seq')")
         if(lastIdRS.next()) {

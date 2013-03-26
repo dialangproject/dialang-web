@@ -10,6 +10,8 @@ import net.oauth._
 import net.oauth.server.OAuthServlet
 import net.oauth.signature.OAuthSignatureMethod
 
+import org.dialang.db.DB
+
 //import org.apache.commons.logging.{Log,LogFactory}
 
 import scala.collection.JavaConversions._
@@ -18,6 +20,8 @@ import scala.collection.mutable.HashMap
 class LTILaunch extends DialangServlet {
 
   //private M_log = LogFactory.getLog(LTIServlet.class)
+
+  val db = DB
 
   @throws[ServletException]
   @throws[IOException]
@@ -29,8 +33,6 @@ class LTILaunch extends DialangServlet {
   @throws[IOException]
 	override def doPost(request:HttpServletRequest, response:HttpServletResponse) {
 
-    println("doPost")
-
 		val payload = getPayloadAsMap(request)
     val message = OAuthServlet.getMessage(request, null)
 
@@ -40,7 +42,9 @@ class LTILaunch extends DialangServlet {
       // We're validated, store the user id
       val user_id = payload.get(BasicLTIConstants.USER_ID).get
 
-      val cookie = getUpdatedCookie(request,Map("userId" -> user_id))
+      val oauth_consumer_key = payload.getOrElse("oauth_consumer_key","")
+
+      val cookie = getUpdatedCookie(request,Map("userId" -> user_id,"consumerKey" -> oauth_consumer_key))
 
       response.addCookie(cookie)
 
@@ -96,7 +100,8 @@ class LTILaunch extends DialangServlet {
     }
 
     // Lookup the secret
-    val oauth_secret = "secret"
+    val oauth_secret = db.getSecret(oauth_consumer_key)
+
     if (oauth_secret == null) {
       throw new Exception( "launch.key.notfound")
     }
