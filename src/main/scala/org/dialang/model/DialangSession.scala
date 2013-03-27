@@ -4,7 +4,7 @@ class DialangSession(map:Map[String,String]) {
 
   val userId = map.getOrElse("userId","")
   val consumerKey = map.getOrElse("consumerKey","")
-  val sessionId = map.getOrElse("sessionId","-1").toInt
+  val sessionId = map.getOrElse("sessionId","")
   val tl = map.getOrElse("tl","")
   val skill = map.getOrElse("skill","")
   val vsptSubmitted = map.getOrElse("vsptSubmitted","false").toBoolean
