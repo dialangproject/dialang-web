@@ -4,39 +4,40 @@ import java.io.IOException
 import javax.servlet.ServletException
 import javax.servlet.http.{HttpServletRequest,HttpServletResponse}
 
-import scala.collection.JavaConversions._
-import scala.collection.mutable.HashMap
-
+import org.dialang.db.DB
 import org.dialang.model.DialangSession
 import org.dialang.scoring.ScoringMethods
 
 class StartTest extends DialangServlet {
-
+  
+  val db = DB
   val scoringMethods = new ScoringMethods
 
   @throws[ServletException]
   @throws[IOException]
   override def doGet(req: HttpServletRequest, resp: HttpServletResponse) {
 
-    val al = req.getParameter("al")
+    val dialangSession = getDialangSession(req)
 
-    val cookieMap = getCookieMap(req)
-    val tl = cookieMap.getOrElse("tl","")
-    val skill = cookieMap.getOrElse("skill","")
-    val vsptSubmitted = cookieMap.getOrElse("vsptSubmitted","")
-    val saSubmitted = cookieMap.getOrElse("saSubmitted","")
-    val vsptZScore = cookieMap.getOrElse("vsptZScore","")
-    val saPPE = cookieMap.getOrElse("saPPE","")
-    val bookletId = cookieMap.getOrElse("bookletId","")
-
-    if(tl == "" || skill == "" || vsptSubmitted == "" || saSubmitted == "" || vsptZScore == "" || saPPE == "" || bookletId == "") {
-      // This should not happen. The skill should be set by now.
+    if(dialangSession.tl == "" || dialangSession.skill == "") {
+      // This should not happen. The tl and skill should be set by now.
     }
 
+    val bookletId = scoringMethods.calculateBookletId(dialangSession)
+
+    val bookletLength = db.getBookletLength(bookletId)
+
+    println("BOOKLET ID: " + bookletId)
+    println("BOOKLET LENGTH: " + bookletLength)
+
+    val basketId = db.getBasketIdsForBooklet(bookletId).head
+    println("First Basket Id: " + basketId)
+
+    val cookie = getUpdatedCookie(req,Map("bookletId" -> bookletId.toString,"bookletLength" -> bookletLength.toString, "currentBasketNumber" -> "0"))
+
     resp.setStatus(HttpServletResponse.SC_OK)
+    resp.addCookie(cookie)
     resp.setContentType("text/html")
-    resp.getWriter.write("<html><body><h1>Starting test in " + tl + "#" + skill + ". Booklet ID: " + bookletId + "</h1></body></html>")
-    resp.getWriter.close()
-    //resp.sendRedirect("content/testintro/" + al + ".html")
+    resp.sendRedirect(staticContentRoot + "baskets/" + dialangSession.al + "/" + basketId + ".html")
   }
 }

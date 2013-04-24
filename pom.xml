@@ -69,6 +69,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.dialang.common</groupId>
+            <artifactId>dialang-common</artifactId>
+            <version>0.1</version>
+        </dependency>
+
+        <dependency>
       		<groupId>log4j</groupId>
       		<artifactId>log4j</artifactId>
       		<version>1.2.8</version>
@@ -104,6 +110,18 @@
             <groupId>net.oauth</groupId>
             <artifactId>oauth-core</artifactId>
             <version>20100601</version>
+        </dependency>
+
+        <!--dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.0.11</version>
+        </dependency-->
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.11</version>
         </dependency>
 
     </dependencies>

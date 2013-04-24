@@ -167,4 +167,103 @@ class DataCaptureImpl {
       }
     }
   }
+
+  def logSingleIdResponse(sessionId: String, basketId: Int, itemId: Int, answerId: Int) {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+
+    try {
+      conn = ds.getConnection
+      st = conn.prepareStatement("INSERT INTO item_responses (session_id,basket_id,item_id,answer_id) VALUES(?,?,?,?)")
+      st.setString(1,sessionId)
+      st.setInt(2,basketId)
+      st.setInt(3,itemId)
+      st.setInt(4,answerId)
+      if(st.executeUpdate != 1) {
+        // TODO: LOGGING
+      }
+    } finally {
+
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
+
+  def logMultipleTextualResponses(sessionId: String, basketId: Int, responses: Map[Int,String]) {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+
+    try {
+      conn = ds.getConnection
+      st = conn.prepareStatement("INSERT INTO item_responses (session_id,basket_id,item_id,answer_text) VALUES(?,?,?,?)")
+      st.setString(1,sessionId)
+      st.setInt(2,basketId)
+
+      responses.foreach(t => {
+        st.setInt(3,t._1)
+        st.setString(4,t._2)
+        if(st.executeUpdate != 1) {
+          // TODO: LOGGING
+        }
+      })
+    } finally {
+
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
+
+  def logMultipleIdResponses(sessionId: String, basketId: Int, responses: Map[Int,Int]) {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+
+    try {
+      conn = ds.getConnection
+      st = conn.prepareStatement("INSERT INTO item_responses (session_id,basket_id,item_id,answer_id) VALUES(?,?,?,?)")
+      st.setString(1,sessionId)
+      st.setInt(2,basketId)
+
+      responses.foreach(t => {
+        st.setInt(3,t._1)
+        st.setInt(4,t._2)
+        if(st.executeUpdate != 1) {
+          // TODO: LOGGING
+        }
+      })
+    } finally {
+
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
 }

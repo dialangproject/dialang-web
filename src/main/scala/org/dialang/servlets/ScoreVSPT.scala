@@ -21,8 +21,8 @@ class ScoreVSPT extends DialangServlet {
 
     val dialangSession = getDialangSession(req)
 
-    val al = req.getParameter("al")
-    val tl = req.getParameter("tl")
+    val al = dialangSession.al
+    val tl = dialangSession.tl
 
     val responses = new HashMap[String,Boolean]
     req.getParameterNames.foreach(n => {

@@ -28,6 +28,15 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
     </servlet>
 
     <servlet>
+        <servlet-name>setals</servlet-name>
+        <servlet-class>org.dialang.servlets.SetALS</servlet-class>
+        <init-param>
+            <param-name>staticContentRoot</param-name>
+            <param-value>html/</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
         <servlet-name>settls</servlet-name>
         <servlet-class>org.dialang.servlets.SetTLS</servlet-class>
         <init-param>
@@ -64,9 +73,23 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
         </init-param>
     </servlet>
 
+    <servlet>
+        <servlet-name>submitbasket</servlet-name>
+        <servlet-class>org.dialang.servlets.SubmitBasket</servlet-class>
+        <init-param>
+            <param-name>staticContentRoot</param-name>
+            <param-value>html/</param-value>
+        </init-param>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>launch</servlet-name>
         <url-pattern>/launch</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>setals</servlet-name>
+        <url-pattern>/setals</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -88,6 +111,11 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
     <servlet-mapping>
         <servlet-name>starttest</servlet-name>
         <url-pattern>/starttest</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>submitbasket</servlet-name>
+        <url-pattern>/submitbasket</url-pattern>
     </servlet-mapping>
 
 </web-app>

@@ -13,7 +13,11 @@ class RecordSA extends DialangServlet {
   val scoringMethods = new ScoringMethods
 
   override def doPost(req: HttpServletRequest, resp: HttpServletResponse) {
-    val al = req.getParameter("al")
+
+    val dialangSession = getDialangSession(req)
+
+    val al = dialangSession.al
+
     val cheatlevel = req.getParameter("cheatlevel")
 
     var responses = new HashMap[String,Boolean]
@@ -31,26 +35,15 @@ class RecordSA extends DialangServlet {
       }
     })
 
-    val dialangSession = getDialangSession(req)
-
     if(dialangSession.tl == "" || dialangSession.skill == "") {
       // This should not happen. The skill should be set by now.
     }
 
-    val saPPE = scoringMethods.getSaPPE(dialangSession.skill,responses.toMap)
+    val (saPPE,saLevel) = scoringMethods.getSaPPEAndLevel(dialangSession.skill,responses.toMap)
 
     dataCapture.logSAResponsesAndPPE(dialangSession.sessionId,responses.toMap,saPPE)
 
-    dialangSession.saSubmitted = true
-    dialangSession.saPPE = saPPE
-
-    val bookletId = scoringMethods.calculateBookletId(dialangSession)
-
-    val bookletLength = 0//db.getBookletLength(bookletId)
-
-    println("BOOKLET ID: " + bookletId)
-
-    val cookie = getUpdatedCookie(req,Map("saPPE" -> saPPE.toString,"saSubmitted" -> "true","bookletId" -> bookletId.toString,"bookletLength" -> bookletLength.toString, "currentBasketNumber" -> "0"))
+    val cookie = getUpdatedCookie(req,Map("saPPE" -> saPPE.toString,"saSubmitted" -> "true","saLevel" -> saLevel))
 
     resp.addCookie(cookie)
 

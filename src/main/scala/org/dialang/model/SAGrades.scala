@@ -18,4 +18,13 @@ class SAGrades {
   def getPPE(skill:String,rawScore:Int):Float = {
     grades.get(skill).get(rawScore)._1
   }
+
+  /**
+   * Gets the numeric grade for the supplied skill and raw score combo.
+   * Grades should be from 1 to 6 inclusive as of 23/04/2013, and this
+   * range may well increase as new levels are added
+   */
+  def getGrade(skill:String,rawScore:Int):Int = {
+    grades.get(skill).get(rawScore)._3
+  }
 }

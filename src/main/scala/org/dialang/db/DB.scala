@@ -10,6 +10,8 @@ import org.dialang.model._
 import javax.naming.InitialContext
 import javax.sql.DataSource
 
+import org.dialang.common.model.{Answer,Item}
+
 object DB {
 
   val ctx = new InitialContext
@@ -271,6 +273,36 @@ object DB {
     }
   }
 
+  def getItemGrades(tl:String,skill:String,bookletId:Int): ItemGrades = {
+
+    var conn:Connection = null
+    var st:Statement = null
+    try {
+      conn = ds.getConnection
+      st = conn.createStatement
+      val rs = st.executeQuery("SELECT rsc,ppe,se,grade FROM item_grading WHERE tl = '" + tl + "' AND skill = '" + skill + "' AND booklet_id = " + bookletId)
+      val itemGrades = new ItemGrades(tl,skill,bookletId,rs)
+      rs.close()
+      itemGrades
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
+        } catch {
+          case e:SQLException =>
+        }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch {
+          case e:SQLException =>
+        }
+      }
+    }
+  }
+
   def getSecret(consumerKey: String) = {
     var conn:Connection = null
     var st:PreparedStatement = null
@@ -299,6 +331,268 @@ object DB {
         } catch {
           case e:SQLException =>
         }
+      }
+    }
+  }
+
+  def getBookletLength(bookletId:Int) = {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+    var st2:PreparedStatement = null
+    try {
+      conn = ds.getConnection
+
+      var total = 0
+
+      // Count the non testlet baskets
+      st = conn.prepareStatement("SELECT count(booklet_id) FROM booklet_basket,baskets WHERE booklet_id = ? AND basket_id = baskets.id AND type != 'tabbedpane'")
+      st.setInt(1,bookletId)
+      val rs = st.executeQuery
+      if(rs.next) {
+        total += rs.getInt(1)
+      }
+      rs.close()
+      st.close()
+
+      // Select the testlet baskets in this booklet
+      st = conn.prepareStatement("SELECT basket_id FROM booklet_basket,baskets WHERE booklet_id = ? AND basket_id = baskets.id AND type = 'tabbedpane'")
+      st.setInt(1,bookletId)
+      val rs2 = st.executeQuery
+      while(rs2.next) {
+        // Add one for the testlet
+        total += 1
+        // Now count the child baskets
+        st2 = conn.prepareStatement("SELECT count(*) FROM baskets WHERE parent_basket_id = ?")
+        st2.setInt(1,rs2.getInt("basket_id"))
+        val rs3 = st2.executeQuery
+        if(rs3.next) {
+          total += rs3.getInt(1)
+        }
+        rs3.close()
+      }
+      rs2.close()
+      total
+    } finally {
+      if(st2 != null) {
+        try {
+          st2.close()
+        } catch { case e:SQLException => }
+      }
+
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case e:SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case e:SQLException => }
+      }
+    }
+  }
+
+  def getBasketIdsForBooklet(bookletId:Int) = {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+    try {
+      conn = ds.getConnection
+
+      val basketIds = new ListBuffer[Int]
+
+      // Count the non testlet baskets
+      st = conn.prepareStatement("SELECT basket_id FROM booklet_basket WHERE booklet_id = ?")
+      st.setInt(1,bookletId)
+      val rs = st.executeQuery
+      while(rs.next) {
+        basketIds += rs.getInt(1)
+      }
+      rs.close()
+
+      basketIds
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case e:SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case e:SQLException => }
+      }
+    }
+  }
+
+  def getItem(itemId:Int): Option[Item] = {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+    try {
+      conn = ds.getConnection
+
+      st = conn.prepareStatement("SELECT * FROM items WHERE id = ?")
+      st.setInt(1,itemId)
+      val rs = st.executeQuery
+      if(rs.next) {
+        Some(new Item(rs))
+      } else {
+        None
+      }
+    } catch {
+      case e:SQLException => None
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case e:SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case e:SQLException => }
+      }
+    }
+  }
+
+  def getAnswer(answerId:Int): Option[Answer] = {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+    try {
+      conn = ds.getConnection
+
+      st = conn.prepareStatement("SELECT * FROM answers WHERE id = ?")
+      st.setInt(1,answerId)
+      val rs = st.executeQuery
+      if(rs.next) {
+        Some(new Answer(rs))
+      } else {
+        None
+      }
+    } catch {
+      case e:SQLException => None
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case e:SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case e:SQLException => }
+      }
+    }
+  }
+
+  def getAnswers(answerId:Int): Option[List[Answer]] = {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+    try {
+      conn = ds.getConnection
+
+      st = conn.prepareStatement("SELECT * FROM answers WHERE id = ?")
+      st.setInt(1,answerId)
+      val rs = st.executeQuery
+      val answers = new ListBuffer[Answer]
+      while(rs.next) {
+        answers += new Answer(rs)
+      }
+      rs.close()
+      return Some(answers.toList)
+    } catch {
+      case e:SQLException => None
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case e:SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case e:SQLException => }
+      }
+    }
+  }
+
+  def getPunctuationCharacters: Option[List[String]] = {
+
+    var conn:Connection = null
+    var st: Statement = null
+    try {
+      conn = ds.getConnection
+
+      st = conn.createStatement
+      val chars = new ListBuffer[String]
+      val rs = st.executeQuery("SELECT unicode_hex FROM punctuation")
+      while(rs.next) {
+        // Strip leading zeros
+        chars += rs.getString(1).replaceFirst("^0*","")
+      }
+      Some(chars.toList)
+    } catch {
+      case e:SQLException => None
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case e:SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case e:SQLException => }
+      }
+    }
+  }
+
+  /**
+   * Returns a mapping of textual level onto numeric grade, eg: 1 -&gt; A1
+   */
+  def getLevels:Map[Int,String] = {
+
+    var conn:Connection = null
+    var st: Statement = null
+    try {
+      conn = ds.getConnection
+      st = conn.createStatement
+      val rs = st.executeQuery("SELECT grade,level FROM levels")
+
+      val map = new HashMap[Int,String]
+
+      while(rs.next) {
+        map += ((rs.getInt(1),rs.getString(2)))
+      }
+
+      rs.close()
+      map.toMap
+    } catch {
+      case e:SQLException => {
+        println("Failed to get levels")
+        Map()
+      }
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case e:SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case e:SQLException => }
       }
     }
   }

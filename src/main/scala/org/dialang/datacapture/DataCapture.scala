@@ -34,4 +34,34 @@ class DataCapture {
         }
       }).start
   }
+
+  def logSingleIdResponse(sessionId: String, basketId: Int, itemId: Int, answerId: Int) {
+
+    new Thread(
+      new Runnable {
+        def run {
+          dataCapture.logSingleIdResponse(sessionId, basketId, itemId, answerId)
+        }
+      }).start
+  }
+
+  def logMultipleTextualResponses(sessionId: String, basketId: Int, responses: Map[Int,String]) {
+
+    new Thread(
+      new Runnable {
+        def run {
+          dataCapture.logMultipleTextualResponses(sessionId, basketId, responses)
+        }
+      }).start
+  }
+
+  def logMultipleIdResponses(sessionId: String, basketId: Int, responses: Map[Int,Int]) {
+
+    new Thread(
+      new Runnable {
+        def run {
+          dataCapture.logMultipleIdResponses(sessionId, basketId, responses)
+        }
+      }).start
+  }
 }

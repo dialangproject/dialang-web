@@ -1,7 +1,10 @@
 package org.dialang.scoring
 
+import org.dialang.common.model.Item
 import org.dialang.db.DB
 import org.dialang.model.DialangSession
+
+import java.util.StringTokenizer
 
 /**
  *  A utility class intended to hold all of the scoring code used by the system
@@ -85,8 +88,131 @@ class ScoringMethods {
     })
   }
 
-  def getSaPPE(skill: String,responses: Map[String,Boolean]):Float = {
+  def getSaPPEAndLevel(skill: String,responses: Map[String,Boolean]):Tuple2[Float,String] = {
     val rsc = getSaRawScore(skill,responses)
-    saGrades.getPPE(skill,rsc)
+    val levelMap = db.getLevels
+    ((saGrades.getPPE(skill,rsc),levelMap.get(saGrades.getGrade(skill,rsc)).get))
+  }
+
+  /**
+   * Used for mcq and gap drop
+   */
+  def getScoredIdResponseItem(itemId:Int,answerId:Int): Option[Item] = {
+
+    val itemOption = db.getItem(itemId)
+
+    if(itemOption.isDefined) {
+      val item = itemOption.get
+      val answerOption = db.getAnswer(answerId)
+      if(answerOption.isDefined) {
+
+        if(answerOption.get.correct) {
+          item.correct = true
+          item.score = item.weight
+        } else {
+          item.correct = false
+        }
+        itemOption
+      } else {
+        // The answerId couldn't be found in the system.
+        None
+      }
+    } else {
+      // The itemId couldn't be found in the system.
+      None
+    }
+  }
+
+  /**
+   * Used for short answer and gap text
+   */
+  def getScoredTextResponseItem(itemId:Int,answerText:String): Option[Item] = {
+
+    val itemOption = db.getItem(itemId)
+
+    if(itemOption.isDefined) {
+      val item = itemOption.get
+      var score = 0
+
+      val correctAnswersOption = db.getAnswers(itemId)
+      if(correctAnswersOption.isDefined) {
+        correctAnswersOption.get.foreach(correctAnswer => {
+          if(removeWhiteSpaceAndPunctuation(correctAnswer.text).equalsIgnoreCase(removeWhiteSpaceAndPunctuation(answerText))) {
+            item.score = item.weight;
+            item.correct = true
+          }
+        })
+        itemOption
+      } else {
+        // No answers for this item
+        None
+      }
+    } else {
+      // The itemId couldn't be found in the system.
+      None
+    }
+  }
+
+  def getItemGrade(session:DialangSession,results:List[Item]):Tuple2[Int,String] = {
+
+    var rsc = 0
+    var weight = 0
+
+    // results contains the set of results for the entire test - ie the
+    // results for each item type.
+
+    results.foreach(item => {
+
+      // total weights:
+      weight += item.weight
+
+      // total score:
+      rsc += item.score
+    })
+
+    val grades = db.getItemGrades(session.tl, session.skill, session.bookletId)
+
+    // normalize:
+    rsc = ((rsc.toFloat) * (grades.max / weight.toFloat)).toInt
+
+    val grade = grades.get(rsc)
+
+    ((grade.grade,db.getLevels.get(grade.grade).get))
+  }
+
+  /**
+   *  Trim leading and trailing whitespace and then replace tab, newline,
+   *  carriage return and form-feed characters with a whitespace.
+   */
+  private def removeWhiteSpaceAndPunctuation(in:String) = {
+
+    val punctuationListOption = db.getPunctuationCharacters
+
+    if(punctuationListOption.isDefined) {
+
+      val punctuationList = punctuationListOption.get
+
+      // Trim the white space and tokenize it around default delimiters
+      val st = new StringTokenizer (in.trim)
+
+      val firstPass = new StringBuffer(32)
+
+      // Rebuild it with single spaces in between tokens.
+      while (st.hasMoreTokens) {
+        firstPass.append(st.nextToken + " ")
+      }
+
+      // Rebuild the string without punctuation defined in the punctuation list.
+      val secondPass = firstPass.toString.filter(c => {
+          val hexString = Integer.toHexString(c.charValue)
+          punctuationList.contains(hexString) == false
+        })
+
+      secondPass.toString
+    } else {
+      // The punctuation list couldn't be found in the system.
+      // TODO: Logging
+      in
+    }
   }
 }

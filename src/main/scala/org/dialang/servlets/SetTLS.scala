@@ -13,22 +13,21 @@ class SetTLS extends DialangServlet {
 
     val dialangSession = getDialangSession(req)
 
-    val al    = req.getParameter("al")
     val tl    = req.getParameter("tl")
     val skill = req.getParameter("skill")
 
     val sessionId = UUID.randomUUID.toString
 
-    dataCapture.createSession(sessionId,dialangSession.userId,dialangSession.consumerKey,al,tl,skill,req.getRemoteAddr)
+    dataCapture.createSession(sessionId,dialangSession.userId,dialangSession.consumerKey,dialangSession.al,tl,skill,req.getRemoteAddr)
 
     // This updates and gets the updated cookie so we can set it on the response.
     val cookie = getUpdatedCookie(req,Map("sessionId" -> sessionId,
                                             "tl" -> tl,
-                                            "skill" -> skill.toLowerCase),/*ignoreCurrent=*/true)
+                                            "skill" -> skill.toLowerCase),/*ignoreCurrent=*/false)
 
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.addCookie(cookie)
     resp.setContentType("text/html")
-    resp.sendRedirect(staticContentRoot + "vsptintro/" + al + ".html")
+    resp.sendRedirect(staticContentRoot + "vsptintro/" + dialangSession.al + ".html")
   }
 }
