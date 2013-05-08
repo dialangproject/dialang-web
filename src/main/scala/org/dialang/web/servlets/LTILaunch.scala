@@ -1,4 +1,4 @@
-package org.dialang.servlets
+package org.dialang.web.servlets
 
 import java.io.{IOException,PrintWriter}
 import java.net.{URI,URISyntaxException,URLEncoder}
@@ -10,18 +10,19 @@ import net.oauth._
 import net.oauth.server.OAuthServlet
 import net.oauth.signature.OAuthSignatureMethod
 
-import org.dialang.db.DB
-
-//import org.apache.commons.logging.{Log,LogFactory}
+import org.dialang.web.db.DB
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 class LTILaunch extends DialangServlet {
 
-  //private M_log = LogFactory.getLog(LTIServlet.class)
+  private val logger = LoggerFactory.getLogger(getClass)
 
-  val db = DB
+  private val db = DB
 
   @throws[ServletException]
   @throws[IOException]
@@ -31,10 +32,10 @@ class LTILaunch extends DialangServlet {
 
   @throws[ServletException]
   @throws[IOException]
-	override def doPost(request:HttpServletRequest, response:HttpServletResponse) {
+	override def doPost(req:HttpServletRequest, resp:HttpServletResponse) {
 
-		val payload = getPayloadAsMap(request)
-    val message = OAuthServlet.getMessage(request, null)
+		val payload = getPayloadAsMap(req)
+    val message = OAuthServlet.getMessage(req, null)
 
     try {
       validate(payload,message)
@@ -44,16 +45,21 @@ class LTILaunch extends DialangServlet {
 
       val oauth_consumer_key = payload.getOrElse("oauth_consumer_key","")
 
-      val cookie = getUpdatedCookie(request,Map("userId" -> user_id,"consumerKey" -> oauth_consumer_key))
+      // This will add the userId and consumer key to the servlet session
+      val dialangSession = getDialangSession(req)
+      dialangSession.userId = user_id
+      dialangSession.consumerKey = oauth_consumer_key
+      saveDialangSession(dialangSession,req)
 
-      response.addCookie(cookie)
+      val cookie = getUpdatedCookie(req,Map())
+      resp.addCookie(cookie)
 
-      response.setStatus(HttpServletResponse.SC_OK)
-      response.setContentType("text/html")
-      response.sendRedirect(staticContentRoot + "als.html")
+      resp.setStatus(HttpServletResponse.SC_OK)
+      resp.setContentType("text/html")
+      resp.sendRedirect(staticContentRoot + "als.html")
     } catch {
       case e:Exception => {
-        println(e.getMessage)
+        logger.error(e.getMessage)
       }
     }
 	}
@@ -100,14 +106,14 @@ class LTILaunch extends DialangServlet {
     }
 
     // Lookup the secret
-    val oauth_secret = db.getSecret(oauth_consumer_key)
+    val oauthSecretOption = db.getSecret(oauth_consumer_key)
 
-    if (oauth_secret == null) {
+    if(!oauthSecretOption.isDefined) {
       throw new Exception( "launch.key.notfound")
     }
           
     val oav = new SimpleOAuthValidator
-    val cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null)
+    val cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauthSecretOption.get, null)
     val acc = new OAuthAccessor(cons)
 
     var base_string:String = null

@@ -1,4 +1,4 @@
-package org.dialang.servlets
+package org.dialang.web.servlets
 
 import java.io.IOException
 import java.util.UUID
@@ -13,8 +13,13 @@ class SetALS extends DialangServlet {
 
     val al = req.getParameter("al")
 
+    val dialangSession = getDialangSession(req)
+    dialangSession.adminLanguage = al
+    saveDialangSession(dialangSession,req)
+
     // This updates and gets the updated cookie so we can set it on the response.
-    val cookie = getUpdatedCookie(req,Map("al" -> al),true)
+    val map = Map("al" -> al)
+    val cookie = getUpdatedCookie(req,map,true)
 
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.addCookie(cookie)

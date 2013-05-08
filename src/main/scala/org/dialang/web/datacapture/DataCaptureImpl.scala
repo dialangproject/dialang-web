@@ -1,4 +1,4 @@
-package org.dialang.datacapture
+package org.dialang.web.datacapture
 
 import javax.naming.InitialContext
 import javax.sql.DataSource
@@ -6,12 +6,14 @@ import javax.sql.DataSource
 import java.sql.{Connection,Statement,PreparedStatement,ResultSet,SQLException}
 import java.util.Date
 
+import org.dialang.web.model.DialangSession
+
 class DataCaptureImpl {
 
   val ctx = new InitialContext
   val ds = ctx.lookup("java:comp/env/jdbc/dialangdatacapture").asInstanceOf[DataSource]
 
-  def createSession(sessionId:String, userId:String, consumerKey:String, al:String, tl:String, skill:String, ipAddress:String) {
+  def createSession(dialangSession:DialangSession,ipAddress:String) {
 
     var conn:Connection = null
     var st:PreparedStatement = null
@@ -19,18 +21,23 @@ class DataCaptureImpl {
     try {
       conn = ds.getConnection
       st = conn.prepareStatement("INSERT INTO sessions (session_id,user_id,consumer_key,al,tl,skill,ip_address,started) VALUES(?,?,?,?,?,?,?,?)")
-      st.setString(1,sessionId)
-      st.setString(2,userId)
-      st.setString(3,consumerKey)
-      st.setString(4,al)
-      st.setString(5,tl)
-      st.setString(6,skill)
+      st.setString(1,dialangSession.sessionId)
+      st.setString(2,dialangSession.userId)
+      st.setString(3,dialangSession.consumerKey)
+      st.setString(4,dialangSession.adminLanguage)
+      st.setString(5,dialangSession.testLanguage)
+      st.setString(6,dialangSession.skill)
       st.setString(7,ipAddress)
       st.setLong(8,new Date().getTime)
       if(st.executeUpdate != 1) {
         // TODO: LOGGING
       }
-    } finally {
+    } catch {
+      case e:Exception => {
+        // TODO: LOGGING
+        e.printStackTrace
+      }
+    }finally {
 
       if(st != null) {
         try {
@@ -46,11 +53,10 @@ class DataCaptureImpl {
     }
   }
 
-  def logVSPTResponsesAndScores(sessionId: String, responses: Map[String,Boolean],zScore: Double,mearaScore: Int,level: String) {
+  def logVSPTResponses(dialangSession: DialangSession, responses: Map[String,Boolean]) {
 
     var conn:Connection = null
-    var st1:PreparedStatement = null
-    var st2:PreparedStatement = null
+    var st:PreparedStatement = null
 
     try {
       conn = ds.getConnection
@@ -58,28 +64,17 @@ class DataCaptureImpl {
       // Insert this session's vspt responses in a transaction
       conn.setAutoCommit(false)
 
-      st1 = conn.prepareStatement("INSERT INTO vsp_test_responses (session_id,word_id,response) VALUES(?,?,?)")
+      st = conn.prepareStatement("INSERT INTO vsp_test_responses (session_id,word_id,response) VALUES(?,?,?)")
 
-      st1.setString(1,sessionId)
+      st.setString(1,dialangSession.sessionId)
       responses.foreach(t => {
-        st1.setString(2,t._1)
-        st1.setBoolean(3,t._2)
-        if(st1.executeUpdate != 1) {
+        st.setString(2,t._1)
+        st.setBoolean(3,t._2)
+        if(st.executeUpdate != 1) {
           // TODO: LOGGING
         }
       })
 
-      conn.commit
-
-      // Now insert the scores
-      st2 = conn.prepareStatement("INSERT INTO vsp_test_scores (session_id,z_score,meara_score,level) VALUES(?,?,?,?)")
-      st2.setString(1,sessionId)
-      st2.setDouble(2,zScore)
-      st2.setInt(3,mearaScore)
-      st2.setString(4,level)
-      if(st2.executeUpdate != 1) {
-        // TODO: LOGGING
-      }
       conn.commit
     } catch {
       case e:Exception => {
@@ -87,15 +82,9 @@ class DataCaptureImpl {
         e.printStackTrace
       }
     } finally {
-      if(st1 != null) {
+      if(st != null) {
         try {
-          st1.close()
-        } catch { case _ : SQLException => }
-      }
-
-      if(st2 != null) {
-        try {
-          st2.close()
+          st.close()
         } catch { case _ : SQLException => }
       }
 
@@ -108,11 +97,10 @@ class DataCaptureImpl {
     }
   }
 
-  def logSAResponsesAndPPE(sessionId: String, responses: Map[String,Boolean],ppe: Float) {
+  def logVSPTScores(dialangSession: DialangSession) {
 
     var conn:Connection = null
-    var st1:PreparedStatement = null
-    var st2:PreparedStatement = null
+    var st:PreparedStatement = null
 
     try {
       conn = ds.getConnection
@@ -120,24 +108,13 @@ class DataCaptureImpl {
       // Insert this session's vspt responses in a transaction
       conn.setAutoCommit(false)
 
-      st1 = conn.prepareStatement("INSERT INTO sa_responses (session_id,statement_id,response) VALUES(?,?,?)")
-
-      st1.setString(1,sessionId)
-      responses.foreach(t => {
-        st1.setString(2,t._1)
-        st1.setBoolean(3,t._2)
-        if(st1.executeUpdate != 1) {
-          // TODO: LOGGING
-        }
-      })
-
-      conn.commit
-
       // Now insert the scores
-      st2 = conn.prepareStatement("INSERT INTO sa_ppe (session_id,ppe) VALUES(?,?)")
-      st2.setString(1,sessionId)
-      st2.setDouble(2,ppe)
-      if(st2.executeUpdate != 1) {
+      st = conn.prepareStatement("INSERT INTO vsp_test_scores (session_id,z_score,meara_score,level) VALUES(?,?,?,?)")
+      st.setString(1,dialangSession.sessionId)
+      st.setDouble(2,dialangSession.vsptZScore)
+      st.setInt(3,dialangSession.vsptMearaScore)
+      st.setString(4,dialangSession.vsptLevel)
+      if(st.executeUpdate != 1) {
         // TODO: LOGGING
       }
       conn.commit
@@ -147,15 +124,93 @@ class DataCaptureImpl {
         e.printStackTrace
       }
     } finally {
-      if(st1 != null) {
+      if(st != null) {
         try {
-          st1.close()
+          st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(st2 != null) {
+      if(conn != null) {
         try {
-          st2.close()
+          conn.setAutoCommit(true)
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
+
+  def logSAResponses(dialangSession:DialangSession, responses: Map[String,Boolean]) {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+
+    try {
+      conn = ds.getConnection
+
+      // Insert this session's vspt responses in a transaction
+      conn.setAutoCommit(false)
+
+      st = conn.prepareStatement("INSERT INTO sa_responses (session_id,statement_id,response) VALUES(?,?,?)")
+
+      st.setString(1,dialangSession.sessionId)
+      responses.foreach(t => {
+        st.setString(2,t._1)
+        st.setBoolean(3,t._2)
+        if(st.executeUpdate != 1) {
+          // TODO: LOGGING
+        }
+      })
+
+      conn.commit
+    } catch {
+      case e:Exception => {
+        // TODO: LOGGING
+        e.printStackTrace
+      }
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.setAutoCommit(true)
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
+
+  def logSAPPE(dialangSession:DialangSession) {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+
+    try {
+      conn = ds.getConnection
+
+      // Insert this session's vspt responses in a transaction
+      conn.setAutoCommit(false)
+
+      // Now insert the scores
+      st = conn.prepareStatement("INSERT INTO sa_ppe (session_id,ppe) VALUES(?,?)")
+      st.setString(1,dialangSession.sessionId)
+      st.setDouble(2,dialangSession.saPPE)
+      if(st.executeUpdate != 1) {
+        // TODO: LOGGING
+      }
+      conn.commit
+    } catch {
+      case e:Exception => {
+        // TODO: LOGGING
+        e.printStackTrace
+      }
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
         } catch { case _ : SQLException => }
       }
 
@@ -182,6 +237,11 @@ class DataCaptureImpl {
       st.setInt(4,answerId)
       if(st.executeUpdate != 1) {
         // TODO: LOGGING
+      }
+    } catch {
+      case e:Exception => {
+        // TODO: LOGGING
+        e.printStackTrace
       }
     } finally {
 
@@ -217,6 +277,11 @@ class DataCaptureImpl {
           // TODO: LOGGING
         }
       })
+    } catch {
+      case e:Exception => {
+        // TODO: LOGGING
+        e.printStackTrace
+      }
     } finally {
 
       if(st != null) {
@@ -251,6 +316,11 @@ class DataCaptureImpl {
           // TODO: LOGGING
         }
       })
+    } catch {
+      case e:Exception => {
+        // TODO: LOGGING
+        e.printStackTrace
+      }
     } finally {
 
       if(st != null) {
@@ -261,6 +331,47 @@ class DataCaptureImpl {
 
       if(conn != null) {
         try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
+
+  def logTestResult(dialangSession:DialangSession) {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+
+    try {
+      conn = ds.getConnection
+
+      // Insert this session's vspt responses in a transaction
+      conn.setAutoCommit(false)
+
+      // Now insert the scores
+      st = conn.prepareStatement("INSERT INTO test_results (session_id,grade,level) VALUES(?,?,?)")
+      st.setString(1,dialangSession.sessionId)
+      st.setInt(2,dialangSession.itemGrade)
+      st.setString(3,dialangSession.itemLevel)
+      if(st.executeUpdate != 1) {
+        // TODO: LOGGING
+      }
+      conn.commit
+    } catch {
+      case e:Exception => {
+        // TODO: LOGGING
+        e.printStackTrace
+      }
+    } finally {
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.setAutoCommit(true)
           conn.close()
         } catch { case _ : SQLException => }
       }

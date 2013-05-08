@@ -1,4 +1,4 @@
-package org.dialang.model
+package org.dialang.web.model
 
 class ItemGrade(val ppe:Float,val se:Float,val grade:Int) {
 

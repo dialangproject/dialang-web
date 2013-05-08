@@ -1,4 +1,4 @@
-package org.dialang.servlets
+package org.dialang.web.servlets
 
 import java.io.IOException
 import javax.servlet.ServletException
@@ -7,22 +7,17 @@ import javax.servlet.http.{HttpServletRequest,HttpServletResponse}
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 
-import org.dialang.db.DB
-import org.dialang.vspt.VSPTUtils
+import org.dialang.web.db.DB
+import org.dialang.web.vspt.VSPTUtils
 
 class ScoreVSPT extends DialangServlet {
 
-  val db = DB
-  val vsptUtils = new VSPTUtils
+  private val db = DB
+  private val vsptUtils = new VSPTUtils
 
   @throws[IOException]
   @throws[ServletException]
   override def doPost(req: HttpServletRequest, resp: HttpServletResponse) {
-
-    val dialangSession = getDialangSession(req)
-
-    val al = dialangSession.al
-    val tl = dialangSession.tl
 
     val responses = new HashMap[String,Boolean]
     req.getParameterNames.foreach(n => {
@@ -39,22 +34,28 @@ class ScoreVSPT extends DialangServlet {
       }
     })
 
+    val dialangSession = getDialangSession(req)
+
     // This is a Tuple3 of zscore, meara score and level.
-    val (zScore,mearaScore,level) = vsptUtils.getLevel(tl,responses.toMap)
+    val (zScore,mearaScore,level) = vsptUtils.getBand(dialangSession.testLanguage,responses.toMap)
 
-    val sessionId = dialangSession.sessionId
+    dialangSession.vsptZScore = zScore.toFloat
+    dialangSession.vsptMearaScore = mearaScore
+    dialangSession.vsptLevel = level
+    dialangSession.vsptSubmitted = true
 
-    dataCapture.logVSPTResponsesAndScores(sessionId,responses.toMap,zScore,mearaScore,level)
+    saveDialangSession(dialangSession,req)
 
-    val cookie = getUpdatedCookie(req, Map("vsptZScore" -> zScore.toString
-                                              ,"vsptMearaScore" -> mearaScore.toString
-                                              ,"vsptLevel" -> level
-                                              ,"vsptSubmitted" -> "true") )
+    dataCapture.logVSPTResponses(dialangSession,responses.toMap)
+    dataCapture.logVSPTScores(dialangSession)
+
+    val cookie = getUpdatedCookie(req, Map("vsptMearaScore" -> mearaScore.toString
+                                              ,"vsptLevel" -> level))
 
     resp.addCookie(cookie)
 
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.setContentType("text/html")
-    resp.sendRedirect(staticContentRoot + "vsptfeedback/" + al + "/" + level + ".html")
+    resp.sendRedirect(staticContentRoot + "vsptfeedback/" + dialangSession.adminLanguage + "/" + level + ".html")
   }
 }

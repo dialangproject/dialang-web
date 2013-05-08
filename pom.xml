@@ -11,6 +11,25 @@
   	<version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <db.host>localhost</db.host>
+                <db.user>dialangadmin</db.user>
+                <db.password></db.password>
+            </properties>
+        </profile>
+        <profile>
+            <id>live</id>
+            <properties>
+                <db.host>dialangdata.lancs.ac.uk</db.host>
+                <db.user>dialangadmin</db.user>
+                <db.password>dialangadmin</db.password>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
         <scala.version>2.10.0</scala.version>
     </properties>
@@ -124,6 +143,12 @@
             <version>1.0.11</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.zeromq</groupId>
+            <artifactId>zeromq-scala-binding_2.10</artifactId>
+            <version>0.0.7</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -146,6 +171,27 @@
                     </execution>
                 </executions>
                 <version>2.15.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <containerConfigXML>src/main/resources/META-INF/context.xml</containerConfigXML>
+                    <!--archive>
+                        <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive-->
+                    <webResources>
+                        <resource>
+                            <directory>src/main/resources/META-INF</directory>
+                            <filtering>true</filtering>
+                            <targetPath>META-INF</targetPath>
+                        </resource>
+                    </webResources>
+                </configuration>
             </plugin>
         </plugins>
     </build>

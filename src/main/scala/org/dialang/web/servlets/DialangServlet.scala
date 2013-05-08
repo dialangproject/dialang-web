@@ -1,9 +1,9 @@
-package org.dialang.servlets
+package org.dialang.web.servlets
 
 import javax.servlet.http._
 
-import org.dialang.datacapture.DataCapture
-import org.dialang.model.DialangSession
+import org.dialang.web.datacapture.DataCapture
+import org.dialang.web.model.DialangSession
 
 import java.net.{URLEncoder,URLDecoder}
 
@@ -11,17 +11,22 @@ import scala.collection.mutable.HashMap
 
 class DialangServlet extends HttpServlet {
 
-  protected lazy val staticContentRoot = {
-      getInitParameter("staticContentRoot")
+  protected lazy val staticContentRoot = getInitParameter("staticContentRoot")
+
+  protected lazy val dataCapture = new DataCapture
+
+  protected def getDialangSession(req: HttpServletRequest) = {
+    req.getSession.getAttribute("dialangSession") match {
+      case d:DialangSession => d
+      case _ => new DialangSession
     }
+  }
 
-  protected lazy val dataCapture = {
-      new DataCapture
-    }
+  protected def saveDialangSession(dialangSession:DialangSession,req: HttpServletRequest) {
+    req.getSession.setAttribute("dialangSession",dialangSession)
+  }
 
-  def getDialangSession(req: HttpServletRequest) = (new DialangSession(getCookieMap(req)))
-
-  def getUpdatedCookie(req: HttpServletRequest, state: Map[String,String],ignoreCurrent: Boolean = false): Cookie = {
+  protected def getUpdatedCookie(req: HttpServletRequest, state: Map[String,String],ignoreCurrent: Boolean = false): Cookie = {
 
     if(ignoreCurrent) {
       val cookieValue = state.foldLeft("")((b,a) => b + a._1 + "=" + a._2 + "|").dropRight(1)
@@ -33,7 +38,13 @@ class DialangServlet extends HttpServlet {
     }
   }
 
-  def getCookieMap(req: HttpServletRequest) : Map[String,String] = {
+  protected def addToSession(req:HttpServletRequest, map:Map[String,String]) {
+
+    val session = req.getSession
+    map.foreach(t => session.setAttribute(t._1,t._2))
+  }
+
+  private def getCookieMap(req: HttpServletRequest) : Map[String,String] = {
 
     var dialangCookie: Cookie = null
 
@@ -63,5 +74,5 @@ class DialangServlet extends HttpServlet {
     }
   }
 
-  def getCookieValue(req: HttpServletRequest, key: String) = getCookieMap(req).getOrElse(key,"")
+  
 }

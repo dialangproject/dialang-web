@@ -1,17 +1,15 @@
-package org.dialang.servlets
+package org.dialang.web.servlets
 
 import java.io.IOException
 import javax.servlet.ServletException
 import javax.servlet.http.{HttpServletRequest,HttpServletResponse}
-import java.util.concurrent.ConcurrentHashMap
 
-import org.dialang.db.DB
-import org.dialang.model.DialangSession
-import org.dialang.scoring.ScoringMethods
+import org.dialang.web.db.DB
+import org.dialang.web.model.DialangSession
+import org.dialang.web.scoring.ScoringMethods
 import org.dialang.common.model.Item
 
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ConcurrentMap
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ListBuffer
 
@@ -24,7 +22,6 @@ class SubmitBasket extends DialangServlet {
   
   private val db = DB
   private val scoringMethods = new ScoringMethods
-  private val scoredItemMap = new ConcurrentHashMap[String,ListBuffer[Item]]
 
   @throws[ServletException]
   @throws[IOException]
@@ -34,7 +31,7 @@ class SubmitBasket extends DialangServlet {
 
     val dialangSession = getDialangSession(req)
 
-    if(dialangSession.tl == "" || dialangSession.skill == "") {
+    if(dialangSession.testLanguage == "" || dialangSession.skill == "") {
       logger.error("Neither the test language or skill were set in the cookie.")
       resp.sendError(HttpServletResponse.SC_BAD_REQUEST,"tl and skill must be set.")
       return
@@ -50,7 +47,18 @@ class SubmitBasket extends DialangServlet {
 
     if(logger.isDebugEnabled) logger.debug("currentBasketId = " + currentBasketId)
 
-    val itemList:ListBuffer[Item] = scoredItemMap.getOrElse(dialangSession.sessionId,new ListBuffer[Item])
+    // Pull the current item list from the session
+    val session = req.getSession
+
+    // Get the current item list, or make new one
+    val itemList:ListBuffer[Item] = {
+        val o = session.getAttribute("scoredItemList")
+        if(o != null) {
+          o.asInstanceOf[ListBuffer[Item]]
+        } else {
+          new ListBuffer[Item]
+        }
+      }
 
     req.getParameter("type") match {
       case "mcq" => {
@@ -120,39 +128,46 @@ class SubmitBasket extends DialangServlet {
       case _ =>
     }
 
-    scoredItemMap += ((dialangSession.sessionId,itemList))
+    dialangSession.scoredItemList = itemList.toList
 
     val nextBasketNumber = dialangSession.currentBasketNumber + 1
 
     val basketIds = db.getBasketIdsForBooklet(dialangSession.bookletId)
 
     if(nextBasketNumber >= basketIds.length) {
-      println("ITEMS:")
-      scoredItemMap(dialangSession.sessionId).foreach(item => {
-        println(item)
-      })
 
-      val (itemGrade,itemLevel) = scoringMethods.getItemGrade(dialangSession,scoredItemMap(dialangSession.sessionId).toList)
+      val (itemGrade:Int,itemLevel:String) = scoringMethods.getItemGrade(dialangSession,itemList.toList)
 
-      println("ITEM GRADE:" + itemGrade)
+      if(logger.isDebugEnabled) logger.debug("ITEM GRADE:" + itemGrade)
+
+      dialangSession.itemGrade = itemGrade
+      dialangSession.itemLevel = itemLevel
+
+      saveDialangSession(dialangSession,req)
+
+      dataCapture.logTestResult(dialangSession)
 
       val cookie = getUpdatedCookie(req,Map("itemLevel" -> itemLevel))
 
       resp.setStatus(HttpServletResponse.SC_OK)
       resp.addCookie(cookie)
       resp.setContentType("text/html")
-      resp.sendRedirect(staticContentRoot + "endoftest/" + dialangSession.al + ".html")
+      resp.sendRedirect(staticContentRoot + "endoftest/" + dialangSession.adminLanguage + ".html")
       return
     }
 
     val nextBasketId = basketIds(nextBasketNumber)
 
-    val cookie = getUpdatedCookie(req,Map("currentBasketNumber" -> nextBasketNumber.toString))
+    dialangSession.currentBasketNumber = nextBasketNumber
+    saveDialangSession(dialangSession,req)
+
+    val map = Map("currentBasketNumber" -> nextBasketNumber.toString)
+    val cookie = getUpdatedCookie(req,map)
 
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.addCookie(cookie)
     resp.setContentType("text/html")
-    resp.sendRedirect(staticContentRoot + "baskets/" + dialangSession.al + "/" + nextBasketId + ".html")
+    resp.sendRedirect(staticContentRoot + "baskets/" + dialangSession.adminLanguage + "/" + nextBasketId + ".html")
   }
 
   private def getMultipleIdResponses(req: HttpServletRequest): Map[Int,Int] = {

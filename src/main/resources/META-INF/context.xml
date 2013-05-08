@@ -1,0 +1,24 @@
+<Context>
+    <Resource
+         name="jdbc/dialang"
+         auth="Container"
+         type="javax.sql.DataSource"
+         username="${db.user}"
+         password="${db.password}"
+         driverClassName="org.postgresql.Driver"
+         url="jdbc:postgresql://${db.host}:5432/DIALANG"
+         maxActive="20"
+         maxIdle="10"
+         validationQuery="select 1" />
+    <Resource
+         name="jdbc/dialangdatacapture"
+         auth="Container"
+         type="javax.sql.DataSource"
+         username="${db.user}"
+         password="${db.password}"
+         driverClassName="org.postgresql.Driver"
+         url="jdbc:postgresql://${db.host}:5432/DIALANGDATACAPTURE"
+         maxActive="20"
+         maxIdle="10"
+         validationQuery="select 1" />
+</Context>

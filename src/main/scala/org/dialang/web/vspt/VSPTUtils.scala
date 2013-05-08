@@ -1,12 +1,17 @@
-package org.dialang.vspt
+package org.dialang.web.vspt
 
-import org.dialang.db.DB
+import org.dialang.web.db.DB
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class VSPTUtils {
 
-  val db = DB
+  private val logger = LoggerFactory.getLogger(getClass)
 
-  val levels:Map[String,Vector[(String,Int,Int)]] = db.getVSPTLevels
+  private val db = DB
+
+  private val bands:Map[String,Vector[(String,Int,Int)]] = db.getVSPTBands
 
   /**
    *  Calculates the feedback score using Paul Meara's algorithm. Returns
@@ -28,22 +33,25 @@ class VSPTUtils {
     var yesResponses = Array(0,0)
     var noResponses = Array(0,0)
 
-    db.getVSPTWords(tl).foreach(t => {
-      val id = t._1
-      val word = t._2
-      val valid = t._3
-      val weight = t._4
+    db.getVSPTWords(tl) match {
+        case Some(list) => {
+          list.foreach(word => {
 
-      val wordType = if(valid) REAL else FAKE
+            val wordType = if(word.valid) REAL else FAKE
 
-      if(responses.contains(id)) {
-        if(responses(id)) {
-          yesResponses(wordType) += 1
-        } else {
-          noResponses(wordType) += 1
+            if(responses.contains(word.id)) {
+              if(responses(word.id)) {
+                yesResponses(wordType) += 1
+              } else {
+                noResponses(wordType) += 1
+              }
+            }
+          })
+        }
+        case None => {
+          logger.error("No VSPT word list defined for test language '" + tl + "'.")
         }
       }
-    })
 
     // number of real words answered in test:
     val X = yesResponses(REAL) + noResponses(REAL)
@@ -69,7 +77,7 @@ class VSPTUtils {
       }
       catch {
         case e:Exception => {
-            println(e)
+            logger.error(e.getMessage)
             0
         }
       }
@@ -78,11 +86,11 @@ class VSPTUtils {
     }
   }
 
-  def getLevel(tl:String, responses:Map[String,Boolean]):Tuple3[Double,Int,String] = {
+  def getBand(tl:String, responses:Map[String,Boolean]):Tuple3[Double,Int,String] = {
     val (zScore,mearaScore) = getScore(tl,responses)
     var level = "UNKNOWN"
-    if(levels.contains(tl)) {
-        val filtered = levels.get(tl).get.filter(t => mearaScore >= t._2 && mearaScore <= t._3)
+    if(bands.contains(tl)) {
+        val filtered = bands.get(tl).get.filter(t => mearaScore >= t._2 && mearaScore <= t._3)
       if(filtered.length == 1) {
         level = filtered(0)._1
       }

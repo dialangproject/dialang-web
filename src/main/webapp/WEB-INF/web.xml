@@ -4,6 +4,8 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
 <web-app>
 
+    <distributable />
+
     <resource-ref>
         <description>Connection Pool</description>
         <res-ref-name>jdbc/dialang</res-ref-name>
@@ -19,8 +21,14 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
     </resource-ref>
 
     <servlet>
+        <servlet-name>cache-loader</servlet-name>
+        <servlet-class>org.dialang.web.servlets.CacheLoader</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
         <servlet-name>launch</servlet-name>
-        <servlet-class>org.dialang.servlets.LTILaunch</servlet-class>
+        <servlet-class>org.dialang.web.servlets.LTILaunch</servlet-class>
         <init-param>
             <param-name>staticContentRoot</param-name>
             <param-value>html/</param-value>
@@ -29,7 +37,7 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 
     <servlet>
         <servlet-name>setals</servlet-name>
-        <servlet-class>org.dialang.servlets.SetALS</servlet-class>
+        <servlet-class>org.dialang.web.servlets.SetALS</servlet-class>
         <init-param>
             <param-name>staticContentRoot</param-name>
             <param-value>html/</param-value>
@@ -38,7 +46,7 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 
     <servlet>
         <servlet-name>settls</servlet-name>
-        <servlet-class>org.dialang.servlets.SetTLS</servlet-class>
+        <servlet-class>org.dialang.web.servlets.SetTLS</servlet-class>
         <init-param>
             <param-name>staticContentRoot</param-name>
             <param-value>html/</param-value>
@@ -47,7 +55,7 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 
     <servlet>
         <servlet-name>scorevspt</servlet-name>
-        <servlet-class>org.dialang.servlets.ScoreVSPT</servlet-class>
+        <servlet-class>org.dialang.web.servlets.ScoreVSPT</servlet-class>
         <init-param>
             <param-name>staticContentRoot</param-name>
             <param-value>html/</param-value>
@@ -56,8 +64,8 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 
 
     <servlet>
-        <servlet-name>recordsa</servlet-name>
-        <servlet-class>org.dialang.servlets.RecordSA</servlet-class>
+        <servlet-name>scoresa</servlet-name>
+        <servlet-class>org.dialang.web.servlets.ScoreSA</servlet-class>
         <init-param>
             <param-name>staticContentRoot</param-name>
             <param-value>html/</param-value>
@@ -66,7 +74,7 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 
     <servlet>
         <servlet-name>starttest</servlet-name>
-        <servlet-class>org.dialang.servlets.StartTest</servlet-class>
+        <servlet-class>org.dialang.web.servlets.StartTest</servlet-class>
         <init-param>
             <param-name>staticContentRoot</param-name>
             <param-value>html/</param-value>
@@ -75,7 +83,7 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 
     <servlet>
         <servlet-name>submitbasket</servlet-name>
-        <servlet-class>org.dialang.servlets.SubmitBasket</servlet-class>
+        <servlet-class>org.dialang.web.servlets.SubmitBasket</servlet-class>
         <init-param>
             <param-name>staticContentRoot</param-name>
             <param-value>html/</param-value>
@@ -104,8 +112,8 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 
 
     <servlet-mapping>
-        <servlet-name>recordsa</servlet-name>
-        <url-pattern>/recordsa</url-pattern>
+        <servlet-name>scoresa</servlet-name>
+        <url-pattern>/scoresa</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

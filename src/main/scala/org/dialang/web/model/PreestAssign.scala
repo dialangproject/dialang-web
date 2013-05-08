@@ -1,9 +1,14 @@
-package org.dialang.model
+package org.dialang.web.model
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * We're representing records (mappings of booket id onto personal estimation pe), by Tuple2 instances.
  */
 class PreestAssign(assign: Map[String,Vector[(Float,Int)]]) {
+
+  private val logger = LoggerFactory.getLogger(getClass)
 
   def getBookletId(tl: String,skill: String) = {
     val list = assign.get(tl + "#" + skill).get
@@ -14,19 +19,16 @@ class PreestAssign(assign: Map[String,Vector[(Float,Int)]]) {
 
   def getBookletId(tl: String,skill: String,pe: Float) = {
 
-    println("PE: " + pe)
+    if(logger.isDebugEnabled) logger.debug("PE: " + pe)
 
     // Make our compound key and get our list of records
     val list = assign.get(tl + "#" + skill).get
 
-    println(list)
-
     try {
-      println(list.filter(t => pe <= t._1))
       list.filter(t => pe <= t._1)(0)._2
     } catch {
       case e:NoSuchElementException => {
-        println("PreestAssign/get: max return forced for " + pe);
+        if(logger.isInfoEnabled) logger.info("PreestAssign/get: max return forced for " + pe);
         list.last._2
       }
     }
