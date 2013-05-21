@@ -32,19 +32,13 @@ class MySession extends ScalatraServlet with JacksonJsonSupport {
 
   get("/items.json") {
 
-    /*
-    List(
-        JSONItem(1,23,45,"mcq","reading","mi",3,3,true),
-        JSONItem(4,24,56,"mcq","reading","mi",1,1,false),
-        JSONItem(9,35,72,"shortanswer","reading","ov",2,2,true))
-    */
-
     session.get("dialangSession") match {
       case Some(s:DialangSession) => {
-        s.scoredItemList.map(i => {
-          val answers = i.answers.map(a => JSONAnswer(a.id,a.itemId,a.text,a.correct))
-          JSONItem(i.id,i.basketId,i.responseId,i.responseText,i.itemType,i.skill,i.subskill.toLowerCase,i.weight,i.score,i.correct,answers)
-        })
+        s.scoredItemList.sortWith((a,b) => {a.positionInBasket > b.positionInBasket})
+          .map(i => {
+            val answers = i.answers.map(a => JSONAnswer(a.id,a.itemId,a.text,a.correct))
+            JSONItem(i.id,i.basketId,i.responseId,i.responseText,i.itemType,i.skill,i.subskill.toLowerCase,i.positionInTest,i.weight,i.score,i.correct,answers)
+            })
       }
       case Some(a:Any) => {
         logger.error("dialangSession should be a DialangSession!")

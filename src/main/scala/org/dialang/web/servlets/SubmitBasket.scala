@@ -53,11 +53,13 @@ class SubmitBasket extends DialangServlet {
 
       case "mcq" => {
         val itemId = req.getParameter("itemId").toInt
+        val positionInBasket = req.getParameter(itemId + "-position").toInt
         val answerId = req.getParameter("response").toInt
         val itemOption = scoringMethods.getScoredIdResponseItem(itemId,answerId)
         if(itemOption.isDefined) {
           val item:Item = itemOption.get
           item.basketId = currentBasketId
+          item.positionInBasket = req.getParameter(itemId + "-position").toInt
           item.positionInTest = itemList.length + 1
           item.responseId = answerId
           item.answers = db.getAnswers(itemId) match {
@@ -83,6 +85,7 @@ class SubmitBasket extends DialangServlet {
           val itemOption = scoringMethods.getScoredIdResponseItem(t._1,t._2)
           if(itemOption.isDefined) {
             val item:Item = itemOption.get
+            item.positionInBasket = req.getParameter(item.id + "-position").toInt
             item.basketId = currentBasketId
             item.positionInTest = itemList.length + 1
             logger.debug(item.basketId.toString)
@@ -113,6 +116,7 @@ class SubmitBasket extends DialangServlet {
           if(itemOption.isDefined) {
             val item = itemOption.get
             item.basketId = currentBasketId
+            item.positionInBasket = req.getParameter(item.id + "-position").toInt
             item.positionInTest = itemList.length + 1
             item.responseText = t._2
             if(logger.isDebugEnabled) logger.debug(item.toString)
@@ -134,6 +138,7 @@ class SubmitBasket extends DialangServlet {
           if(itemOption.isDefined) {
             val item:Item = itemOption.get
             item.basketId = currentBasketId
+            item.positionInBasket = req.getParameter(item.id + "-position").toInt
             item.responseText = t._2
             item.positionInTest = itemList.length + 1
             itemList += item
@@ -154,6 +159,7 @@ class SubmitBasket extends DialangServlet {
           if(itemOption.isDefined) {
             val item:Item = itemOption.get
             item.basketId = currentBasketId
+            item.positionInBasket = req.getParameter(item.id + "-position").toInt
             item.positionInTest = itemList.length + 1
             item.responseId = t._2
             itemList += item

@@ -520,7 +520,7 @@ object DB extends DialangLogger {
         // This counts the number of tabbedpane baskets in a booklet
         st2 = conn.prepareStatement("SELECT bb.basket_id FROM booklet_basket bb,baskets b WHERE bb.booklet_id = ? AND bb.basket_id = b.id AND b.type = 'tabbedpane'")
         // This counts the number of children of a given basket (tabbedpane of course)
-        st3 = conn.prepareStatement("SELECT count(*) FROM baskets WHERE parent_basket_id = ?")
+        st3 = conn.prepareStatement("SELECT count(*) FROM baskets WHERE parent_testlet_id = ?")
 
         val temp = new HashMap[Int,Int]
 
