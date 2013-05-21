@@ -57,11 +57,11 @@ class ScoreSA extends DialangServlet {
     dataCapture.logSAResponses(dialangSession,responses.toMap)
     dataCapture.logSAPPE(dialangSession)
 
-    val cookie = getUpdatedCookie(req,Map("saLevel" -> saLevel))
+    val cookie = getUpdatedCookie(req,Map("saLevel" -> saLevel,"saDone" -> "true"))
     resp.addCookie(cookie)
 
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.setContentType("text/html")
-    resp.sendRedirect(staticContentRoot + "testintro/" + dialangSession.adminLanguage + ".html")
+    resp.sendRedirect("/testintro/" + dialangSession.adminLanguage + ".html")
   }
 }

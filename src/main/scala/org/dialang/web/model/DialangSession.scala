@@ -45,6 +45,8 @@ class DialangSession extends Serializable with DialangLogger {
 
   var scoredItemList:List[Item] = List[Item]()
 
+  var scoredBasketList:List[Basket] = List[Basket]()
+
   /**
    * Resets all state except adminLanguage
    */
@@ -67,5 +69,6 @@ class DialangSession extends Serializable with DialangLogger {
     bookletLength = 0
     currentBasketNumber = 0
     scoredItemList = List[Item]()
+    scoredBasketList = List[Basket]()
   }
 }

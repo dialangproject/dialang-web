@@ -14,6 +14,9 @@
     <profiles>
         <profile>
             <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <db.host>localhost</db.host>
                 <db.user>dialangadmin</db.user>
@@ -144,9 +147,21 @@
         </dependency>
 
         <dependency>
-            <groupId>org.zeromq</groupId>
-            <artifactId>zeromq-scala-binding_2.10</artifactId>
-            <version>0.0.7</version>
+            <groupId>org.scalatra</groupId>
+            <artifactId>scalatra_2.10</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatra</groupId>
+            <artifactId>scalatra-json_2.10</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json4s</groupId>
+            <artifactId>json4s-jackson_2.10</artifactId>
+            <version>3.2.4</version>
         </dependency>
 
     </dependencies>

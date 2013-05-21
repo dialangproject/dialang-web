@@ -515,8 +515,11 @@ object DB extends DialangLogger {
       var st3:PreparedStatement = null
       try {
         conn = ds.getConnection
-        st1 = conn.prepareStatement("SELECT count(booklet_id) FROM booklet_basket,baskets WHERE booklet_id = ? AND basket_id = baskets.id AND type != 'tabbedpane'")
-        st2 = conn.prepareStatement("SELECT basket_id FROM booklet_basket,baskets WHERE booklet_id = ? AND basket_id = baskets.id AND type = 'tabbedpane'")
+        // This counts the number of non tabbedpane baskets in a booklet
+        st1 = conn.prepareStatement("SELECT count(bb.booklet_id) FROM booklet_basket bb,baskets b WHERE bb.booklet_id = ? AND bb.basket_id = b.id AND b.type != 'tabbedpane'")
+        // This counts the number of tabbedpane baskets in a booklet
+        st2 = conn.prepareStatement("SELECT bb.basket_id FROM booklet_basket bb,baskets b WHERE bb.booklet_id = ? AND bb.basket_id = b.id AND b.type = 'tabbedpane'")
+        // This counts the number of children of a given basket (tabbedpane of course)
         st3 = conn.prepareStatement("SELECT count(*) FROM baskets WHERE parent_basket_id = ?")
 
         val temp = new HashMap[Int,Int]

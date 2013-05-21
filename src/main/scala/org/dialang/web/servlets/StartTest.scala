@@ -51,6 +51,6 @@ class StartTest extends DialangServlet {
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.addCookie(cookie)
     resp.setContentType("text/html")
-    resp.sendRedirect(staticContentRoot + "baskets/" + dialangSession.adminLanguage + "/" + firstBasketId + ".html")
+    resp.sendRedirect("/baskets/" + dialangSession.adminLanguage + "/" + firstBasketId + ".html")
   }
 }

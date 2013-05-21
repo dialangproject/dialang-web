@@ -31,7 +31,7 @@ class SetTLS extends DialangServlet {
       // their session had actually timed out.
       resp.setStatus(HttpServletResponse.SC_OK)
       resp.setContentType("text/html")
-      resp.sendRedirect(staticContentRoot + "als.html")
+      resp.sendRedirect("/als.html")
     } else {
 
       // Zero all state except for the admin language
@@ -58,7 +58,7 @@ class SetTLS extends DialangServlet {
       resp.setStatus(HttpServletResponse.SC_OK)
       resp.addCookie(cookie)
       resp.setContentType("text/html")
-      resp.sendRedirect(staticContentRoot + "vsptintro/" + dialangSession.adminLanguage + ".html")
+      resp.sendRedirect("/vsptintro/" + dialangSession.adminLanguage + ".html")
     }
   }
 }

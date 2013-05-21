@@ -11,8 +11,6 @@ import scala.collection.mutable.HashMap
 
 class DialangServlet extends HttpServlet {
 
-  protected lazy val staticContentRoot = getInitParameter("staticContentRoot")
-
   protected lazy val dataCapture = new DataCapture
 
   protected def getDialangSession(req: HttpServletRequest) = {
@@ -30,11 +28,15 @@ class DialangServlet extends HttpServlet {
 
     if(ignoreCurrent) {
       val cookieValue = state.foldLeft("")((b,a) => b + a._1 + "=" + a._2 + "|").dropRight(1)
-      new Cookie("DIALANG",URLEncoder.encode(cookieValue,"UTF-8"))
+      val cookie = new Cookie("DIALANG",URLEncoder.encode(cookieValue,"UTF-8"))
+      cookie.setPath("/")
+      cookie
     } else {
       val newMap = getCookieMap(req) ++ state
       val cookieValue = newMap.foldLeft("")((b,a) => b + a._1 + "=" + a._2 + "|").dropRight(1)
-      new Cookie("DIALANG",URLEncoder.encode(cookieValue,"UTF-8"))
+      val cookie = new Cookie("DIALANG",URLEncoder.encode(cookieValue,"UTF-8"))
+      cookie.setPath("/")
+      cookie
     }
   }
 

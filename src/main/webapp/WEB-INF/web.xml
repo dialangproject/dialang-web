@@ -6,6 +6,10 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 
     <distributable />
 
+    <listener>
+        <listener-class>org.scalatra.servlet.ScalatraListener</listener-class>
+    </listener>
+
     <resource-ref>
         <description>Connection Pool</description>
         <res-ref-name>jdbc/dialang</res-ref-name>
@@ -29,65 +33,37 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
     <servlet>
         <servlet-name>launch</servlet-name>
         <servlet-class>org.dialang.web.servlets.LTILaunch</servlet-class>
-        <init-param>
-            <param-name>staticContentRoot</param-name>
-            <param-value>html/</param-value>
-        </init-param>
     </servlet>
 
     <servlet>
         <servlet-name>setals</servlet-name>
         <servlet-class>org.dialang.web.servlets.SetALS</servlet-class>
-        <init-param>
-            <param-name>staticContentRoot</param-name>
-            <param-value>html/</param-value>
-        </init-param>
     </servlet>
 
     <servlet>
         <servlet-name>settls</servlet-name>
         <servlet-class>org.dialang.web.servlets.SetTLS</servlet-class>
-        <init-param>
-            <param-name>staticContentRoot</param-name>
-            <param-value>html/</param-value>
-        </init-param>
     </servlet>
 
     <servlet>
         <servlet-name>scorevspt</servlet-name>
         <servlet-class>org.dialang.web.servlets.ScoreVSPT</servlet-class>
-        <init-param>
-            <param-name>staticContentRoot</param-name>
-            <param-value>html/</param-value>
-        </init-param>
     </servlet>
 
 
     <servlet>
         <servlet-name>scoresa</servlet-name>
         <servlet-class>org.dialang.web.servlets.ScoreSA</servlet-class>
-        <init-param>
-            <param-name>staticContentRoot</param-name>
-            <param-value>html/</param-value>
-        </init-param>
     </servlet>
 
     <servlet>
         <servlet-name>starttest</servlet-name>
         <servlet-class>org.dialang.web.servlets.StartTest</servlet-class>
-        <init-param>
-            <param-name>staticContentRoot</param-name>
-            <param-value>html/</param-value>
-        </init-param>
     </servlet>
 
     <servlet>
         <servlet-name>submitbasket</servlet-name>
         <servlet-class>org.dialang.web.servlets.SubmitBasket</servlet-class>
-        <init-param>
-            <param-name>staticContentRoot</param-name>
-            <param-value>html/</param-value>
-        </init-param>
     </servlet>
 
     <servlet-mapping>
@@ -125,5 +101,10 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
         <servlet-name>submitbasket</servlet-name>
         <url-pattern>/submitbasket</url-pattern>
     </servlet-mapping>
+
+    <!-- 3 hour session timeout -->
+    <session-config>
+        <session-timeout>180</session-timeout>
+    </session-config>
 
 </web-app>

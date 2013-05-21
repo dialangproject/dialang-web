@@ -49,13 +49,14 @@ class ScoreVSPT extends DialangServlet {
     dataCapture.logVSPTResponses(dialangSession,responses.toMap)
     dataCapture.logVSPTScores(dialangSession)
 
-    val cookie = getUpdatedCookie(req, Map("vsptMearaScore" -> mearaScore.toString
-                                              ,"vsptLevel" -> level))
+    val cookie = getUpdatedCookie(req, Map("vsptMearaScore" -> mearaScore.toString,
+                                              "vsptLevel" -> level,
+                                              "vsptDone" -> "true"))
 
     resp.addCookie(cookie)
 
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.setContentType("text/html")
-    resp.sendRedirect(staticContentRoot + "vsptfeedback/" + dialangSession.adminLanguage + "/" + level + ".html")
+    resp.sendRedirect("/vsptfeedback/" + dialangSession.adminLanguage + "/" + level + ".html")
   }
 }

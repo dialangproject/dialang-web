@@ -56,7 +56,7 @@ class LTILaunch extends DialangServlet {
 
       resp.setStatus(HttpServletResponse.SC_OK)
       resp.setContentType("text/html")
-      resp.sendRedirect(staticContentRoot + "als.html")
+      resp.sendRedirect("/als.html")
     } catch {
       case e:Exception => {
         logger.error(e.getMessage)
