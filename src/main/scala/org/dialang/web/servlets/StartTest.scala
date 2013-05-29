@@ -46,7 +46,7 @@ class StartTest extends DialangServlet {
 
     saveDialangSession(dialangSession,req)
 
-    val cookie = getUpdatedCookie(req,Map("bookletLength" -> bookletLength.toString, "currentBasketNumber" -> "0"))
+    val cookie = getUpdatedCookie(req,Map("totalItems" -> bookletLength.toString, "currentBasketNumber" -> "0","itemsCompleted" -> "0"))
 
     resp.setStatus(HttpServletResponse.SC_OK)
     resp.addCookie(cookie)

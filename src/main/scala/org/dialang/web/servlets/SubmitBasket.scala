@@ -59,7 +59,7 @@ class SubmitBasket extends DialangServlet {
         if(itemOption.isDefined) {
           val item:Item = itemOption.get
           item.basketId = currentBasketId
-          item.positionInBasket = req.getParameter(itemId + "-position").toInt
+          item.positionInBasket = positionInBasket
           item.positionInTest = itemList.length + 1
           item.responseId = answerId
           item.answers = db.getAnswers(itemId) match {
@@ -119,6 +119,13 @@ class SubmitBasket extends DialangServlet {
             item.positionInBasket = req.getParameter(item.id + "-position").toInt
             item.positionInTest = itemList.length + 1
             item.responseText = t._2
+            item.answers = db.getAnswers(item.id) match {
+                case Some(l:List[Answer]) => l
+                case None => {
+                  logger.error("No answers returned from db for item " + item.id)
+                  List[Answer]()
+                }
+              }
             if(logger.isDebugEnabled) logger.debug(item.toString)
             itemList += item
             basketItems += item
@@ -141,6 +148,13 @@ class SubmitBasket extends DialangServlet {
             item.positionInBasket = req.getParameter(item.id + "-position").toInt
             item.responseText = t._2
             item.positionInTest = itemList.length + 1
+            item.answers = db.getAnswers(item.id) match {
+                case Some(l:List[Answer]) => l
+                case None => {
+                  logger.error("No answers returned from db for item " + item.id)
+                  List[Answer]()
+                }
+              }
             itemList += item
             basketItems += item
           } else {
@@ -162,6 +176,13 @@ class SubmitBasket extends DialangServlet {
             item.positionInBasket = req.getParameter(item.id + "-position").toInt
             item.positionInTest = itemList.length + 1
             item.responseId = t._2
+            item.answers = db.getAnswers(item.id) match {
+                case Some(l:List[Answer]) => l
+                case None => {
+                  logger.error("No answers returned from db for item " + item.id)
+                  List[Answer]()
+                }
+              }
             itemList += item
             basketItems += item
           } else {
@@ -197,7 +218,7 @@ class SubmitBasket extends DialangServlet {
 
       // We set itemsDone to true so the client js knows to enable the item review button
       // We set testDone to true so the client js knows to enable the sa feedback and advice buttons
-      val cookie = getUpdatedCookie(req,Map("itemLevel" -> itemLevel,"testDone" -> "true","itemsDone" -> "true"))
+      val cookie = getUpdatedCookie(req,Map("itemLevel" -> itemLevel,"testDone" -> "true"))
 
       resp.setStatus(HttpServletResponse.SC_OK)
       resp.addCookie(cookie)
@@ -211,8 +232,8 @@ class SubmitBasket extends DialangServlet {
     dialangSession.currentBasketNumber = nextBasketNumber
     saveDialangSession(dialangSession,req)
      
-    // We set itemsDone to true so the client js knows to enable the item review button
-    val map = Map("currentBasketNumber" -> nextBasketNumber.toString,"itemsDone" -> "true")
+    // itemsCompleted is used by the progress bar and so that feedbackmenu.js knows to enable the item review button
+    val map = Map("currentBasketNumber" -> nextBasketNumber.toString,"itemsCompleted" -> itemList.length.toString)
     val cookie = getUpdatedCookie(req,map)
 
     resp.setStatus(HttpServletResponse.SC_OK)

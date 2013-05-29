@@ -37,7 +37,7 @@ class MySession extends ScalatraServlet with JacksonJsonSupport {
         s.scoredItemList.sortWith((a,b) => {a.positionInBasket > b.positionInBasket})
           .map(i => {
             val answers = i.answers.map(a => JSONAnswer(a.id,a.itemId,a.text,a.correct))
-            JSONItem(i.id,i.basketId,i.responseId,i.responseText,i.itemType,i.skill,i.subskill.toLowerCase,i.positionInTest,i.weight,i.score,i.correct,answers)
+            JSONItem(i.id,i.basketId,i.responseId,i.responseText,i.itemType,i.skill,i.subskill.toLowerCase,i.positionInTest,i.positionInBasket,i.weight,i.score,i.correct,answers)
             })
       }
       case Some(a:Any) => {
