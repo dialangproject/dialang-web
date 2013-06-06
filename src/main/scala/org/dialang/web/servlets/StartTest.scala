@@ -1,14 +1,9 @@
 package org.dialang.web.servlets
 
-import java.io.IOException
-import javax.servlet.ServletException
-import javax.servlet.http.{HttpServletRequest,HttpServletResponse}
-
 import org.dialang.web.db.DB
 import org.dialang.web.model.DialangSession
 import org.dialang.web.scoring.ScoringMethods
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class StartTest extends DialangServlet {
@@ -18,14 +13,13 @@ class StartTest extends DialangServlet {
   private val db = DB
   private val scoringMethods = new ScoringMethods
 
-  @throws[ServletException]
-  @throws[IOException]
-  override def doGet(req: HttpServletRequest, resp: HttpServletResponse) {
+  get("/") {
 
-    val dialangSession = getDialangSession(req)
+    val dialangSession = getDialangSession
 
     if(dialangSession.testLanguage == "" || dialangSession.skill == "") {
-      // This should not happen. The tl and skill should be set by now.
+      logger.error("Neither the test language or skill were set in the session. Returning 500 ...")
+      halt(500)
     }
 
     val bookletId = scoringMethods.calculateBookletId(dialangSession)
@@ -44,13 +38,9 @@ class StartTest extends DialangServlet {
     dialangSession.bookletLength = bookletLength
     dialangSession.currentBasketNumber = 0
 
-    saveDialangSession(dialangSession,req)
+    saveDialangSession(dialangSession)
 
-    val cookie = getUpdatedCookie(req,Map("totalItems" -> bookletLength.toString, "currentBasketNumber" -> "0","itemsCompleted" -> "0"))
-
-    resp.setStatus(HttpServletResponse.SC_OK)
-    resp.addCookie(cookie)
-    resp.setContentType("text/html")
-    resp.sendRedirect("/baskets/" + dialangSession.adminLanguage + "/" + firstBasketId + ".html")
+    contentType = "application/json";
+    "{\"totalItems\":\"" + bookletLength.toString + "\",\"startBasket\":\"" + firstBasketId.toString + "\"}"
   }
 }

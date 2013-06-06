@@ -1,29 +1,25 @@
 package org.dialang.web.servlets
 
-import java.io.IOException
-import java.util.UUID
-import javax.servlet.ServletException
-import javax.servlet.http.{HttpServletRequest,HttpServletResponse}
+import org.scalatra.scalate.ScalateSupport
 
-class SetALS extends DialangServlet {
+class SetALS extends DialangServlet with ScalateSupport {
 
-  @throws[ServletException]
-  @throws[IOException]
-  override def doPost(req: HttpServletRequest, resp: HttpServletResponse) {
+  post("/") {
 
-    val al = req.getParameter("al")
+    val al = params("al")
 
-    val dialangSession = getDialangSession(req)
+    val dialangSession = getDialangSession
     dialangSession.adminLanguage = al
-    saveDialangSession(dialangSession,req)
+    saveDialangSession(dialangSession)
 
     // This updates and gets the updated cookie so we can set it on the response.
-    val map = Map("al" -> al)
-    val cookie = getUpdatedCookie(req,map,true)
+    val map = Map("state" -> "legend","al" -> al)
+    //val cookie = getUpdatedCookie(map,true)
 
-    resp.setStatus(HttpServletResponse.SC_OK)
-    resp.addCookie(cookie)
-    resp.setContentType("text/html")
-    resp.sendRedirect("/legend/" + al + ".html")
+    //response.addCookie(cookie)
+
+    contentType = "text/html"
+
+    mustache("shell",map.toSeq:_*)
   }
 }
