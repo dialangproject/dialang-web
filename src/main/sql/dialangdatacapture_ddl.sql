@@ -50,7 +50,7 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE item_responses (
-    session_id character(36) NOT NULL,
+    pass_id character(36) NOT NULL,
     basket_id integer NOT NULL,
     item_id integer NOT NULL,
     answer_id integer,
@@ -65,7 +65,7 @@ ALTER TABLE public.item_responses OWNER TO dialangadmin;
 --
 
 CREATE TABLE sa_ppe (
-    session_id character(36) NOT NULL,
+    pass_id character(36) NOT NULL,
     ppe real NOT NULL
 );
 
@@ -77,7 +77,7 @@ ALTER TABLE public.sa_ppe OWNER TO dialangadmin;
 --
 
 CREATE TABLE sa_responses (
-    session_id character(36) NOT NULL,
+    pass_id character(36) NOT NULL,
     statement_id character varying(4) NOT NULL,
     response boolean NOT NULL
 );
@@ -91,6 +91,7 @@ ALTER TABLE public.sa_responses OWNER TO dialangadmin;
 
 CREATE TABLE sessions (
     session_id character(36) NOT NULL,
+    pass_id character(36) NOT NULL,
     user_id character varying(255),
     consumer_key character(36),
     al character varying(16) NOT NULL,
@@ -108,7 +109,7 @@ ALTER TABLE public.sessions OWNER TO dialangadmin;
 --
 
 CREATE TABLE test_results (
-    session_id character(36) NOT NULL,
+    pass_id character(36) NOT NULL,
     grade smallint NOT NULL,
     level character(2) NOT NULL
 );
@@ -121,7 +122,7 @@ ALTER TABLE public.test_results OWNER TO dialangadmin;
 --
 
 CREATE TABLE vsp_test_responses (
-    session_id character(36) NOT NULL,
+    pass_id character(36) NOT NULL,
     word_id character(6) NOT NULL,
     response boolean NOT NULL
 );
@@ -134,7 +135,7 @@ ALTER TABLE public.vsp_test_responses OWNER TO dialangadmin;
 --
 
 CREATE TABLE vsp_test_scores (
-    session_id character(36) NOT NULL,
+    pass_id character(36) NOT NULL,
     z_score real NOT NULL,
     meara_score smallint NOT NULL,
     level character(2) NOT NULL
@@ -148,7 +149,7 @@ ALTER TABLE public.vsp_test_scores OWNER TO dialangadmin;
 --
 
 ALTER TABLE ONLY sa_ppe
-    ADD CONSTRAINT sa_ppe_pkey PRIMARY KEY (session_id);
+    ADD CONSTRAINT sa_ppe_pkey PRIMARY KEY (pass_id);
 
 
 --
@@ -156,7 +157,7 @@ ALTER TABLE ONLY sa_ppe
 --
 
 ALTER TABLE ONLY sa_responses
-    ADD CONSTRAINT sa_responses_pkey PRIMARY KEY (session_id, statement_id);
+    ADD CONSTRAINT sa_responses_pkey PRIMARY KEY (pass_id, statement_id);
 
 
 --
@@ -164,7 +165,10 @@ ALTER TABLE ONLY sa_responses
 --
 
 ALTER TABLE ONLY sessions
-    ADD CONSTRAINT sessions_pkey PRIMARY KEY (session_id);
+    ADD CONSTRAINT sessions_pkey PRIMARY KEY (pass_id);
+
+ALTER TABLE ONLY sessions
+    ADD CONSTRAINT sessions_ukey UNIQUE (session_id,pass_id);
 
 
 --
@@ -172,7 +176,7 @@ ALTER TABLE ONLY sessions
 --
 
 ALTER TABLE ONLY vsp_test_responses
-    ADD CONSTRAINT vsp_test_responses_pkey PRIMARY KEY (session_id, word_id);
+    ADD CONSTRAINT vsp_test_responses_pkey PRIMARY KEY (pass_id, word_id);
 
 
 --
@@ -180,7 +184,7 @@ ALTER TABLE ONLY vsp_test_responses
 --
 
 ALTER TABLE ONLY vsp_test_scores
-    ADD CONSTRAINT vsp_test_scores_pkey PRIMARY KEY (session_id);
+    ADD CONSTRAINT vsp_test_scores_pkey PRIMARY KEY (pass_id);
 
 
 --
@@ -188,7 +192,7 @@ ALTER TABLE ONLY vsp_test_scores
 --
 
 ALTER TABLE ONLY sa_ppe
-    ADD CONSTRAINT sa_ppe_session_id_fkey FOREIGN KEY (session_id) REFERENCES sessions(session_id);
+    ADD CONSTRAINT sa_ppe_session_id_fkey FOREIGN KEY (pass_id) REFERENCES sessions(pass_id);
 
 
 --
@@ -196,7 +200,7 @@ ALTER TABLE ONLY sa_ppe
 --
 
 ALTER TABLE ONLY vsp_test_scores
-    ADD CONSTRAINT vsp_test_scores_session_id_fkey FOREIGN KEY (session_id) REFERENCES sessions(session_id);
+    ADD CONSTRAINT vsp_test_scores_session_id_fkey FOREIGN KEY (pass_id) REFERENCES sessions(pass_id);
 
 
 --

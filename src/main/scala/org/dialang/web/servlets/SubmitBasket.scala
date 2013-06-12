@@ -80,7 +80,7 @@ class SubmitBasket extends DialangServlet {
         } else {
           logger.error("No item returned from scoring")
         }
-        //dataCapture.logSingleIdResponse(dialangSession.sessionId,currentBasketId,itemId,answerId)
+        dataCapture.logSingleIdResponse(dialangSession.passId,currentBasketId,itemId,answerId)
       }
 
       case Some("tabbedpane") => {
@@ -116,7 +116,7 @@ class SubmitBasket extends DialangServlet {
           }
         })
         basketList += new Basket(currentBasketId,"tabbedpane",basketItems.toList)
-        //dataCapture.logMultipleIdResponses(dialangSession.sessionId,currentBasketId,responses.toMap)
+        dataCapture.logMultipleIdResponses(dialangSession.passId,currentBasketId,responses.toMap)
       }
 
       case Some("shortanswer") => {
@@ -152,7 +152,7 @@ class SubmitBasket extends DialangServlet {
           }
         })
         basketList += new Basket(currentBasketId,"shortanswer",basketItems.toList)
-        //dataCapture.logMultipleTextualResponses(dialangSession.sessionId,currentBasketId,responses.toMap)
+        dataCapture.logMultipleTextualResponses(dialangSession.passId,currentBasketId,responses.toMap)
       }
 
       case Some("gaptext") => {
@@ -187,7 +187,7 @@ class SubmitBasket extends DialangServlet {
           }
         })
         basketList += new Basket(currentBasketId,"gaptext",basketItems.toList)
-        //dataCapture.logMultipleTextualResponses(dialangSession.sessionId,currentBasketId,responses.toMap)
+        dataCapture.logMultipleTextualResponses(dialangSession.passId,currentBasketId,responses.toMap)
       }
 
       case Some("gapdrop") => {
@@ -222,7 +222,7 @@ class SubmitBasket extends DialangServlet {
           }
         })
         basketList += new Basket(currentBasketId,"gapdrop",basketItems.toList)
-        //dataCapture.logMultipleIdResponses(dialangSession.sessionId,currentBasketId,responses.toMap)
+        dataCapture.logMultipleIdResponses(dialangSession.passId,currentBasketId,responses.toMap)
       }
       case Some(s:String) => {
         logger.error("Unrecognised basketType '" + s + "'. Returning 400 (Bad Request) ...")
@@ -254,7 +254,7 @@ class SubmitBasket extends DialangServlet {
 
       saveDialangSession(dialangSession)
 
-      //dataCapture.logTestResult(dialangSession)
+      dataCapture.logTestResult(dialangSession)
 
       contentType = "application/json"
 

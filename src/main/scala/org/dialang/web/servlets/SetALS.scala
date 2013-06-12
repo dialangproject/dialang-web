@@ -8,18 +8,12 @@ class SetALS extends DialangServlet with ScalateSupport {
 
     val al = params("al")
 
+    // Stash the admin language in the session
     val dialangSession = getDialangSession
     dialangSession.adminLanguage = al
     saveDialangSession(dialangSession)
 
-    // This updates and gets the updated cookie so we can set it on the response.
-    val map = Map("state" -> "legend","al" -> al)
-    //val cookie = getUpdatedCookie(map,true)
-
-    //response.addCookie(cookie)
-
     contentType = "text/html"
-
-    mustache("shell",map.toSeq:_*)
+    mustache("shell","state" -> "legend","al" -> al)
   }
 }

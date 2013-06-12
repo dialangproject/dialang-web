@@ -10,7 +10,7 @@
         <script type="text/javascript" src="/dialang-content/js/jquery.form.js"></script>
         <script type="text/javascript" src="/dialang-content/js/mustache.js"></script>
         <script type="text/javascript">
-            var dialang = dialang || { 'session':{'al':'{{al}}'},'state':'{{state}}'};
+            var dialang = dialang || { 'session':{'al':'{{al}}','tl':'{{tl}}','skill':'{{skill}}'},'state':'{{state}}'};
         </script>
     </head>
     <body>
@@ -28,6 +28,10 @@
                     <img src="/dialang-content/images/Logo.gif"/>
                 </div> <!-- /logo -->
             </div> <!-- /topbar -->
+
+            <div id="help-dialog">
+            </div> <!-- /help-dialog -->
+
             <div id="content">
             </div> <!-- /content -->
             <div class="bottom-margin"></div>

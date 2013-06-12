@@ -2,5 +2,5 @@
 
 cd ..
 mvn -o -Pdev clean install
-sudo -S cp target/dialangweb-1.0-SNAPSHOT.war /usr/local/dialang-tomcat-singlepage/webapps/ROOT.war
+sudo -S cp target/dialangweb-1.0-SNAPSHOT.war /usr/local/dialang-tomcat/webapps/ROOT.war
 

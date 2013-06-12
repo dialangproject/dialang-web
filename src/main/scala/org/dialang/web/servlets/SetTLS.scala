@@ -27,21 +27,31 @@ class SetTLS extends DialangServlet {
       redirect("/als.html")
     } else {
 
-      // Zero all state except for the admin language
+      // Zero all state except for the admin language and sessionId
       dialangSession.startNewTest()
 
       val tl    = params("tl")
       val skill = params("skill")
 
-      val sessionId = UUID.randomUUID.toString
+      // The session id persists across tests
+      val sessionId = dialangSession.sessionId match {
+          case "" => UUID.randomUUID.toString
+          case _ => dialangSession.sessionId
+        }
+
+      // The pass id correlates with a test run. We always need a
+      // new one for each test.
+      val passId = UUID.randomUUID.toString
 
       if(logger.isDebugEnabled) {
         logger.debug("TL: " + tl)
         logger.debug("SKILL: " + skill)
         logger.debug("SESSION ID: " + sessionId)
+        logger.debug("PASS ID: " + passId)
       }
 
       dialangSession.sessionId = sessionId
+      dialangSession.passId = passId
       dialangSession.scoredItemList = List[Item]()
       dialangSession.testLanguage = tl
       dialangSession.skill = skill.toLowerCase
@@ -50,11 +60,6 @@ class SetTLS extends DialangServlet {
 
       dataCapture.createSession(dialangSession,request.remoteAddress)
 
-      // This updates and gets the updated cookie so we can set it on the response.
-      //val cookie = getUpdatedCookie(req,Map("tl" -> tl,
-      //                                      "skill" -> skill.toLowerCase),/*ignoreCurrent=*/false)
-
-      //resp.addCookie(cookie)
       contentType = "text/plain"
       "success"
     }

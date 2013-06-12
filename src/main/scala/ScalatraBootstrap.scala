@@ -13,5 +13,6 @@ class ScalatraBootstrap extends LifeCycle {
     context.mount(new StartTest, "/starttest/*")
     context.mount(new SubmitBasket, "/submitbasket/*")
     context.mount(new MySession, "/mysession/*")
+    context.mount(new LTILaunch, "/lti/*")
   }
 }

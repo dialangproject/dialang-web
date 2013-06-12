@@ -13,6 +13,8 @@ class DialangSession extends Serializable with DialangLogger {
 
   var sessionId:String = ""
 
+  var passId:String = ""
+
   var testLanguage:String = ""
 
   var skill:String = ""
@@ -51,8 +53,10 @@ class DialangSession extends Serializable with DialangLogger {
    * Resets all state except adminLanguage
    */
   def startNewTest() {
-    debug("Resetting all state except the adminLanguage ...")
-    sessionId = ""
+
+    debug("Resetting all state except the adminLanguage and sessionId ...")
+
+    passId = ""
     testLanguage = ""
     skill = ""
     vsptSubmitted = false
