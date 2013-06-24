@@ -2,7 +2,7 @@ package org.dialang.web.servlets
 
 import java.util.UUID
 
-import org.dialang.common.model.Item
+import org.dialang.common.model.ImmutableItem
 
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ class SetTLS extends DialangServlet {
 
       dialangSession.sessionId = sessionId
       dialangSession.passId = passId
-      dialangSession.scoredItemList = List[Item]()
+      dialangSession.scoredItemList = List[ImmutableItem]()
       dialangSession.testLanguage = tl
       dialangSession.skill = skill.toLowerCase
 

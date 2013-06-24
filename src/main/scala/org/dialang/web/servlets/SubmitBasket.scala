@@ -11,14 +11,25 @@ import scala.collection.mutable.ListBuffer
 
 import org.slf4j.LoggerFactory;
 
-class SubmitBasket extends DialangServlet {
+import org.json4s.{DefaultFormats, Formats}
+
+import org.scalatra.json._
+
+class SubmitBasket extends DialangServlet with JacksonJsonSupport {
 
   private val logger = LoggerFactory.getLogger(classOf[SubmitBasket])
+
+  protected implicit val jsonFormats: Formats = DefaultFormats
   
   private val db = DB
   private val scoringMethods = new ScoringMethods
 
   post("/") {
+
+    val instantFeedback = params.get("instantFeedback") match {
+        case Some(s:String) => if(s == "on") true else false
+        case None => false
+      }
 
     val dialangSession = getDialangSession
 
@@ -40,8 +51,12 @@ class SubmitBasket extends DialangServlet {
       logger.debug("Current item list length: " + dialangSession.scoredItemList.length)
     }
 
+    val returnMap = new HashMap[String,Any]()
+
+    def itemSorter = (a:ImmutableItem,b:ImmutableItem) => {a.positionInBasket < b.positionInBasket}
+
     val basketList:ListBuffer[Basket] = (new ListBuffer[Basket]) ++ dialangSession.scoredBasketList
-    val itemList:ListBuffer[Item] = (new ListBuffer[Item]) ++ dialangSession.scoredItemList
+    val itemList:ListBuffer[ImmutableItem] = (new ListBuffer[ImmutableItem]) ++ dialangSession.scoredItemList
 
     params.get("basketType") match {
 
@@ -60,32 +75,35 @@ class SubmitBasket extends DialangServlet {
               halt(400)
             }
           }
-        val itemOption = scoringMethods.getScoredIdResponseItem(itemId,answerId)
-        if(itemOption.isDefined) {
-          val item:Item = itemOption.get
-          item.basketId = currentBasketId
-          item.positionInBasket = 1
-          item.positionInTest = itemList.length + 1
-          if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
-          item.responseId = answerId
-          item.answers = db.getAnswers(itemId) match {
-              case Some(l:List[Answer]) => l
-              case None => {
-                logger.error("No answers returned from db for item " + itemId)
-                List[Answer]()
-              }
+        scoringMethods.getScoredIdResponseItem(itemId,answerId) match {
+            case Some(item:Item) => {
+              item.basketId = currentBasketId
+              item.positionInBasket = 1
+              item.positionInTest = itemList.length + 1
+              if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
+              item.answers = db.getAnswers(itemId) match {
+                  case Some(l:List[Answer]) => l
+                  case None => {
+                    logger.error("No answers returned from db for item " + itemId)
+                    List[Answer]()
+                  }
+                }
+              val immutableItem:ImmutableItem = item.toCase
+              itemList += immutableItem
+              val scoredBasket = new Basket(currentBasketId,"mcq",item.skill,List(immutableItem))
+              basketList += scoredBasket
+              returnMap += ("scoredBasket" -> scoredBasket)
             }
-          itemList += item
-          basketList += new Basket(currentBasketId,"mcq",List(item))
-        } else {
-          logger.error("No item returned from scoring")
+            case None => {
+              logger.error("No item returned from scoring")
+            }
+          dataCapture.logSingleIdResponse(dialangSession.passId,currentBasketId,itemId,answerId)
         }
-        dataCapture.logSingleIdResponse(dialangSession.passId,currentBasketId,itemId,answerId)
       }
 
       case Some("tabbedpane") => {
         val responses = getMultipleIdResponses
-        val basketItems = new ListBuffer[Item]()
+        val basketItems = new ListBuffer[ImmutableItem]()
         responses.foreach(t => {
           val itemOption = scoringMethods.getScoredIdResponseItem(t._1,t._2)
           if(itemOption.isDefined) {
@@ -101,7 +119,6 @@ class SubmitBasket extends DialangServlet {
             item.positionInTest = itemList.length + 1
             if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
             logger.debug(item.basketId.toString)
-            item.responseId = t._2
             item.answers = db.getAnswers(item.id) match {
                 case Some(l:List[Answer]) => l
                 case None => {
@@ -109,19 +126,22 @@ class SubmitBasket extends DialangServlet {
                   List[Answer]()
                 }
               }
-            itemList += item
-            basketItems += item
+            val immutableItem:ImmutableItem = item.toCase
+            itemList += immutableItem
+            basketItems += immutableItem
           } else {
             logger.error("No item returned from scoring")
           }
         })
-        basketList += new Basket(currentBasketId,"tabbedpane",basketItems.toList)
+        val scoredBasket = new Basket(currentBasketId,"tabbedpane",basketItems.head.skill,basketItems.toList.sortWith(itemSorter))
+        basketList += scoredBasket
+        returnMap += ("scoredBasket" -> scoredBasket)
         dataCapture.logMultipleIdResponses(dialangSession.passId,currentBasketId,responses.toMap)
       }
 
       case Some("shortanswer") => {
         val responses = getMultipleTextualResponses
-        val basketItems = new ListBuffer[Item]()
+        val basketItems = new ListBuffer[ImmutableItem]()
         responses.foreach(t => {
           logger.error(t._1 + " -> " + t._2)
           val itemOption = scoringMethods.getScoredTextResponseItem(t._1,t._2)
@@ -137,7 +157,6 @@ class SubmitBasket extends DialangServlet {
               }
             item.positionInTest = itemList.length + 1
             if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
-            item.responseText = t._2
             item.answers = db.getAnswers(item.id) match {
                 case Some(l:List[Answer]) => l
                 case None => {
@@ -145,19 +164,22 @@ class SubmitBasket extends DialangServlet {
                   List[Answer]()
                 }
               }
-            itemList += item
-            basketItems += item
+            val immutableItem:ImmutableItem = item.toCase
+            itemList += immutableItem
+            basketItems += immutableItem
           } else {
             logger.error("No item returned from scoring")
           }
         })
-        basketList += new Basket(currentBasketId,"shortanswer",basketItems.toList)
+        val scoredBasket = new Basket(currentBasketId,"shortanswer",basketItems.head.skill,basketItems.toList.sortWith(itemSorter))
+        basketList += scoredBasket
+        returnMap += ("scoredBasket" -> scoredBasket)
         dataCapture.logMultipleTextualResponses(dialangSession.passId,currentBasketId,responses.toMap)
       }
 
       case Some("gaptext") => {
         val responses = getMultipleTextualResponses
-        val basketItems = new ListBuffer[Item]()
+        val basketItems = new ListBuffer[ImmutableItem]()
         responses.foreach(t => {
           val itemOption = scoringMethods.getScoredTextResponseItem(t._1,t._2)
           if(itemOption.isDefined) {
@@ -170,7 +192,6 @@ class SubmitBasket extends DialangServlet {
                   halt(400)
                 }
               }
-            item.responseText = t._2
             item.positionInTest = itemList.length + 1
             if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
             item.answers = db.getAnswers(item.id) match {
@@ -180,19 +201,22 @@ class SubmitBasket extends DialangServlet {
                   List[Answer]()
                 }
               }
-            itemList += item
-            basketItems += item
+            val immutableItem:ImmutableItem = item.toCase
+            itemList += immutableItem
+            basketItems += immutableItem
           } else {
             logger.error("No item returned from scoring")
           }
         })
-        basketList += new Basket(currentBasketId,"gaptext",basketItems.toList)
+        val scoredBasket = new Basket(currentBasketId,"gaptext",basketItems.head.skill,basketItems.toList.sortWith(itemSorter))
+        basketList += scoredBasket
+        returnMap += ("scoredBasket" -> scoredBasket)
         dataCapture.logMultipleTextualResponses(dialangSession.passId,currentBasketId,responses.toMap)
       }
 
       case Some("gapdrop") => {
         val responses = getMultipleIdResponses
-        val basketItems = new ListBuffer[Item]()
+        val basketItems = new ListBuffer[ImmutableItem]()
         responses.foreach(t => {
           val itemOption = scoringMethods.getScoredIdResponseItem(t._1,t._2)
           if(itemOption.isDefined) {
@@ -207,7 +231,6 @@ class SubmitBasket extends DialangServlet {
               }
             item.positionInTest = itemList.length + 1
             if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
-            item.responseId = t._2
             item.answers = db.getAnswers(item.id) match {
                 case Some(l:List[Answer]) => l
                 case None => {
@@ -215,13 +238,16 @@ class SubmitBasket extends DialangServlet {
                   List[Answer]()
                 }
               }
-            itemList += item
-            basketItems += item
+            val immutableItem:ImmutableItem = item.toCase
+            itemList += immutableItem
+            basketItems += immutableItem
           } else {
             logger.error("No item returned from scoring")
           }
         })
-        basketList += new Basket(currentBasketId,"gapdrop",basketItems.toList)
+        val scoredBasket = new Basket(currentBasketId,"gapdrop",basketItems.head.skill,basketItems.toList.sortWith(itemSorter))
+        basketList += scoredBasket
+        returnMap += ("scoredBasket" -> scoredBasket)
         dataCapture.logMultipleIdResponses(dialangSession.passId,currentBasketId,responses.toMap)
       }
       case Some(s:String) => {
@@ -256,10 +282,11 @@ class SubmitBasket extends DialangServlet {
 
       dataCapture.logTestResult(dialangSession)
 
-      contentType = "application/json"
-
       // We set testDone to true so the client js knows to enable the sa feedback and advice buttons
-      "{\"itemLevel\":\"" + itemLevel + "\",\"testDone\":\"true\"}"
+      returnMap += (("itemLevel" -> itemLevel),("testDone" -> "true"))
+
+      contentType = formats("json")
+      returnMap.toMap
 
     } else {
 
@@ -267,9 +294,11 @@ class SubmitBasket extends DialangServlet {
 
       dialangSession.currentBasketNumber = nextBasketNumber
       saveDialangSession(dialangSession)
-     
-      contentType = "application/json"
-      "{\"nextBasketId\":\"" + nextBasketId.toString + "\",\"itemsCompleted\":\"" + itemList.length.toString + "\"}"
+
+      returnMap += (("nextBasketId" -> nextBasketId.toString),("itemsCompleted" -> itemList.length.toString))
+
+      contentType = formats("json")
+      returnMap.toMap
     }
   }
 

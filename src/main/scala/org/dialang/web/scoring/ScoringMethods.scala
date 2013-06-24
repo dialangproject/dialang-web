@@ -1,7 +1,8 @@
 package org.dialang.web.scoring
 
-import org.dialang.common.model.Item
 import org.dialang.web.db.DB
+import org.dialang.common.model.ImmutableItem
+import org.dialang.common.model.Item
 import org.dialang.web.model.{DialangSession,ItemGrade}
 
 import java.util.StringTokenizer
@@ -104,6 +105,7 @@ class ScoringMethods {
 
     db.getItem(itemId) match {
         case Some(item) => { 
+          item.responseId = responseId
           db.getAnswer(responseId) match {
               case Some(answer) => {
                 if(answer.correct) {
@@ -134,6 +136,7 @@ class ScoringMethods {
 
     db.getItem(itemId) match {
         case Some(item) => {
+          item.responseText = answerText
           var score = 0
           db.getAnswers(itemId) match {
               case Some(answers) => {
@@ -158,7 +161,7 @@ class ScoringMethods {
       }
   }
 
-  def getItemGrade(session:DialangSession,results:List[Item]):Tuple2[Int,String] = {
+  def getItemGrade(session:DialangSession,results:List[ImmutableItem]):Tuple2[Int,String] = {
 
     var rawScore = 0
     var weight = 0

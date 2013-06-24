@@ -1,5 +1,5 @@
 package org.dialang.web.model
 
-import org.dialang.common.model.Item
+import org.dialang.common.model.ImmutableItem
 
-class Basket(id:Int,basketType:String,items:List[Item])
+case class Basket(id:Int,basketType:String,skill:String,items:List[ImmutableItem])

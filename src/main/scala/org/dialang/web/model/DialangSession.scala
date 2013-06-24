@@ -1,6 +1,6 @@
 package org.dialang.web.model
 
-import org.dialang.common.model.Item
+import org.dialang.common.model.ImmutableItem
 import org.dialang.web.util.DialangLogger
 
 class DialangSession extends Serializable with DialangLogger {
@@ -45,7 +45,7 @@ class DialangSession extends Serializable with DialangLogger {
 
   var currentBasketNumber:Int = 0
 
-  var scoredItemList:List[Item] = List[Item]()
+  var scoredItemList:List[ImmutableItem] = List[ImmutableItem]()
 
   var scoredBasketList:List[Basket] = List[Basket]()
 
@@ -72,7 +72,7 @@ class DialangSession extends Serializable with DialangLogger {
     bookletId = 0
     bookletLength = 0
     currentBasketNumber = 0
-    scoredItemList = List[Item]()
+    scoredItemList = List[ImmutableItem]()
     scoredBasketList = List[Basket]()
   }
 }

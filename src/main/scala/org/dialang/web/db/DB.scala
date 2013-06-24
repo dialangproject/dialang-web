@@ -659,7 +659,8 @@ object DB extends DialangLogger {
         val temp = new HashMap[Int,Item]
         val rs = st.executeQuery("SELECT * FROM items")
         while(rs.next) {
-            temp += (rs.getInt("id") -> new Item(rs))
+            val item = new Item(rs)
+            temp += (item.id -> item)
         }
         rs.close()
         temp.toMap
