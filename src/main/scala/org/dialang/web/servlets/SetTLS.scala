@@ -27,11 +27,24 @@ class SetTLS extends DialangServlet {
       redirect("/als.html")
     } else {
 
+      val tl = params.get("tl") match {
+          case Some(s:String) => s
+          case None => {
+            logger.error("No test language (tl) supplied. Returning 400 (Bad Request) ...")
+            halt(400)
+          }
+        }
+
+      val skill = params.get("skill") match {
+          case Some(s:String) => s
+          case None => {
+            logger.error("No skill supplied. Returning 400 (Bad Request) ...")
+            halt(400)
+          }
+        }
+
       // Zero all state except for the admin language and sessionId
       dialangSession.startNewTest()
-
-      val tl    = params("tl")
-      val skill = params("skill")
 
       // The session id persists across tests
       val sessionId = dialangSession.sessionId match {
@@ -52,7 +65,6 @@ class SetTLS extends DialangServlet {
 
       dialangSession.sessionId = sessionId
       dialangSession.passId = passId
-      dialangSession.scoredItemList = List[ImmutableItem]()
       dialangSession.testLanguage = tl
       dialangSession.skill = skill.toLowerCase
 

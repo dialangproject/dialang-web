@@ -26,11 +26,6 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
 
   post("/") {
 
-    val instantFeedback = params.get("instantFeedback") match {
-        case Some(s:String) => if(s == "on") true else false
-        case None => false
-      }
-
     val dialangSession = getDialangSession
 
     if(dialangSession.testLanguage == "" || dialangSession.skill == "") {
