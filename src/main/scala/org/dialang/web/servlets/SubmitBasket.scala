@@ -53,6 +53,8 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
     val basketList:ListBuffer[Basket] = (new ListBuffer[Basket]) ++ dialangSession.scoredBasketList
     val itemList:ListBuffer[ImmutableItem] = (new ListBuffer[ImmutableItem]) ++ dialangSession.scoredItemList
 
+    val numScoredItems = itemList.length
+
     params.get("basketType") match {
 
       case Some("mcq") => {
@@ -74,7 +76,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
             case Some(item:Item) => {
               item.basketId = currentBasketId
               item.positionInBasket = 1
-              item.positionInTest = itemList.length + 1
+              item.positionInTest = numScoredItems + 1
               if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
               item.answers = db.getAnswers(itemId) match {
                   case Some(l:List[Answer]) => l
@@ -111,7 +113,9 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
                 }
               }
             item.basketId = currentBasketId
-            item.positionInTest = itemList.length + 1
+            //item.positionInTest = itemList.length + 1
+            item.positionInTest = numScoredItems + item.positionInBasket
+            if(logger.isDebugEnabled) logger.debug("Item position in basket: " + item.positionInBasket)
             if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
             logger.debug(item.basketId.toString)
             item.answers = db.getAnswers(item.id) match {
@@ -150,7 +154,8 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
                   halt(400)
                 }
               }
-            item.positionInTest = itemList.length + 1
+            //item.positionInTest = itemList.length + 1
+            item.positionInTest = itemList.length + item.positionInBasket
             if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
             item.answers = db.getAnswers(item.id) match {
                 case Some(l:List[Answer]) => l
@@ -187,7 +192,8 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
                   halt(400)
                 }
               }
-            item.positionInTest = itemList.length + 1
+            //item.positionInTest = itemList.length + 1
+            item.positionInTest = itemList.length + item.positionInBasket
             if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
             item.answers = db.getAnswers(item.id) match {
                 case Some(l:List[Answer]) => l
