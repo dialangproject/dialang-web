@@ -106,9 +106,6 @@ class DataCaptureImpl {
     try {
       conn = ds.getConnection
 
-      // Insert this session's vspt responses in a transaction
-      conn.setAutoCommit(false)
-
       // Now insert the scores
       st = conn.prepareStatement("INSERT INTO vsp_test_scores (pass_id,z_score,meara_score,level) VALUES(?,?,?,?)")
       st.setString(1,dialangSession.passId)
@@ -118,7 +115,6 @@ class DataCaptureImpl {
       if(st.executeUpdate != 1) {
         // TODO: LOGGING
       }
-      conn.commit
     } catch {
       case e:Exception => {
         // TODO: LOGGING
@@ -133,7 +129,6 @@ class DataCaptureImpl {
 
       if(conn != null) {
         try {
-          conn.setAutoCommit(true)
           conn.close()
         } catch { case _ : SQLException => }
       }
@@ -148,7 +143,7 @@ class DataCaptureImpl {
     try {
       conn = ds.getConnection
 
-      // Insert this session's vspt responses in a transaction
+      // Insert this pass's sa responses in a transaction
       conn.setAutoCommit(false)
 
       st = conn.prepareStatement("INSERT INTO sa_responses (pass_id,statement_id,response) VALUES(?,?,?)")
@@ -192,9 +187,6 @@ class DataCaptureImpl {
     try {
       conn = ds.getConnection
 
-      // Insert this session's vspt responses in a transaction
-      conn.setAutoCommit(false)
-
       // Now insert the scores
       st = conn.prepareStatement("INSERT INTO sa_ppe (pass_id,ppe) VALUES(?,?)")
       st.setString(1,dialangSession.passId)
@@ -202,7 +194,6 @@ class DataCaptureImpl {
       if(st.executeUpdate != 1) {
         // TODO: LOGGING
       }
-      conn.commit
     } catch {
       case e:Exception => {
         // TODO: LOGGING
@@ -217,7 +208,40 @@ class DataCaptureImpl {
 
       if(conn != null) {
         try {
-          conn.setAutoCommit(true)
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
+
+  def logTestStart(passId:String) {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+
+    try {
+      conn = ds.getConnection
+      st = conn.prepareStatement("INSERT INTO test_durations (pass_id,start) VALUES(?,?)")
+      st.setString(1,passId)
+      st.setLong(2,(new Date()).getTime())
+      if(st.executeUpdate != 1) {
+        // TODO: LOGGING
+      }
+    } catch {
+      case e:Exception => {
+        // TODO: LOGGING
+        e.printStackTrace
+      }
+    } finally {
+
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if(conn != null) {
+        try {
           conn.close()
         } catch { case _ : SQLException => }
       }
@@ -346,9 +370,6 @@ class DataCaptureImpl {
     try {
       conn = ds.getConnection
 
-      // Insert this session's vspt responses in a transaction
-      conn.setAutoCommit(false)
-
       // Now insert the scores
       st = conn.prepareStatement("INSERT INTO test_results (pass_id,grade,level) VALUES(?,?,?)")
       st.setString(1,dialangSession.passId)
@@ -357,7 +378,6 @@ class DataCaptureImpl {
       if(st.executeUpdate != 1) {
         // TODO: LOGGING
       }
-      conn.commit
     } catch {
       case e:Exception => {
         // TODO: LOGGING
@@ -372,7 +392,40 @@ class DataCaptureImpl {
 
       if(conn != null) {
         try {
-          conn.setAutoCommit(true)
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
+
+  def logTestFinish(passId:String) {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+
+    try {
+      conn = ds.getConnection
+      st = conn.prepareStatement("UPDATE test_durations SET finish = ? WHERE pass_id = ?")
+      st.setLong(1,(new Date()).getTime())
+      st.setString(2,passId)
+      if(st.executeUpdate != 1) {
+        // TODO: LOGGING
+      }
+    } catch {
+      case e:Exception => {
+        // TODO: LOGGING
+        e.printStackTrace
+      }
+    } finally {
+
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if(conn != null) {
+        try {
           conn.close()
         } catch { case _ : SQLException => }
       }

@@ -54,17 +54,16 @@ class SetTLS extends DialangServlet {
 
       // The pass id correlates with a test run. We always need a
       // new one for each test.
-      val passId = UUID.randomUUID.toString
+      dialangSession.passId = UUID.randomUUID.toString
 
       if(logger.isDebugEnabled) {
         logger.debug("TL: " + tl)
         logger.debug("SKILL: " + skill)
         logger.debug("SESSION ID: " + sessionId)
-        logger.debug("PASS ID: " + passId)
+        logger.debug("PASS ID: " + dialangSession.passId)
       }
 
       dialangSession.sessionId = sessionId
-      dialangSession.passId = passId
       dialangSession.testLanguage = tl
       dialangSession.skill = skill.toLowerCase
 

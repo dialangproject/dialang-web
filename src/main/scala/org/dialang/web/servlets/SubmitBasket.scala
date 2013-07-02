@@ -281,6 +281,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
       saveDialangSession(dialangSession)
 
       dataCapture.logTestResult(dialangSession)
+      dataCapture.logTestFinish(dialangSession.passId)
 
       // We set testDone to true so the client js knows to enable the sa feedback and advice buttons
       returnMap += (("itemLevel" -> itemLevel),("testDone" -> "true"))

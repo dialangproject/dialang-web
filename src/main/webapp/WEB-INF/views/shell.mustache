@@ -10,7 +10,19 @@
         <script type="text/javascript" src="/dialang-content/js/jquery.form.js"></script>
         <script type="text/javascript" src="/dialang-content/js/mustache.js"></script>
         <script type="text/javascript">
-            var dialang = dialang || { 'session':{'al':'{{al}}','tl':'{{tl}}','skill':'{{skill}}'},'state':'{{state}}'};
+            var dialang = {
+                'state': '{{state}}',
+                'instantFeedbackDisabled': {{instantFeedbackDisabled}},
+                'session': {
+                    'al': '{{al}}',
+                    'tl': '{{tl}}',
+                    'skill': '{{skill}}'},
+                'pass': {
+                    'baskets':[],
+                    'itemToBasketMap':{},
+                    'items':[],
+                    'subskills':{}}
+            };
         </script>
     </head>
     <body>

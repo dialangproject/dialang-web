@@ -77,6 +77,15 @@ class DataCapture {
       }).start
   }
 
+  def logTestStart(passId:String) {
+    new Thread(
+      new Runnable {
+        def run {
+          dataCapture.logTestStart(passId)
+        }
+      }).start
+  }
+
   def logSingleIdResponse(sessionId: String, basketId: Int, itemId: Int, answerId: Int) {
 
     new Thread(
@@ -113,6 +122,16 @@ class DataCapture {
       new Runnable {
         def run {
           dataCapture.logTestResult(dialangSession)
+        }
+      }).start
+  }
+
+  def logTestFinish(passId:String) {
+
+    new Thread(
+      new Runnable {
+        def run {
+          dataCapture.logTestFinish(passId)
         }
       }).start
   }

@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import org.scalatra.scalate.ScalateSupport
 
+import java.util.UUID
+
 class LTILaunch extends DialangServlet with ScalateSupport {
 
   private val logger = LoggerFactory.getLogger(classOf[LTILaunch])
@@ -52,29 +54,50 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           }
         }
 
-      // Grab the al,tl and skill
+      // Grab the al,tl,skill and instant feedback custom parameters
       dialangSession.adminLanguage = params.getOrElse("custom_dialang_admin_language","")
       dialangSession.testLanguage = params.getOrElse("custom_dialang_test_language","")
       dialangSession.skill = params.getOrElse("custom_dialang_test_skill","")
 
-      logger.debug("al:" + dialangSession.adminLanguage)
+      dialangSession.instantFeedbackDisabled
+        = params.get("custom_dialang_instant_feedback_disabled") match {
+          case Some("true") => true
+          case _ => false
+        }
 
-      saveDialangSession(dialangSession)
+      if(logger.isDebugEnabled) {
+        logger.debug("adminLanguage:" + dialangSession.adminLanguage)
+        logger.debug("testLanguage:" + dialangSession.testLanguage)
+        logger.debug("skill:" + dialangSession.skill)
+        logger.debug("instantFeedbackDisabled:" + dialangSession.instantFeedbackDisabled)
+      }
 
       if(dialangSession.adminLanguage == "") {
+        saveDialangSession(dialangSession)
         contentType = "text/html"
         redirect("/dialang-content/als.html")
       } else {
 
         if(dialangSession.testLanguage == "" || dialangSession.skill == "") {
+          saveDialangSession(dialangSession)
           contentType = "text/html"
-          mustache("shell","state" -> "legend","al" -> dialangSession.adminLanguage)
+          mustache("shell","state" -> "legend",
+                              "al" -> dialangSession.adminLanguage,
+                              "instantFeedbackDisabled" -> dialangSession.instantFeedbackDisabled)
         } else {
+
+          dialangSession.sessionId = UUID.randomUUID.toString
+          dialangSession.passId = UUID.randomUUID.toString
+          saveDialangSession(dialangSession)
+
+          dataCapture.createSession(dialangSession,request.remoteAddress)
+
           contentType = "text/html"
           mustache("shell","state" -> "vsptintro",
-                      "al" -> dialangSession.adminLanguage,
-                      "tl" -> dialangSession.testLanguage,
-                      "skill" -> dialangSession.skill)
+                              "al" -> dialangSession.adminLanguage,
+                              "tl" -> dialangSession.testLanguage,
+                              "skill" -> dialangSession.skill,
+                              "instantFeedbackDisabled" -> dialangSession.instantFeedbackDisabled)
         }
       }
     } catch {

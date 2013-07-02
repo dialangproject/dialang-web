@@ -19,6 +19,8 @@ class DialangSession extends Serializable with DialangLogger {
 
   var skill:String = ""
 
+  var instantFeedbackDisabled:Boolean = false
+
   var vsptSubmitted:Boolean = false
 
   var saSubmitted:Boolean = false
