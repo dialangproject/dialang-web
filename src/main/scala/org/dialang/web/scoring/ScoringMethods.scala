@@ -50,23 +50,32 @@ class ScoringMethods {
 
 		if (!session.vsptSubmitted && !session.saSubmitted) {
 			// No sa or vspt, request the default assignment.
-			return assign.getBookletId(session.testLanguage,session.skill)
-		}
+			assign.getBookletId(session.testLanguage,session.skill)
+		} else {
 
-		// if either test is done, then we need to get the grade 
-		// associated with that test:
+		  // if either test is done, then we need to get the grade 
+		  // associated with that test:
 
-		val vsptZScore = if (session.vsptSubmitted) session.vsptZScore else 0.0F
+		  val vsptZScore:Float = if (session.vsptSubmitted) session.vsptZScore else 0.0F
 
-		val saPPE:Float = if(session.saSubmitted) session.saPPE else 0.0F
+		  val saPPE:Float = if(session.saSubmitted) session.saPPE else 0.0F
 
-		// get the appropriate weight for the given context:
-		val (vsptWeight,saWeight,coe) = preestWeights.get(session.testLanguage, session.skill, session.vsptSubmitted, session.saSubmitted)
+		  println(session.testLanguage + "," + session.skill + "," + session.vsptSubmitted + "," + session.saSubmitted)
 
-		val pe =  (saPPE * saWeight.asInstanceOf[Float]) + (vsptZScore * vsptWeight) + coe
+		  // get the appropriate weight for the given context:
+		  preestWeights.get(session.testLanguage, session.skill, session.vsptSubmitted, session.saSubmitted) match {
+        case Some(t:Tuple3[Float,Float,Float]) => {
+		      val pe =  (saPPE * t._2) + (vsptZScore * t._1) + t._3
 
-		// finaly look up the assignment for the resulting values:
-		assign.getBookletId(session.testLanguage,session.skill,pe)
+		      // finaly look up the assignment for the resulting values:
+		      assign.getBookletId(session.testLanguage,session.skill,pe)
+        }
+        case _ => {
+          println("NO WEIGHT")
+			    assign.getBookletId(session.testLanguage,session.skill)
+        }
+      }
+    }
 	}
 
   /**

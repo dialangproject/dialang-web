@@ -8,7 +8,11 @@ import java.util.Date
 
 import org.dialang.web.model.DialangSession
 
+import org.slf4j.LoggerFactory
+
 class DataCaptureImpl {
+
+  private val logger = LoggerFactory.getLogger(classOf[DataCaptureImpl])
 
   val ctx = new InitialContext
   val ds = ctx.lookup("java:comp/env/jdbc/dialangdatacapture").asInstanceOf[DataSource]
@@ -31,7 +35,7 @@ class DataCaptureImpl {
       st.setString(8,ipAddress)
       st.setLong(9,new Date().getTime)
       if(st.executeUpdate != 1) {
-        // TODO: LOGGING
+        logger.error("Failed to log session creation.")
       }
     } catch {
       case e:Exception => {
@@ -72,6 +76,7 @@ class DataCaptureImpl {
         st.setString(2,t._1)
         st.setBoolean(3,t._2)
         if(st.executeUpdate != 1) {
+          logger.error("Failed to log vspt word response.")
           // TODO: LOGGING
         }
       })
@@ -113,6 +118,7 @@ class DataCaptureImpl {
       st.setInt(3,dialangSession.vsptMearaScore)
       st.setString(4,dialangSession.vsptLevel)
       if(st.executeUpdate != 1) {
+        logger.error("Failed to log vspt scores.")
         // TODO: LOGGING
       }
     } catch {
@@ -153,6 +159,7 @@ class DataCaptureImpl {
         st.setString(2,t._1)
         st.setBoolean(3,t._2)
         if(st.executeUpdate != 1) {
+          logger.error("Failed to log sa response.")
           // TODO: LOGGING
         }
       })
@@ -192,6 +199,7 @@ class DataCaptureImpl {
       st.setString(1,dialangSession.passId)
       st.setDouble(2,dialangSession.saPPE)
       if(st.executeUpdate != 1) {
+        logger.error("Failed to log sa ppe.")
         // TODO: LOGGING
       }
     } catch {
@@ -225,6 +233,7 @@ class DataCaptureImpl {
       st.setString(1,passId)
       st.setLong(2,(new Date()).getTime())
       if(st.executeUpdate != 1) {
+        logger.error("Failed to log test start time.")
         // TODO: LOGGING
       }
     } catch {
@@ -250,6 +259,10 @@ class DataCaptureImpl {
 
   def logSingleIdResponse(passId: String, basketId: Int, itemId: Int, answerId: Int) {
 
+    if(logger.isDebugEnabled()) {
+      logger.debug("PASS ID: " + passId + ". BASKET ID: " + basketId + ". ITEM ID: " + itemId + ". ANSWER ID: " + answerId)
+    }
+
     var conn:Connection = null
     var st:PreparedStatement = null
 
@@ -261,6 +274,7 @@ class DataCaptureImpl {
       st.setInt(3,itemId)
       st.setInt(4,answerId)
       if(st.executeUpdate != 1) {
+        logger.error("Failed to log single id response.")
         // TODO: LOGGING
       }
     } catch {
@@ -299,6 +313,7 @@ class DataCaptureImpl {
         st.setInt(3,t._1)
         st.setString(4,t._2)
         if(st.executeUpdate != 1) {
+          logger.error("Failed to log textual response.")
           // TODO: LOGGING
         }
       })
@@ -325,6 +340,10 @@ class DataCaptureImpl {
 
   def logMultipleIdResponses(passId: String, basketId: Int, responses: Map[Int,Int]) {
 
+    if(logger.isDebugEnabled()) {
+      logger.debug("PASS ID: " + passId + ". BASKET ID: " + basketId)
+    }
+
     var conn:Connection = null
     var st:PreparedStatement = null
 
@@ -338,6 +357,7 @@ class DataCaptureImpl {
         st.setInt(3,t._1)
         st.setInt(4,t._2)
         if(st.executeUpdate != 1) {
+          logger.error("Failed to log id response.")
           // TODO: LOGGING
         }
       })
@@ -376,6 +396,7 @@ class DataCaptureImpl {
       st.setInt(2,dialangSession.itemGrade)
       st.setString(3,dialangSession.itemLevel)
       if(st.executeUpdate != 1) {
+        logger.error("Failed to log test result.")
         // TODO: LOGGING
       }
     } catch {
@@ -409,6 +430,7 @@ class DataCaptureImpl {
       st.setLong(1,(new Date()).getTime())
       st.setString(2,passId)
       if(st.executeUpdate != 1) {
+        logger.error("Failed to log test finish time.")
         // TODO: LOGGING
       }
     } catch {

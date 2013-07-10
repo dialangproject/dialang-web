@@ -8,7 +8,7 @@ import org.dialang.web.db.DB
 
 import scala.collection.JavaConversions._
 
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory
 
 import org.scalatra.scalate.ScalateSupport
 
@@ -22,18 +22,9 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
 	post("/") {
 
-    /*
-		val payload = params.map(t => {
-        val value = t._2
-        ((t._1.asInstanceOf[String],t._2))
-      })
-    */
-
     val message = OAuthServlet.getMessage(request, null)
 
     try {
-
-      //params.foreach(t => { println(t._1 + " -> " + t._2) })
 
       validate(params,message)
 

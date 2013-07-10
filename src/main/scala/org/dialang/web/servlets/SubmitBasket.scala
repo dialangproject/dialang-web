@@ -9,7 +9,7 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ListBuffer
 
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory
 
 import org.json4s.{DefaultFormats, Formats}
 
@@ -92,11 +92,11 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
               val scoredBasket = new Basket(currentBasketId,"mcq",item.skill,List(immutableItem))
               basketList += scoredBasket
               returnMap += ("scoredBasket" -> scoredBasket)
+              dataCapture.logSingleIdResponse(dialangSession.passId,currentBasketId,itemId,answerId)
             }
             case None => {
               logger.error("No item returned from scoring")
             }
-          dataCapture.logSingleIdResponse(dialangSession.passId,currentBasketId,itemId,answerId)
         }
       }
 

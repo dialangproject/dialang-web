@@ -469,8 +469,10 @@ object DB extends DialangLogger {
   }
 
   def getSecret(consumerKey: String):Option[String] = {
+
     var conn:Connection = null
     var st:PreparedStatement = null
+
     try {
       conn = ds.getConnection
       st = conn.prepareStatement("SELECT secret FROM lti_consumers WHERE consumer_key = ?")

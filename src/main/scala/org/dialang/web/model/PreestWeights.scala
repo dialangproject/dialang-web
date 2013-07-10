@@ -30,8 +30,8 @@ class PreestWeights(rs:ResultSet) {
       tmp.toMap
     }
 
-	def get(tl:String, skill:String, vsptDone:Boolean, saDone:Boolean):Tuple3[Float,Float,Float] = {
-    weights(createKey(tl,skill,vsptDone,saDone))
+	def get(tl:String, skill:String, vsptDone:Boolean, saDone:Boolean):Option[Tuple3[Float,Float,Float]] = {
+    weights.get(createKey(tl,skill,vsptDone,saDone))
 	}
 
 	override def toString:String = {

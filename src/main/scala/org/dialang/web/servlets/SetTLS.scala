@@ -4,7 +4,7 @@ import java.util.UUID
 
 import org.dialang.common.model.ImmutableItem
 
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory
 
 import org.dialang.web.datacapture.DataLogger
 
