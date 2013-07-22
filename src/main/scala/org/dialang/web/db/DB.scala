@@ -23,6 +23,45 @@ object DB extends DialangLogger {
     exit(1)
   }
 
+  private val adminLanguageMappingsCache:Map[String,String] = {
+
+      debug("Caching admin language mappings ...")
+
+      var conn:Connection = null
+      var st:Statement = null
+      try {
+        val map = new HashMap[String,String]
+        conn = ds.getConnection
+        st = conn.createStatement
+        val rs = st.executeQuery("SELECT locale,two_letter_locale FROM admin_languages")
+        while(rs.next) {
+            map += (rs.getString("two_letter_locale") -> rs.getString("locale"))
+        }
+        rs.close()
+        map.toMap
+      } catch {
+        case t:Throwable => terminalDBError(t)
+      } finally {
+        if(st != null) {
+          try {
+            st.close()
+          } catch { case e:SQLException => }
+        }
+
+        if(conn != null) {
+          try {
+            conn.close()
+          } catch { case e:SQLException => }
+        }
+
+        debug("Admin language mappingss cached.")
+      }
+    }
+
+  def getAdminLanguageForTwoLetterLocale(twoLetterLocale:String):String = {
+    adminLanguageMappingsCache.getOrElse(twoLetterLocale.toLowerCase.replace("-","_"),"")
+  }
+
   private val testLanguageCache:List[String] = {
 
       debug("Caching test languages ...")

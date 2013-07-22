@@ -24,7 +24,7 @@ class SetTLS extends DialangServlet {
       // may mean that the user has either jumped to this page or
       // their session had actually timed out.
       contentType = "text/html"
-      redirect("/als.html")
+      redirect("/dialang-content/als.html")
     } else {
 
       val tl = params.get("tl") match {
