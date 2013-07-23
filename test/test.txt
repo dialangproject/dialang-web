@@ -1,2 +1,0 @@
-word%3A000053=valid&
-word%3A000006=invalid
