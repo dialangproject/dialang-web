@@ -90,7 +90,10 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           dialangSession.passId = UUID.randomUUID.toString
           saveDialangSession(dialangSession)
 
-          dataCapture.createSession(dialangSession,request.remoteAddress)
+          // An admin languge, test language and skill have been specified as
+          // launch parameters, so we can create a data capture session.
+          // Usually, this happens after the TLS screen, in SetTLS.scala.
+          dataCapture.createSessionAndPass(dialangSession,request.remoteAddress)
 
           contentType = "text/html"
           mustache("shell","state" -> "vsptintro",
@@ -102,8 +105,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       }
     } catch {
       case e:Exception => {
-        e.printStackTrace
-        println(e.getMessage)
+        logger.error("The LTI launch blew up.",e.getMessage)
       }
     }
 	}

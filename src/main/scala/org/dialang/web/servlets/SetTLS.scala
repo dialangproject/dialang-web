@@ -46,10 +46,10 @@ class SetTLS extends DialangServlet {
       // Zero all state except for the admin language and sessionId
       dialangSession.startNewTest()
 
-      // The session id persists across tests
-      val sessionId = dialangSession.sessionId match {
-          case "" => UUID.randomUUID.toString
-          case _ => dialangSession.sessionId
+      // The session id persists across tests (passes)
+      val (sessionId,isNewSession) = dialangSession.sessionId match {
+          case "" => (UUID.randomUUID.toString,true)
+          case _ => (dialangSession.sessionId,false)
         }
 
       // The pass id correlates with a test run. We always need a
@@ -69,7 +69,11 @@ class SetTLS extends DialangServlet {
 
       saveDialangSession(dialangSession)
 
-      dataCapture.createSession(dialangSession,request.remoteAddress)
+      if(isNewSession) {
+        dataCapture.createSessionAndPass(dialangSession,request.remoteAddress)
+      } else {
+        dataCapture.createPass(dialangSession)
+      }
 
       contentType = "text/plain"
       "success"

@@ -9,12 +9,25 @@ class DataCapture {
   /**
    * Sends the session details to datacapture over reliable transport
    */
-  def createSession(dialangSession:DialangSession, ipAddress:String) {
+  def createSessionAndPass(dialangSession:DialangSession, ipAddress:String) {
 
     new Thread(
       new Runnable {
         def run {
           dataCapture.createSession(dialangSession,ipAddress)
+          dataCapture.createPass(dialangSession)
+        }
+      }).start
+  }
+
+  /**
+   * Sends the pass details to datacapture over reliable transport
+   */
+  def createPass(dialangSession:DialangSession) {
+    new Thread(
+      new Runnable {
+        def run {
+          dataCapture.createPass(dialangSession)
         }
       }).start
   }

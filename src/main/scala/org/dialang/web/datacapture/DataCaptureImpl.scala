@@ -24,18 +24,51 @@ class DataCaptureImpl {
 
     try {
       conn = ds.getConnection
-      st = conn.prepareStatement("INSERT INTO sessions (session_id,pass_id,user_id,consumer_key,al,tl,skill,ip_address,started) VALUES(?,?,?,?,?,?,?,?,?)")
+      st = conn.prepareStatement("INSERT INTO sessions (id,user_id,consumer_key,ip_address,started) VALUES(?,?,?,?,?)")
       st.setString(1,dialangSession.sessionId)
-      st.setString(2,dialangSession.passId)
-      st.setString(3,dialangSession.userId)
-      st.setString(4,dialangSession.consumerKey)
-      st.setString(5,dialangSession.adminLanguage)
-      st.setString(6,dialangSession.testLanguage)
-      st.setString(7,dialangSession.skill)
-      st.setString(8,ipAddress)
-      st.setLong(9,new Date().getTime)
+      st.setString(2,dialangSession.userId)
+      st.setString(3,dialangSession.consumerKey)
+      st.setString(4,ipAddress)
+      st.setLong(5,new Date().getTime)
       if(st.executeUpdate != 1) {
         logger.error("Failed to log session creation.")
+      }
+    } catch {
+      case e:Exception => {
+        // TODO: LOGGING
+        e.printStackTrace
+      }
+    }finally {
+
+      if(st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if(conn != null) {
+        try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
+
+  def createPass(dialangSession:DialangSession) {
+
+    var conn:Connection = null
+    var st:PreparedStatement = null
+
+    try {
+      conn = ds.getConnection
+      st = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill) VALUES(?,?,?,?,?)")
+      st.setString(1,dialangSession.passId)
+      st.setString(2,dialangSession.sessionId)
+      st.setString(3,dialangSession.adminLanguage)
+      st.setString(4,dialangSession.testLanguage)
+      st.setString(5,dialangSession.skill)
+      if(st.executeUpdate != 1) {
+        logger.error("Failed to log pass creation.")
       }
     } catch {
       case e:Exception => {
