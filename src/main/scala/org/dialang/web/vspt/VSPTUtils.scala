@@ -18,12 +18,14 @@ class VSPTUtils {
    * a Tuple2 of z score and normalised (Meara'd) score
    */
   def getScore(tl:String,responses:Map[String,Boolean]):Tuple2[Double,Int] = {
+
     val Z = getZScore(tl,responses)
 
-    if (Z <= 0)
+    if (Z <= 0) {
       ((Z,0))
-    else 
+    } else {
       ((Z,(Z * 1000).toInt))
+    }
   }
 
   private def getZScore(tl:String,responses:Map[String,Boolean]):Double = {
@@ -55,15 +57,19 @@ class VSPTUtils {
 
     // number of real words answered in test:
     val X = yesResponses(REAL) + noResponses(REAL)
+    if(logger.isDebugEnabled) logger.debug("X: " + X);
 
     // number of imaginary words answered in test:
     val Y = yesResponses(FAKE) + noResponses(FAKE)
+    if(logger.isDebugEnabled) logger.debug("Y: " + Y);
 
     // number of yes responses to real words:
     val H:Double = yesResponses(REAL)
+    if(logger.isDebugEnabled) logger.debug("H: " + H);
 
     // number of yes responses to imaginary words:
     val F:Double = yesResponses(FAKE)
+    if(logger.isDebugEnabled) logger.debug("F: " + F);
 
     if (H != 0) {
       try {
@@ -73,7 +79,7 @@ class VSPTUtils {
         // f: Ratio of incorrectly answered fake words to total fake words answered
         val f:Double = F / Y
 
-        (( (h - f) * (1 + h - f) ) / (h * (1 - f)) ) - 1
+        ( ((h - f) * (1 + h - f)) / (h * (1 - f)) ) - 1
       }
       catch {
         case e:Exception => {
@@ -87,7 +93,13 @@ class VSPTUtils {
   }
 
   def getBand(tl:String, responses:Map[String,Boolean]):Tuple3[Double,Int,String] = {
+
     val (zScore,mearaScore) = getScore(tl,responses)
+
+    if(logger.isDebugEnabled) {
+      logger.debug("zScore: " + zScore + ". mearaScore: " + mearaScore);
+    }
+
     var level = "UNKNOWN"
     if(bands.contains(tl)) {
         val filtered = bands.get(tl).get.filter(t => mearaScore >= t._2 && mearaScore <= t._3)
@@ -95,6 +107,9 @@ class VSPTUtils {
         level = filtered(0)._1
       }
     }
+
+    if(logger.isDebugEnabled) logger.debug("Level: " + level);
+
     ((zScore,mearaScore,level))
   }
 }

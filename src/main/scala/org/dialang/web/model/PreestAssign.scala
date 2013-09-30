@@ -10,14 +10,16 @@ class PreestAssign(assign: Map[String,Vector[(Float,Int)]]) {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  def getBookletId(tl: String,skill: String) = {
+  def getBookletId(tl: String,skill: String):Int = {
     val list = assign.get(tl + "#" + skill).get
 
-    // obtain the  element at (set.size () +1) / 2.
-    list( (list.length + 1) / 2 )._2
+    // Get the middle element.
+    val bookletId = list( ((list.length + 1) / 2) - 1 )._2
+    if(logger.isDebugEnabled) logger.debug("Booklet ID: " + bookletId)
+    bookletId
   }
 
-  def getBookletId(tl: String,skill: String,pe: Float) = {
+  def getBookletId(tl: String,skill: String,pe: Float):Int = {
 
     if(logger.isDebugEnabled) logger.debug("PE: " + pe)
 
