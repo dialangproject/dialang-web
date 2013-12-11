@@ -1,20 +1,16 @@
 package org.dialang.web.vspt
 
-import org.dialang.web.db.DB
+import org.dialang.web.db.{DB,DBFactory}
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class VSPTUtils {
+class VSPTUtils(db:DB = DBFactory.get()) {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private val db = DB
-
-  private val bands:Map[String,Vector[(String,Int,Int)]] = db.getVSPTBands
-
   /**
-   *  Calculates the feedback score using Paul Meara's algorithm. Returns
+   * Calculates the feedback score using Paul Meara's algorithm. Returns
    * a Tuple2 of z score and normalised (Meara'd) score
    */
   def getScore(tl:String,responses:Map[String,Boolean]):Tuple2[Double,Int] = {
@@ -32,8 +28,8 @@ class VSPTUtils {
 
     val REAL = 1
     val FAKE = 0
-    var yesResponses = Array(0,0)
-    var noResponses = Array(0,0)
+    val yesResponses = Array(0,0)
+    val noResponses = Array(0,0)
 
     db.getVSPTWords(tl) match {
         case Some(list) => {
@@ -55,40 +51,25 @@ class VSPTUtils {
         }
       }
 
-    // number of real words answered in test:
-    val X = yesResponses(REAL) + noResponses(REAL)
-    if(logger.isDebugEnabled) logger.debug("X: " + X);
+    val realWordsAnswered = yesResponses(REAL) + noResponses(REAL)
+    if(logger.isDebugEnabled) logger.debug("realWordsAnswered: " + realWordsAnswered)
 
-    // number of imaginary words answered in test:
-    val Y = yesResponses(FAKE) + noResponses(FAKE)
-    if(logger.isDebugEnabled) logger.debug("Y: " + Y);
+    val fakeWordsAnswered = yesResponses(FAKE) + noResponses(FAKE)
+    if(logger.isDebugEnabled) logger.debug("fakeWordsAnswered: " + fakeWordsAnswered)
 
-    // number of yes responses to real words:
-    val H:Double = yesResponses(REAL)
-    if(logger.isDebugEnabled) logger.debug("H: " + H);
+    // Hits. The number of yes responses to real words.
+    val hits = yesResponses(REAL)
+    if(logger.isDebugEnabled) logger.debug("hits: " + hits);
 
-    // number of yes responses to imaginary words:
-    val F:Double = yesResponses(FAKE)
-    if(logger.isDebugEnabled) logger.debug("F: " + F);
+    // False alarms. The number of yes responses to fake words.
+    val falseAlarms = yesResponses(FAKE)
+    if(logger.isDebugEnabled) logger.debug("falseAlarms: " + falseAlarms)
 
-    if (H != 0) {
-      try {
-        // h: Ratio of correctly answered real words to total real words answered
-        val h:Double =  H / X
-
-        // f: Ratio of incorrectly answered fake words to total fake words answered
-        val f:Double = F / Y
-
-        ( ((h - f) * (1 + h - f)) / (h * (1 - f)) ) - 1
-      }
-      catch {
-        case e:Exception => {
-            logger.error(e.getMessage)
-            0
-        }
-      }
-    } else {
+    if(hits == 0) {
+      // No hits whatsoever results in a zero score
       0
+    } else {
+      VSPTScoringAlgorithms.getVersion6ZScore(hits,realWordsAnswered,falseAlarms,fakeWordsAnswered)
     }
   }
 
@@ -100,13 +81,21 @@ class VSPTUtils {
       logger.debug("zScore: " + zScore + ". mearaScore: " + mearaScore);
     }
 
-    var level = "UNKNOWN"
-    if(bands.contains(tl)) {
-        val filtered = bands.get(tl).get.filter(t => mearaScore >= t._2 && mearaScore <= t._3)
-      if(filtered.length == 1) {
-        level = filtered(0)._1
+    val level = db.vsptBands.get(tl) match {
+        case Some(band:Vector[(String,Int,Int)]) => {
+          val filtered = band.filter(t => mearaScore >= t._2 && mearaScore <= t._3)
+          if(filtered.length == 1) {
+            filtered(0)._1
+          } else {
+            logger.error("No level for test language '" + tl + "' and meara score: " + mearaScore + ". Returning UNKNOWN ...")
+            "UNKNOWN"
+          }
+        }
+        case _ => {
+          logger.error("No band found for test language '" + tl + "'. Returning UNKNOWN ...")
+          "UNKNOWN"
+        }
       }
-    }
 
     if(logger.isDebugEnabled) logger.debug("Level: " + level);
 

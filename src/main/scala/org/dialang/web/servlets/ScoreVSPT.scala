@@ -3,7 +3,7 @@ package org.dialang.web.servlets
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 
-import org.dialang.web.db.DB
+import org.dialang.web.db.DBFactory
 import org.dialang.web.vspt.VSPTUtils
 
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,7 @@ class ScoreVSPT extends DialangServlet {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private val db = DB
+  private val db = DBFactory.get()
   private val vsptUtils = new VSPTUtils
 
   post("/") {

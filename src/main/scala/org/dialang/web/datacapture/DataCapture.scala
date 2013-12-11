@@ -2,20 +2,20 @@ package org.dialang.web.datacapture
 
 import org.dialang.web.model.DialangSession
 
-class DataCapture {
+class DataCapture(dsUrl: String) {
 
-  private val dataCapture = new DataCaptureImpl
+  private val dataCapture = new DataCaptureImpl(dsUrl)
 
   /**
    * Sends the session details to datacapture over reliable transport
    */
-  def createSessionAndPass(dialangSession:DialangSession, ipAddress:String) {
+  def createSessionAndPass(dialangSession:DialangSession) {
 
     new Thread(
       new Runnable {
         def run {
-          dataCapture.createSession(dialangSession,ipAddress)
-          dataCapture.createPass(dialangSession)
+          dataCapture.createSessionAndPass(dialangSession)
+          //dataCapture.createPass(dialangSession)
         }
       }).start
   }

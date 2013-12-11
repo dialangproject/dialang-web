@@ -1,6 +1,6 @@
 package org.dialang.web.servlets
 
-import java.util.UUID
+import java.util.{Date,UUID}
 
 import org.dialang.common.model.ImmutableItem
 
@@ -66,11 +66,13 @@ class SetTLS extends DialangServlet {
       dialangSession.sessionId = sessionId
       dialangSession.testLanguage = tl
       dialangSession.skill = skill.toLowerCase
+      dialangSession.ipAddress = request.remoteAddress
+      dialangSession.started = (new Date).getTime
 
       saveDialangSession(dialangSession)
 
       if(isNewSession) {
-        dataCapture.createSessionAndPass(dialangSession,request.remoteAddress)
+        dataCapture.createSessionAndPass(dialangSession)
       } else {
         dataCapture.createPass(dialangSession)
       }

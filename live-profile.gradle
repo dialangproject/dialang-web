@@ -1,0 +1,8 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+war.eachFile {
+
+    if(name == 'context.xml') {
+        filter(ReplaceTokens, tokens: ['db.user': 'dialangadmin', 'db.password': 'dialangadmin', 'db.host': 'dialangdata.lancs.ac.uk'])
+    }
+}

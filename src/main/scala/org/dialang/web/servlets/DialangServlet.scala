@@ -11,11 +11,16 @@ import scala.collection.mutable.HashMap
 
 import org.scalatra.ScalatraServlet
 
+import org.slf4j.LoggerFactory
+
 class DialangServlet extends ScalatraServlet {
 
-  protected lazy val dataCapture = new DataCapture
+  private val logger = LoggerFactory.getLogger(getClass)
+
+  protected lazy val dataCapture = new DataCapture("java:comp/env/jdbc/dialangdatacapture")
 
   protected def getDialangSession = {
+
     session.get("dialangSession") match {
       case Some(d:DialangSession) => d
       case _ => new DialangSession
@@ -23,10 +28,11 @@ class DialangServlet extends ScalatraServlet {
   }
 
   protected def saveDialangSession(dialangSession:DialangSession) {
+
     session += ("dialangSession" -> dialangSession)
   }
 
-  protected def getUpdatedCookie(state: Map[String,String],ignoreCurrent: Boolean = false): Cookie = {
+  protected def getUpdatedCookie(state: Map[String,String], ignoreCurrent: Boolean = false): Cookie = {
 
     if(ignoreCurrent) {
       val cookieValue = state.foldLeft("")((b,a) => b + a._1 + "=" + a._2 + "|").dropRight(1)

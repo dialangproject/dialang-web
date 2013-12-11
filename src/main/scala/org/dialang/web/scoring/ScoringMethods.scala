@@ -1,8 +1,8 @@
 package org.dialang.web.scoring
 
-import org.dialang.web.db.DB
+import org.dialang.web.db.DBFactory
 import org.dialang.common.model.ImmutableItem
-import org.dialang.common.model.Item
+import org.dialang.common.model.{Item,ScoredItem}
 import org.dialang.web.model.{DialangSession,ItemGrade}
 
 import java.util.StringTokenizer
@@ -18,21 +18,7 @@ class ScoringMethods {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private val db = DB
-
-  /**
-   * Need this for all cases. The assignments tells you which booklet to assign for a given lang/skill/pe.
-   */
-  private val assign = db.getPreestAssign
-
-  /**
-	 * and we also need the weights, this gives value to 'weight' the grading model.'s:
-   */
-  private val preestWeights = db.getPreestWeights
-
-  private val saWeights = db.getSAWeights
-
-  private val saGrades = db.getSAGrades
+  private val db = DBFactory.get()
 
   /**
 	 * Calculates the booklet id.
@@ -50,7 +36,7 @@ class ScoringMethods {
 
 		if (!session.vsptSubmitted && !session.saSubmitted) {
 			// No sa or vspt, request the default assignment.
-			assign.getBookletId(session.testLanguage,session.skill)
+			db.preestAssign.getMiddleBookletId(session.testLanguage,session.skill)
 		} else {
 
 		  // if either test is done, then we need to get the grade 
@@ -60,19 +46,21 @@ class ScoringMethods {
 
 		  val saPPE:Float = if(session.saSubmitted) session.saPPE else 0.0F
 
-		  println(session.testLanguage + "," + session.skill + "," + session.vsptSubmitted + "," + session.saSubmitted)
+      if(logger.isDebugEnabled) {
+		    logger.debug(session.testLanguage + "," + session.skill + "," + session.vsptSubmitted + "," + session.saSubmitted)
+      }
 
 		  // get the appropriate weight for the given context:
-		  preestWeights.get(session.testLanguage, session.skill, session.vsptSubmitted, session.saSubmitted) match {
+		  db.preestWeights.get(session.testLanguage, session.skill, session.vsptSubmitted, session.saSubmitted) match {
         case Some(t:Tuple3[Float,Float,Float]) => {
 		      val pe =  (saPPE * t._2) + (vsptZScore * t._1) + t._3
 
 		      // finaly look up the assignment for the resulting values:
-		      assign.getBookletId(session.testLanguage,session.skill,pe)
+		      db.preestAssign.getBookletId(session.testLanguage,session.skill,pe)
         }
         case _ => {
-          println("NO WEIGHT")
-			    assign.getBookletId(session.testLanguage,session.skill)
+          if(logger.isInfoEnabled) logger.info("No weight returned. The middle booklet will be returned.")
+			    db.preestAssign.getMiddleBookletId(session.testLanguage,session.skill)
         }
       }
     }
@@ -86,7 +74,7 @@ class ScoringMethods {
     responses.keys.foldLeft(0)( (rsc,id) => {
       if(responses.get(id).get) {
         // They responded true to this statement, add its weight.
-        saWeights.get(skill) match {
+        db.saWeights.get(skill) match {
             case Some(wordMap) => {
               rsc + wordMap.get(id).get
             }
@@ -103,36 +91,39 @@ class ScoringMethods {
 
   def getSaPPEAndLevel(skill: String,responses: Map[String,Boolean]):Tuple2[Float,String] = {
     val rsc = getSaRawScore(skill,responses)
-    val levelMap = db.getLevels
-    ((saGrades.getPPE(skill,rsc),levelMap.get(saGrades.getGrade(skill,rsc)).get))
+    val levelMap = db.levels
+    ((db.saGrades.getPPE(skill,rsc),levelMap.get(db.saGrades.getGrade(skill,rsc)).get))
   }
 
   /**
    * Used for mcq and gap drop
    */
-  def getScoredIdResponseItem(itemId:Int,responseId:Int): Option[Item] = {
+  def getScoredIdResponseItem(itemId:Int,responseId:Int): Option[ScoredItem] = {
 
-    db.getItem(itemId) match {
-        case Some(item) => { 
-          item.responseId = responseId
+    db.items.get(itemId) match {
+        case Some(item) => {
+          val scoredItem = new ScoredItem(item)
+          scoredItem.responseId = responseId
           db.getAnswer(responseId) match {
               case Some(answer) => {
                 if(answer.correct) {
-                  item.correct = true
-                  item.score = item.weight
+                  scoredItem.correct = true
+                  scoredItem.score = item.weight
                 } else {
-                  item.correct = false
+                  scoredItem.correct = false
                 }
-                Some(item)
+                Some(scoredItem)
               }
               case None => {
                 // The answerId couldn't be found in the system.
+                logger.error("No answer with id " + responseId + " was found in the system. Returning None ...")
                 None
               }
             }
         }
         case None => {
           // The itemId couldn't be found in the system.
+          logger.error("No item with id " + itemId + " was found in the system. Returning None ...")
           None
         }
       }
@@ -141,21 +132,22 @@ class ScoringMethods {
   /**
    * Used for short answer and gap text
    */
-  def getScoredTextResponseItem(itemId:Int,answerText:String): Option[Item] = {
+  def getScoredTextResponseItem(itemId:Int,answerText:String): Option[ScoredItem] = {
 
-    db.getItem(itemId) match {
+    db.items.get(itemId) match {
         case Some(item) => {
-          item.responseText = answerText
+          val scoredItem = new ScoredItem(item)
+          scoredItem.responseText = answerText
           var score = 0
           db.getAnswers(itemId) match {
               case Some(answers) => {
                 answers.foreach(correctAnswer => {
                   if(removeWhiteSpaceAndPunctuation(correctAnswer.text).equalsIgnoreCase(removeWhiteSpaceAndPunctuation(answerText))) {
-                    item.score = item.weight;
-                    item.correct = true
+                    scoredItem.score = item.weight;
+                    scoredItem.correct = true
                   }
                 })
-                Some(item)
+                Some(scoredItem)
               }
               case None => {
                 logger.error("No answers for item id " + itemId + ". Returning None ...")
@@ -172,35 +164,30 @@ class ScoringMethods {
 
   def getItemGrade(session:DialangSession,results:List[ImmutableItem]):Tuple2[Int,String] = {
 
-    var rawScore = 0
-    var weight = 0
+    if(logger.isDebugEnabled) logger.debug("NUM ITEMS: " + results.length)
 
     // results contains the set of results for the entire test - ie the
     // results for each item type.
 
-    results.foreach(item => {
-
-      // total weights:
-      weight += item.weight
-
-      // total score:
-      rawScore += item.score
-    })
+    val (rawScore, weight) = results.foldLeft((0,0))( (t, item) => (t._1 + item.score, t._2 + item.weight) )
 
     val itemGrades = db.getItemGrades(session.testLanguage, session.skill, session.bookletId)
 
     // normalize:
-    rawScore = ((rawScore.toFloat) * (itemGrades.max / weight.toFloat)).toInt
+    val normalisedRawScore = ((rawScore.toFloat) * (itemGrades.max / weight.toFloat)).toInt
 
-    val itemGrade = itemGrades.get(rawScore) match {
+    if(logger.isDebugEnabled) logger.debug("NORMALISED RAW SCORE: " + normalisedRawScore)
+    if(logger.isDebugEnabled) logger.debug("WEIGHT: " + weight)
+
+    val itemGrade = itemGrades.get(normalisedRawScore) match {
         case Some(ig) => ig
         case None => {
-          logger.error("No item grade for raw score " + rawScore + ".")
+          logger.error("No item grade for normalised raw score " + normalisedRawScore + ".")
           new ItemGrade(0,0,0)
         }
       }
 
-    ((itemGrade.grade,db.getLevels.get(itemGrade.grade).get))
+    ((itemGrade.grade,db.levels.get(itemGrade.grade).get))
   }
 
   /**
@@ -209,7 +196,7 @@ class ScoringMethods {
    */
   private def removeWhiteSpaceAndPunctuation(in:String) = {
 
-    val punctuationList = db.getPunctuationCharacters
+    val punctuationList = db.punctuation
 
     if(punctuationList.size > 0) {
 

@@ -1,0 +1,48 @@
+apply plugin: 'scala'
+apply plugin: 'war'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.10.0'
+    compile 'org.dialang.common:dialang-common:0.1'
+    compile 'log4j:log4j:1.2.8'
+    compile 'commons-codec:commons-codec:1.5'
+    compile 'net.oauth:oauth-core:20100601'
+    compile 'ch.qos.logback:logback-classic:1.0.11'
+    compile 'org.scalatra:scalatra_2.10:2.2.1'
+    compile 'org.scalatra:scalatra-scalate_2.10:2.2.1'
+    compile 'org.scalatra:scalatra-json_2.10:2.2.1'
+    compile 'org.json4s:json4s-jackson_2.10:3.2.4'
+
+    providedCompile 'javax.servlet:servlet-api:2.5'
+    providedCompile 'postgresql:postgresql:9.1-901.jdbc4'
+
+    testCompile 'org.scala-lang:scala-library:2.10.0'
+    testCompile 'org.scalatest:scalatest_2.10:2.0'
+    testCompile 'simple-jndi:simple-jndi:0.11.4.1'
+}
+
+
+if(hasProperty('profile')) {
+    apply from: "${profile}-profile.gradle"
+} else {
+    apply from: "dev-profile.gradle"
+}
+
+war.doLast {
+    ant.unzip(src: war.archivePath, dest: "${buildDir}/exploded")
+}
+
+test << {
+
+    //jvmArgs "-XX:MaxPermSize=512m"
+
+    ant.taskdef(name: 'scalatest', classname: 'org.scalatest.tools.ScalaTestAntTask', classpath: classpath.asPath)
+    ant.scalatest(runpath: testClassesDir, haltonfailure: 'true', fork: 'false') {
+        reporter(type: 'stdout')
+    }
+}

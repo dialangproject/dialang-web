@@ -14,13 +14,14 @@ import java.util.concurrent.ConcurrentHashMap
 
 import org.dialang.common.model.{Answer,Item}
 
-object DB extends DialangLogger {
+class DB(datasourceUrl: String) extends DialangLogger {
 
-  private val ds = (new InitialContext).lookup("java:comp/env/jdbc/dialang").asInstanceOf[DataSource];
+  private val ds = (new InitialContext).lookup(datasourceUrl).asInstanceOf[DataSource];
 
   private def terminalDBError(t:Throwable):Nothing = {
+
     error("A terminal error occurred. The JVM will exit.",t)
-    exit(1)
+    sys.exit(1)
   }
 
   private val adminLanguageMappingsCache:Map[String,String] = {
@@ -59,6 +60,7 @@ object DB extends DialangLogger {
     }
 
   def getAdminLanguageForTwoLetterLocale(twoLetterLocale:String):String = {
+
     adminLanguageMappingsCache.getOrElse(twoLetterLocale.toLowerCase.replace("-","_"),"")
   }
 
@@ -140,7 +142,7 @@ object DB extends DialangLogger {
     vsptWordCache.get(tl)
   }
 
-  private val preestAssignCache:PreestAssign = {
+  val preestAssign:PreestAssign = {
 
       debug("Caching pre-estimation assignments ...")
 
@@ -196,9 +198,7 @@ object DB extends DialangLogger {
       }
     }
 
-  def getPreestAssign:PreestAssign = preestAssignCache
-
-  private val preestWeightsCache:PreestWeights = {
+  val preestWeights:PreestWeights = {
 
       debug("Caching pre-estimation weights ...")
 
@@ -230,9 +230,7 @@ object DB extends DialangLogger {
       }
     }
 
-  def getPreestWeights:PreestWeights = preestWeightsCache
-
-  private val vsptBandsCache:Map[String,Vector[(String,Int,Int)]] = {
+  val vsptBands:Map[String,Vector[(String,Int,Int)]] = {
 
       debug("Caching VSPT bands ...")
 
@@ -280,9 +278,10 @@ object DB extends DialangLogger {
       }
     }
 
-  def getVSPTBands:Map[String,Vector[(String,Int,Int)]] = vsptBandsCache
-
-  private val saWeightsCache:Map[String,Map[String,Int]] = {
+  /**
+   * Returns a Map[SKILL[ID: WEIGHT]] with the sa statement weights
+   */
+  val saWeights:Map[String,Map[String,Int]] = {
 
       debug("Caching SA weights ...")
 
@@ -329,12 +328,8 @@ object DB extends DialangLogger {
       }
     }
 
-  /**
-   * Returns a Map[SKILL[ID: WEIGHT]] with the sa statement weights
-   */
-  def getSAWeights:Map[String,Map[String,Int]] = saWeightsCache
 
-  private val saGradesCache:SAGrades = {
+  val saGrades:SAGrades = {
 
       debug("Caching SA grades ...")
 
@@ -365,8 +360,6 @@ object DB extends DialangLogger {
         debug("SA grades cached.")
       }
     }
-
-  def getSAGrades:SAGrades = saGradesCache
 
   private val skillCache:List[String] = {
 
@@ -688,7 +681,7 @@ object DB extends DialangLogger {
       }
   }
 
-  private val itemCache:Map[Int,Item] = {
+  val items:Map[Int,Item] = {
 
       debug("Caching items ...")
 
@@ -722,8 +715,6 @@ object DB extends DialangLogger {
         debug("Items cached ...")
       }
     }
-
-  def getItem(itemId:Int): Option[Item] = itemCache.get(itemId)
 
   private val (answerCache:Map[Int,Answer],itemAnswerCache:Map[Int,List[Answer]]) = {
 
@@ -794,7 +785,7 @@ object DB extends DialangLogger {
     itemAnswerCache.get(itemId)
   }
 
-  private val punctuationCache:List[String] = {
+  val punctuation:List[String] = {
 
       debug("Caching punctuation ...")
 
@@ -830,9 +821,10 @@ object DB extends DialangLogger {
       }
     }
 
-  def getPunctuationCharacters = punctuationCache
-
-  private val levelCache: Map[Int,String] = {
+  /**
+   * Returns a mapping of textual level onto numeric grade, eg: 1 -&gt; A1
+   */
+  val levels: Map[Int,String] = {
 
       debug("Caching levels ...")
 
@@ -870,8 +862,4 @@ object DB extends DialangLogger {
       }
     }
 
-  /**
-   * Returns a mapping of textual level onto numeric grade, eg: 1 -&gt; A1
-   */
-  def getLevels = levelCache
 }

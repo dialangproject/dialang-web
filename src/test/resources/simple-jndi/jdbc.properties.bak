@@ -1,0 +1,5 @@
+dialangdatacapture.type=javax.sql.DataSource
+dialangdatacapture.driver=${db.driver}
+dialangdatacapture.url=${db.url}
+dialangdatacapture.user=${db.user}
+dialangdatacapture.password=${db.password}

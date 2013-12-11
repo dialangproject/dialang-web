@@ -10,7 +10,7 @@ class PreestAssign(assign: Map[String,Vector[(Float,Int)]]) {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  def getBookletId(tl: String,skill: String):Int = {
+  def getMiddleBookletId(tl: String,skill: String):Int = {
     val list = assign.get(tl + "#" + skill).get
 
     // Get the middle element.

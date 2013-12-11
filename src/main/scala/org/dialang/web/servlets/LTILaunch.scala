@@ -4,7 +4,7 @@ import net.oauth._
 import net.oauth.server.OAuthServlet
 import net.oauth.signature.OAuthSignatureMethod
 
-import org.dialang.web.db.DB
+import org.dialang.web.db.DBFactory
 
 import scala.collection.JavaConversions._
 
@@ -18,11 +18,11 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
   private val logger = LoggerFactory.getLogger(classOf[LTILaunch])
 
-  val db = DB
+  val db = DBFactory.get()
 
 	post("/") {
 
-    if(logger.isDebugEnabled) logger.debug("lti post")
+    if (logger.isDebugEnabled) logger.debug("lti post")
 
     val message = OAuthServlet.getMessage(request, null)
 
@@ -56,8 +56,8 @@ class LTILaunch extends DialangServlet with ScalateSupport {
             }
         }
 
-      dialangSession.testLanguage = params.getOrElse("custom_dialang_test_language","")
-      dialangSession.skill = params.getOrElse("custom_dialang_test_skill","")
+      dialangSession.testLanguage = params.getOrElse("custom_dialang_test_language", "")
+      dialangSession.skill = params.getOrElse("custom_dialang_test_skill", "")
 
       dialangSession.instantFeedbackDisabled
         = params.get("custom_dialang_instant_feedback_disabled") match {
@@ -77,7 +77,6 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         contentType = "text/html"
         redirect("/dialang-content/als.html")
       } else {
-
         if(dialangSession.testLanguage == "" || dialangSession.skill == "") {
           saveDialangSession(dialangSession)
           contentType = "text/html"
@@ -85,15 +84,15 @@ class LTILaunch extends DialangServlet with ScalateSupport {
                               "al" -> dialangSession.adminLanguage,
                               "instantFeedbackDisabled" -> dialangSession.instantFeedbackDisabled)
         } else {
-
           dialangSession.sessionId = UUID.randomUUID.toString
           dialangSession.passId = UUID.randomUUID.toString
+          dialangSession.ipAddress = request.remoteAddress
           saveDialangSession(dialangSession)
 
           // An admin languge, test language and skill have been specified as
           // launch parameters, so we can create a data capture session.
           // Usually, this happens after the TLS screen, in SetTLS.scala.
-          dataCapture.createSessionAndPass(dialangSession,request.remoteAddress)
+          dataCapture.createSessionAndPass(dialangSession)
 
           contentType = "text/html"
           mustache("shell","state" -> "vsptintro",
@@ -105,32 +104,32 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       }
     } catch {
       case e:Exception => {
-        logger.error("The LTI launch blew up.",e.getMessage)
+        logger.error("The LTI launch blew up.", e.getMessage)
       }
     }
 	}
 
   @throws[Exception]
-  private def validate(payload:Map[String,String],oam:OAuthMessage) {
+  private def validate(payload:Map[String,String], oam:OAuthMessage) {
 
     //check parameters
-    val lti_message_type = payload.getOrElse(BasicLTIConstants.LTI_MESSAGE_TYPE,"")
-    val lti_version = payload.getOrElse(BasicLTIConstants.LTI_VERSION,"")
-    val oauth_consumer_key = payload.getOrElse("oauth_consumer_key","")
-    val resource_link_id = payload.getOrElse(BasicLTIConstants.RESOURCE_LINK_ID,"")
-    val user_id = payload.getOrElse(BasicLTIConstants.USER_ID,"")
-    val context_id = payload.getOrElse(BasicLTIConstants.CONTEXT_ID,"")
+    val lti_message_type = payload.getOrElse(BasicLTIConstants.LTI_MESSAGE_TYPE, "")
+    val lti_version = payload.getOrElse(BasicLTIConstants.LTI_VERSION, "")
+    val oauth_consumer_key = payload.getOrElse("oauth_consumer_key", "")
+    val resource_link_id = payload.getOrElse(BasicLTIConstants.RESOURCE_LINK_ID, "")
+    val user_id = payload.getOrElse(BasicLTIConstants.USER_ID, "")
+    val context_id = payload.getOrElse(BasicLTIConstants.CONTEXT_ID, "")
 
-    if(lti_message_type != "basic-lti-launch-request") {
+    if (lti_message_type != "basic-lti-launch-request") {
       println(lti_message_type)
       throw new Exception("launch.invalid")
     }
 
-    if(lti_version != "LTI-1p0") {
+    if (lti_version != "LTI-1p0") {
       throw new Exception( "launch.invalid")
     }
 
-    if(oauth_consumer_key == "") {
+    if (oauth_consumer_key == "") {
       throw new Exception( "launch.missing oauth_consumer_key")
     }
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
 cd ..
-mvn -o -Pdev clean install
-sudo -S cp target/dialangweb-1.0-SNAPSHOT.war /usr/local/dialang-tomcat/webapps/ROOT.war
+gradle -i clean build
+sudo -S cp build/libs/dialang-web.war /usr/local/dialang-tomcat/webapps/ROOT.war
 

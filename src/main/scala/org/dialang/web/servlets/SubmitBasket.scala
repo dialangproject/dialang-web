@@ -1,6 +1,6 @@
 package org.dialang.web.servlets
 
-import org.dialang.web.db.DB
+import org.dialang.web.db.DBFactory
 import org.dialang.web.model.{DialangSession,Basket}
 import org.dialang.web.scoring.ScoringMethods
 import org.dialang.common.model._
@@ -21,7 +21,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
 
   protected implicit val jsonFormats: Formats = DefaultFormats
   
-  private val db = DB
+  private val db = DBFactory.get()
   private val scoringMethods = new ScoringMethods
 
   post("/") {
@@ -33,7 +33,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
       halt(500)
     }
 
-    val currentBasketId:Int = params.get("basketId") match {
+    val currentBasketId = params.get("basketId") match {
         case Some(s:String) => s.toInt
         case None => {
           logger.error("No basket id supplied. Returning 400 (Bad Request) ...")
@@ -48,7 +48,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
 
     val returnMap = new HashMap[String,Any]()
 
-    def itemSorter = (a:ImmutableItem,b:ImmutableItem) => {a.positionInBasket < b.positionInBasket}
+    def positionInBasketSorter = (a:ImmutableItem,b:ImmutableItem) => {a.positionInBasket < b.positionInBasket}
 
     val basketList:ListBuffer[Basket] = (new ListBuffer[Basket]) ++ dialangSession.scoredBasketList
     val itemList:ListBuffer[ImmutableItem] = (new ListBuffer[ImmutableItem]) ++ dialangSession.scoredItemList
@@ -74,8 +74,8 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
               halt(400)
             }
           }
-        scoringMethods.getScoredIdResponseItem(itemId,answerId) match {
-            case Some(item:Item) => {
+        scoringMethods.getScoredIdResponseItem(itemId, answerId) match {
+            case Some(item: ScoredItem) => {
               item.basketId = currentBasketId
               item.positionInBasket = 1
               item.positionInTest = numScoredItems + 1
@@ -106,7 +106,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
         responses.foreach(t => {
           val itemOption = scoringMethods.getScoredIdResponseItem(t._1,t._2)
           if(itemOption.isDefined) {
-            val item:Item = itemOption.get
+            val item: ScoredItem = itemOption.get
             item.positionInBasket = params.get(item.id + "-position") match {
                 case Some(s:String) => s.toInt
                 case None => {
@@ -133,7 +133,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
             logger.error("No item returned from scoring")
           }
         })
-        val scoredBasket = new Basket(currentBasketId,"tabbedpane",basketItems.head.skill,basketItems.toList.sortWith(itemSorter))
+        val scoredBasket = new Basket(currentBasketId,"tabbedpane",basketItems.head.skill,basketItems.toList.sortWith(positionInBasketSorter))
         basketList += scoredBasket
         returnMap += ("scoredBasket" -> scoredBasket)
         dataCapture.logMultipleIdResponses(dialangSession.passId,currentBasketId,responses.toMap)
@@ -171,7 +171,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
             logger.error("No item returned from scoring")
           }
         })
-        val scoredBasket = new Basket(currentBasketId,"shortanswer",basketItems.head.skill,basketItems.toList.sortWith(itemSorter))
+        val scoredBasket = new Basket(currentBasketId,"shortanswer",basketItems.head.skill,basketItems.toList.sortWith(positionInBasketSorter))
         basketList += scoredBasket
         returnMap += ("scoredBasket" -> scoredBasket)
         dataCapture.logMultipleTextualResponses(dialangSession.passId,currentBasketId,responses.toMap)
@@ -183,7 +183,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
         responses.foreach(t => {
           val itemOption = scoringMethods.getScoredTextResponseItem(t._1,t._2)
           if(itemOption.isDefined) {
-            val item:Item = itemOption.get
+            val item: ScoredItem = itemOption.get
             item.basketId = currentBasketId
             item.positionInBasket = params.get(item.id + "-position") match {
                 case Some(s:String) => s.toInt
@@ -208,7 +208,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
             logger.error("No item returned from scoring")
           }
         })
-        val scoredBasket = new Basket(currentBasketId,"gaptext",basketItems.head.skill,basketItems.toList.sortWith(itemSorter))
+        val scoredBasket = new Basket(currentBasketId,"gaptext",basketItems.head.skill,basketItems.toList.sortWith(positionInBasketSorter))
         basketList += scoredBasket
         returnMap += ("scoredBasket" -> scoredBasket)
         dataCapture.logMultipleTextualResponses(dialangSession.passId,currentBasketId,responses.toMap)
@@ -220,10 +220,10 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
         responses.foreach(t => {
           val itemOption = scoringMethods.getScoredIdResponseItem(t._1,t._2)
           if(itemOption.isDefined) {
-            val item:Item = itemOption.get
+            val item: ScoredItem = itemOption.get
             item.basketId = currentBasketId
             item.positionInBasket = params.get(item.id + "-position") match {
-                case Some(s:String) => s.toInt
+                case Some(s: String) => s.toInt
                 case None => {
                   logger.error("No position supplied for item '" + item.id + "'. Returning 400 (Bad Request) ...")
                   halt(400)
@@ -245,7 +245,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
             logger.error("No item returned from scoring")
           }
         })
-        val scoredBasket = new Basket(currentBasketId,"gapdrop",basketItems.head.skill,basketItems.toList.sortWith(itemSorter))
+        val scoredBasket = new Basket(currentBasketId,"gapdrop",basketItems.head.skill,basketItems.toList.sortWith(positionInBasketSorter))
         basketList += scoredBasket
         returnMap += ("scoredBasket" -> scoredBasket)
         dataCapture.logMultipleIdResponses(dialangSession.passId,currentBasketId,responses.toMap)
@@ -265,15 +265,15 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
     dialangSession.scoredBasketList = basketList.toList
 
     val nextBasketNumber = dialangSession.currentBasketNumber + 1
-    if(logger.isDebugEnabled) logger.debug("nextBasketNumber:" + nextBasketNumber)
+    if (logger.isDebugEnabled) logger.debug("nextBasketNumber:" + nextBasketNumber)
 
     val basketIds:List[Int] = db.getBasketIdsForBooklet(dialangSession.bookletId)
 
-    if(nextBasketNumber >= basketIds.length) {
-
+    if (nextBasketNumber >= basketIds.length) {
+      // The test has finished. Grade it.
       val (itemGrade:Int,itemLevel:String) = scoringMethods.getItemGrade(dialangSession,itemList.toList)
 
-      if(logger.isDebugEnabled) logger.debug("ITEM GRADE:" + itemGrade)
+      if (logger.isDebugEnabled) logger.debug("ITEM GRADE:" + itemGrade)
 
       dialangSession.itemGrade = itemGrade
       dialangSession.itemLevel = itemLevel
@@ -290,7 +290,6 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
       returnMap.toMap
 
     } else {
-
       val nextBasketId = basketIds(nextBasketNumber)
 
       dialangSession.currentBasketNumber = nextBasketNumber

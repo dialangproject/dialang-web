@@ -5,51 +5,31 @@ import org.dialang.web.util.DialangLogger
 
 class DialangSession extends Serializable with DialangLogger {
 
-  var userId:String = ""
-
-  var consumerKey:String = ""
-
-  var adminLanguage:String = ""
-
-  var sessionId:String = ""
-
-  var passId:String = ""
-
-  var testLanguage:String = ""
-
-  var skill:String = ""
-
-  var instantFeedbackDisabled:Boolean = false
-
-  var vsptSubmitted:Boolean = false
-
-  var saSubmitted:Boolean = false
-
-  var vsptZScore:Float = 0F
-
-  var vsptMearaScore:Int = 0
-
-  var vsptLevel:String = "V0"
-
-  var saPPE:Float = 0F
-
-  var saLevel:String = ""
-
-  var itemGrade:Int = 0
-
-  var itemLevel:String = ""
-
-  var saResponses:Map[String,Int] = Map()
-
-  var bookletId:Int = 0
-
-  var bookletLength:Int = 0
-
-  var currentBasketNumber:Int = 0
-
-  var scoredItemList:List[ImmutableItem] = List[ImmutableItem]()
-
-  var scoredBasketList:List[Basket] = List[Basket]()
+  var userId = ""
+  var consumerKey = ""
+  var adminLanguage = ""
+  var sessionId = ""
+  var ipAddress = ""
+  var started = 0L
+  var passId = ""
+  var testLanguage = ""
+  var skill = ""
+  var instantFeedbackDisabled = false
+  var vsptSubmitted = false
+  var saSubmitted = false
+  var vsptZScore = 0F
+  var vsptMearaScore = 0
+  var vsptLevel = "V0"
+  var saPPE = 0F
+  var saLevel = ""
+  var itemGrade = 0
+  var itemLevel = ""
+  var saResponses = Map[String, Int]()
+  var bookletId = 0
+  var bookletLength = 0
+  var currentBasketNumber = 0
+  var scoredItemList = List[ImmutableItem]()
+  var scoredBasketList = List[Basket]()
 
   /**
    * Resets all state except adminLanguage
@@ -70,7 +50,7 @@ class DialangSession extends Serializable with DialangLogger {
     saLevel = ""
     itemGrade = 0
     itemLevel = ""
-    saResponses = Map()
+    saResponses = Map[String, Int]()
     bookletId = 0
     bookletLength = 0
     currentBasketNumber = 0
