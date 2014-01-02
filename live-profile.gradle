@@ -3,6 +3,6 @@ import org.apache.tools.ant.filters.ReplaceTokens
 war.eachFile {
 
     if(name == 'context.xml') {
-        filter(ReplaceTokens, tokens: ['db.user': 'dialangadmin', 'db.password': 'dialangadmin', 'db.host': 'dialangdata.lancs.ac.uk'])
+        filter(ReplaceTokens, tokens: ['db.user': 'dialangadmin', 'db.password': 'faic8Ahf', 'db.host': 'dialangdata.lancs.ac.uk'])
     }
 }

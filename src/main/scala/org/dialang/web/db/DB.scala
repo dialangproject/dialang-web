@@ -20,8 +20,7 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
   private def terminalDBError(t:Throwable):Nothing = {
 
-    error("A terminal error occurred. The JVM will exit.",t)
-    sys.exit(1)
+    error("A terminal error occurred.",t)
   }
 
   private val adminLanguageMappingsCache:Map[String,String] = {
@@ -543,47 +542,52 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching booklet lengths ...")
 
-      var conn:Connection = null
-      var st1:PreparedStatement = null
-      var st2:PreparedStatement = null
-      var st3:PreparedStatement = null
+      lazy val conn:Connection = ds.getConnection
+      lazy val st1:PreparedStatement = conn.prepareStatement(
+        "SELECT baskets.* FROM baskets, booklet_basket WHERE booklet_basket.booklet_id = ? AND booklet_basket.basket_id = baskets.id")
+      lazy val st2:PreparedStatement = conn.prepareStatement(
+        "SELECT * FROM baskets WHERE parent_testlet_id = ?")
+      lazy val st3:PreparedStatement = conn.prepareStatement(
+        "SELECT count(*) as num_items FROM basket_item WHERE basket_id = ?")
+
       try {
-        conn = ds.getConnection
-        // This counts the number of non tabbedpane baskets in a booklet
-        st1 = conn.prepareStatement("SELECT count(bb.booklet_id) FROM booklet_basket bb,baskets b WHERE bb.booklet_id = ? AND bb.basket_id = b.id AND b.type != 'tabbedpane'")
-        // This counts the number of tabbedpane baskets in a booklet
-        st2 = conn.prepareStatement("SELECT bb.basket_id FROM booklet_basket bb,baskets b WHERE bb.booklet_id = ? AND bb.basket_id = b.id AND b.type = 'tabbedpane'")
-        // This counts the number of children of a given basket (tabbedpane of course)
-        st3 = conn.prepareStatement("SELECT count(*) FROM baskets WHERE parent_testlet_id = ?")
 
         val temp = new HashMap[Int,Int]
 
         bookletIdCache.foreach(bookletId => {
+
           var total = 0
 
-          // Count the non testlet baskets
-          st1.setInt(1,bookletId)
-          val rs = st1.executeQuery
-          if(rs.next) {
-            total += rs.getInt(1)
-          }
-          rs.close()
+          // Get all the baskets for this booklet.
 
-          // Select the testlet baskets in this booklet
-          st2.setInt(1,bookletId)
-          val rs2 = st2.executeQuery
-          while(rs2.next) {
-            // Add one for the testlet
-            total += 1
-            // Now count the child baskets
-            st3.setInt(1,rs2.getInt("basket_id"))
-            val rs3 = st3.executeQuery
-            if(rs3.next) {
-              total += rs3.getInt(1)
+          st1.setInt(1,bookletId)
+          val basketsRS = st1.executeQuery
+
+          while(basketsRS.next) {
+            val basketId = basketsRS.getInt("id")
+            basketsRS.getString("type") match {
+              case "tabbedpane" => {
+                st2.setInt(1, basketId)
+                val childBasketsRS = st2.executeQuery
+                while(childBasketsRS.next) {
+                  val childBasketId = childBasketsRS.getInt("id")
+                  st3.setInt(1,childBasketId)
+                  val itemCountRS = st3.executeQuery
+                  if(itemCountRS.next) {
+                    total += itemCountRS.getInt("num_items")
+                  }
+                }
+              }
+              case _ => {
+                st3.setInt(1,basketId)
+                val itemCountRS = st3.executeQuery
+                if(itemCountRS.next) {
+                  total += itemCountRS.getInt("num_items")
+                }
+              }
             }
-            rs3.close()
           }
-          rs2.close()
+
           temp += (bookletId -> total)
         })
         temp.toMap
