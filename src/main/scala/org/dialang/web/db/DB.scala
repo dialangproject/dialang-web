@@ -18,29 +18,21 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
   private val ds = (new InitialContext).lookup(datasourceUrl).asInstanceOf[DataSource];
 
-  private def terminalDBError(t:Throwable):Nothing = {
-
-    error("A terminal error occurred.",t)
-  }
-
   private val adminLanguageMappingsCache:Map[String,String] = {
 
       debug("Caching admin language mappings ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
         val map = new HashMap[String,String]
-        conn = ds.getConnection
-        st = conn.createStatement
         val rs = st.executeQuery("SELECT locale,two_letter_locale FROM admin_languages")
         while(rs.next) {
             map += (rs.getString("two_letter_locale") -> rs.getString("locale"))
         }
         rs.close()
         map.toMap
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -54,7 +46,7 @@ class DB(datasourceUrl: String) extends DialangLogger {
           } catch { case e:SQLException => }
         }
 
-        debug("Admin language mappingss cached.")
+        debug("Admin language mappings cached.")
       }
     }
 
@@ -67,20 +59,17 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching test languages ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
         val buffer = new ListBuffer[String]
-        conn = ds.getConnection
-        st = conn.createStatement
         val rs = st.executeQuery("SELECT locale FROM test_languages")
         while(rs.next) {
           buffer += rs.getString(1)
         }
         rs.close()
         buffer.toList
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -102,12 +91,11 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching VSPT words ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
         val tmp = new HashMap[String,List[VSPTWord]]
-        conn = ds.getConnection
-        st = conn.createStatement
         testLanguageCache.foreach(tl => {
           val rs = st.executeQuery("SELECT words.word_id,words.word,words.valid,words.weight FROM vsp_test_word,words WHERE locale = '" + tl + "' AND vsp_test_word.word_id = words.word_id")
           val words = new ListBuffer[VSPTWord]
@@ -118,8 +106,6 @@ class DB(datasourceUrl: String) extends DialangLogger {
           tmp += ((tl,words.toList))
         })
         tmp.toMap
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -145,11 +131,10 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching pre-estimation assignments ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
-        conn = ds.getConnection
-        st = conn.createStatement
         val rs = st.executeQuery("SELECT * FROM preest_assignments")
 
         val temp = new HashMap[String,ArrayBuffer[(Float,Int)]]
@@ -170,16 +155,11 @@ class DB(datasourceUrl: String) extends DialangLogger {
         rs.close
 
         val assign = new HashMap[String,Vector[(Float,Int)]]
-
-        val ordering = Ordering.by[(Float,Int), Float](_._1)
-
         temp.foreach(t => {
           assign += (t._1 -> t._2.sortWith(_._1 < _._1).toVector)
         })
 
         new PreestAssign(assign.toMap)
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -201,17 +181,14 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching pre-estimation weights ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
-        conn = ds.getConnection
-        st = conn.createStatement
         val rs = st.executeQuery("SELECT * FROM preest_weights")
         val preestWeights = new PreestWeights(rs)
         rs.close
         preestWeights
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -233,11 +210,10 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching VSPT bands ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
-        conn = ds.getConnection
-        st = conn.createStatement
         var rs = st.executeQuery("SELECT * FROM vsp_bands")
         val temp = new HashMap[String,ArrayBuffer[(String,Int,Int)]]
         while(rs.next) {
@@ -258,8 +234,6 @@ class DB(datasourceUrl: String) extends DialangLogger {
         val levels = new HashMap[String,Vector[(String,Int,Int)]]
         temp.foreach(t => levels += (t._1 -> t._2.toVector))
         levels.toMap
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -284,12 +258,11 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching SA weights ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
-        conn = ds.getConnection
         val temp = new HashMap[String,HashMap[String,Int]]
-        st = conn.createStatement
         val rs = st.executeQuery("SELECT * FROM sa_weights")
         while(rs.next) {
           val skill = rs.getString("skill")
@@ -304,8 +277,6 @@ class DB(datasourceUrl: String) extends DialangLogger {
         val saWeightsMap = new HashMap[String,Map[String,Int]]
         temp.foreach(t => saWeightsMap += (t._1 -> t._2.toMap))
         saWeightsMap.toMap
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -332,17 +303,14 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching SA grades ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
-        conn = ds.getConnection
-        st = conn.createStatement
         val rs = st.executeQuery("SELECT * FROM sa_grading")
         val saGrades = new SAGrades(rs)
         rs.close
         saGrades
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -364,20 +332,17 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching skills ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
         val buffer = new ListBuffer[String]
-        conn = ds.getConnection
-        st = conn.createStatement
         val rs = st.executeQuery("SELECT name FROM skills")
         while(rs.next) {
           buffer += rs.getString(1)
         }
         rs.close()
         buffer.toList
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -399,20 +364,17 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching booklet ids ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
         val buffer = new ListBuffer[Int]
-        conn = ds.getConnection
-        st = conn.createStatement
         val rs = st.executeQuery("SELECT id FROM booklets")
         while(rs.next) {
           buffer += rs.getInt(1)
         }
         rs.close()
         buffer.toList
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -434,11 +396,10 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching item grades ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
-        conn = ds.getConnection
-        st = conn.createStatement
         val map = new HashMap[String,Map[String,Map[Int,ItemGrades]]]
         testLanguageCache.foreach(tl => {
           val skillMap = new HashMap[String,Map[Int,ItemGrades]]
@@ -455,8 +416,6 @@ class DB(datasourceUrl: String) extends DialangLogger {
           map += (tl -> skillMap.toMap)
         })
         map.toMap
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -501,22 +460,15 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
   def getSecret(consumerKey: String):Option[String] = {
 
-    var conn:Connection = null
-    var st:PreparedStatement = null
+    lazy val conn = ds.getConnection
+    lazy val st = conn.prepareStatement("SELECT secret FROM lti_consumers WHERE consumer_key = ?")
 
     try {
-      conn = ds.getConnection
-      st = conn.prepareStatement("SELECT secret FROM lti_consumers WHERE consumer_key = ?")
       st.setString(1,consumerKey)
       val rs = st.executeQuery
       if(rs.next) {
         Some(rs.getString("secret"))
       } else {
-        None
-      }
-    } catch {
-      case t:Throwable => {
-        error("Caught exception whilst getting LTI secret for '" + consumerKey + "'. Returning None ...",t)
         None
       }
     } finally {
@@ -591,8 +543,6 @@ class DB(datasourceUrl: String) extends DialangLogger {
           temp += (bookletId -> total)
         })
         temp.toMap
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st3 != null) {
           try {
@@ -636,11 +586,10 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching basket ids ...")
 
-      var conn:Connection = null
-      var st:PreparedStatement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.prepareStatement("SELECT basket_id FROM booklet_basket WHERE booklet_id = ?")
+
       try {
-        conn = ds.getConnection
-        st = conn.prepareStatement("SELECT basket_id FROM booklet_basket WHERE booklet_id = ?")
         val temp = new HashMap[Int,List[Int]]
         bookletIdCache.foreach(bookletId => {
 
@@ -656,8 +605,6 @@ class DB(datasourceUrl: String) extends DialangLogger {
         })
 
         temp.toMap
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -689,11 +636,10 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching items ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
-        conn = ds.getConnection
-        st = conn.createStatement
         val temp = new HashMap[Int,Item]
         val rs = st.executeQuery("SELECT * FROM items")
         while(rs.next) {
@@ -702,8 +648,6 @@ class DB(datasourceUrl: String) extends DialangLogger {
         }
         rs.close()
         temp.toMap
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -724,13 +668,12 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching answers ...")
 
-      var conn:Connection = null
-      var st:Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
         val answers = new HashMap[Int,Answer]
         val itemAnswers = new HashMap[Int,ListBuffer[Answer]]
-        conn = ds.getConnection
-        st = conn.createStatement
         val rs = st.executeQuery("SELECT * FROM answers")
         while(rs.next) {
           val answer = new Answer(rs)
@@ -744,8 +687,6 @@ class DB(datasourceUrl: String) extends DialangLogger {
         }
         rs.close()
         ( answers.toMap,itemAnswers.toMap.map(t => ((t._1,t._2.toList))) )
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -793,12 +734,10 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching punctuation ...")
 
-      var conn:Connection = null
-      var st: Statement = null
-      try {
-        conn = ds.getConnection
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
 
-        st = conn.createStatement
+      try {
         val chars = new ListBuffer[String]
         val rs = st.executeQuery("SELECT unicode_hex FROM punctuation")
         while(rs.next) {
@@ -806,8 +745,6 @@ class DB(datasourceUrl: String) extends DialangLogger {
           chars += rs.getString(1).replaceFirst("^0*","")
         }
         chars.toList
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -832,11 +769,10 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       debug("Caching levels ...")
 
-      var conn:Connection = null
-      var st: Statement = null
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
       try {
-        conn = ds.getConnection
-        st = conn.createStatement
         val rs = st.executeQuery("SELECT grade,level FROM item_levels")
 
         val map = new HashMap[Int,String]
@@ -847,8 +783,6 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
         rs.close()
         map.toMap
-      } catch {
-        case t:Throwable => terminalDBError(t)
       } finally {
         if(st != null) {
           try {
@@ -865,5 +799,4 @@ class DB(datasourceUrl: String) extends DialangLogger {
         debug("Levels cached.")
       }
     }
-
 }
