@@ -1,0 +1,26 @@
+<div id="review-tabs">
+<ul>
+    {{#items}}
+    <li id="{{id}}-reviewtab"><a href="#reviewtab-{{id}}">{{positionInTest}}</a></li>
+    {{/items}}
+</ul>
+
+{{#items}}
+<div id="reviewtab-{{id}}" item-id="{{id}}">
+    <div class="review-smiley">
+        <img src="/images/smiley.gif"/>
+    </div>
+    <div class="review-answer-box">
+        <div class="review-given-answer">
+            <h3>{{yourAnswerTitle}}</h3>
+            <p>{{responseText}}</p>
+        </div>
+        <div class="review-correct-answer">
+            <h3>{{correctAnswerTitle}}</h3>
+            <p>{{{correctAnswer}}}</p>
+        </div>
+    </div>
+    <div style="clear: both;"></div>
+</div>
+{{/items}}
+</div> <!-- /review-tabs -->

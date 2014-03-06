@@ -1,0 +1,4 @@
+{
+    "eqeqeq": true,
+    "globals": {"alert": false, "dialang": false, "$": false, "document": false, "Mustache": false}
+}

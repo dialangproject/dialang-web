@@ -1,0 +1,13 @@
+<table id="itemreview-table" cols="3" border="1px">
+    <thead>
+        <tr><th></th><th><img src="/images/smiley.gif"/></th><th><img src="/images/frowney.gif"/></th></tr>
+    </thead>
+    <tbody>
+        {{#rows}}
+        <tr>
+            <td>{{description}}</td>
+            <td>{{#correct}}<button class="itemreview-button correct" id="{{id}}">{{positionInTest}}</button>{{/correct}}</td>
+            <td>{{#incorrect}}<button class="itemreview-button incorrect" id="{{id}}">{{positionInTest}}</button>{{/incorrect}}</td></tr>
+        {{/rows}}
+    </tbody>
+</table>

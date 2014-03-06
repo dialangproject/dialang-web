@@ -1,0 +1,500 @@
+body {
+    font-family: arial,sans-serif;
+}
+
+a {
+    text-decoration: none;
+}
+
+img {
+    border:0px;
+}
+
+#cookie-text {
+    font-size: 10pt;
+    text-align:left;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+#container {
+    width: 800px;
+    width: 770px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #e4b512;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+#content {
+    width: 750px;
+    background-color: #FFFFFF;
+    text-align:center;
+    clear: both;
+    margin-left: auto;
+    margin-right: auto;
+    overflow:none;
+}
+
+#topbar {
+    clear: both;
+    padding-top: 4px;
+}
+
+#navbar {
+    float: left;
+    width:370px;
+    padding-left: 8px;
+}
+
+#navbar button {
+    background-color: #e4b512;
+}
+
+#instantfeedback {
+    display: none;
+}
+
+#progressbar {
+    position: relative;
+    display:none;
+    width:250px;
+    margin-right:30px;
+    border:2px solid black;
+}
+
+/*
+#progressbar div {
+    display:inline-block;
+}
+    */
+#progressbar div.ui-progressbar-value {
+    display:block;
+}
+
+#progressbar-label {
+    position:absolute;
+    left:43%;
+    top: 7px;
+}
+
+#logo {
+    float:right;
+    padding-right: 10px;
+    padding-bottom: 3px;
+}
+
+#large-logo-wrapper {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+}
+
+button[disabled] {
+    opacity:.5;
+}
+
+#legend {
+    width: 580px;
+    background-color: #EEEEEE;
+    text-align:center;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top:10px;
+}
+
+#legend-table {
+    margin-left: auto;
+    margin-right: auto;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+
+/* als screen */
+#funder {
+    font-style: italic;
+    font-family: arial,sans-serif;
+    font-size: 9pt;
+    margin-top: 30px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 20px;
+    text-align:left;
+}
+
+/* legend screen */
+#welcome {
+    font-size: 24pt;
+    padding-bottom: 20px;
+}
+
+#disclaimer-text {
+    height: 275px;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+#disclaimer-button {
+    background-color: white;
+}
+
+.confirmation-dialog {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.dialang-dialog {
+    text-align: center;
+}
+
+.dialang-dialog > table{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#help-dialog {
+    font-size: 10pt;
+}
+
+#help-dialog .ui-tabs-anchor {
+    font-size: 10pt;
+}
+
+#help-dialog h1 {
+    text-align: center;
+}
+
+#help-abouttab {
+    text-align: center;
+}
+
+.dialog-button-panel {
+    padding-top:10px;
+    text-align: center;
+}
+
+.confirmation-dialog button {
+    background-color: white;
+}
+
+.review-dialog {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.review-smiley {
+    float:left;
+}
+
+.review-answer-box {
+    float:right;
+}
+
+.ui-icon-closethick {
+    background-image: url(/images/cross.png) !important;
+    background-position: left top !important;
+    margin: 0 !important;
+}
+
+.ui-icon-prevButton {
+    background-image: url(/images/prev.gif) !important;
+    background-position: left top !important;
+    margin: 0 !important;
+}
+
+.ui-icon-nextButton {
+    background-image: url(/images/next.gif) !important;
+    background-position: left top !important;
+    margin: 0 !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-close, .ui-icon-closethick, .ui-icon-prevButton, .ui-icon-nextButton {
+    width: 22px !important;
+    height: 23px !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+    background: none !important;
+    border: none !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-close, .ui-dialog .ui-dialog-titlebar-close:hover {
+    padding: 0 !important;
+}
+
+.ui-widget-header {
+    background: #e4b512 !important;
+}
+
+#tls-table {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+    padding-right:50px;
+}
+
+.language-column {
+    text-align: right;
+}
+.language-skill-column {
+    text-align: center;
+}
+
+#vsptfeedback-tabs {
+    margin-left: auto;
+    margin-right:auto;
+}
+
+#word-tabs {
+    width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#vspt-table  {
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#vspt-table td {
+    width: 33%;
+    text-align: left;
+}
+
+.ui-state-active {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+#vspt-table input {
+    display: none;
+}
+
+#sa-table  {
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align:left;
+}
+
+#basket {
+    background-color: #ffedb8;
+    font-size: 11pt;
+}
+
+#rubric {
+    padding: 5px;
+    background-color: #9698ff;
+    overflow: hidden;
+    color: #FFFFFF;
+}
+
+#rubric-image {
+    float:left;
+}
+
+#rubric-text {
+    float:left;
+    padding-left: 5px;
+    text-align: left;
+    clear:top;
+    width: 80%;
+}
+
+#media {
+    text-align: left;
+    margin: 1px;
+    clear: both;
+    padding: 3px;
+    padding-top:12px;
+    border: black solid 1px;
+    font-family: serif;
+}
+
+#response {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 5px;
+    text-align: left;
+}
+
+#prompt {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#submitmcqbasketform > input {
+    margin-bottom: 6px;
+}
+
+.completed-basket > a{
+    background-color: #fa7c01 !important;
+}
+#results-title {
+    margin-bottom: 10px;
+}
+
+#advice-title {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.feedback-menu-button {
+    margin-top: 5px;
+}
+
+.bottom-margin {
+    height: 20px;
+}
+
+#tabbedpane-tabs {
+    margin-left: auto;
+    margin-right:auto;
+}
+
+#thermometer-image {
+    float:left;
+}
+
+#results-content > p {
+    text-align:left;
+}
+
+#itemreview-table {
+    width:600px;
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse:collapse;
+}
+
+#itemreview-table th,td {
+    border: 1px block solid;
+    padding-top: 5px;
+}
+
+#itemreview-table th {
+    background-color: #e4b512;
+}
+
+#itemreview-table td {
+    text-align: left;
+}
+
+.correct {
+    background-color: green;
+}
+
+.incorrect {
+    background-color: red;
+}
+
+.outlined {
+    border: 3px solid green;
+}
+
+/* vsptfeedback */
+.ui-tabs-vertical { width: 36.6em; }
+.ui-tabs-vertical .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; width: 8em; }
+.ui-tabs-vertical .ui-tabs-nav li { clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px .2em 0; }
+.ui-tabs-vertical .ui-tabs-nav li a { display:block; }
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; border-right-width: 1px; }
+.ui-tabs-vertical .ui-tabs-panel { padding: 1em; float: right; width: 24.1em;}
+
+#explfb-menu {
+    float:left;
+    text-align: left;
+    width: 30%;
+    padding-right: 20px;
+}
+
+#explfb-menu > div {
+    padding-bottom: 5px;
+}
+
+#explfb-content {
+    float:right;
+    text-align: left;
+    width: 65%;
+}
+
+#explfb-container {
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#explfb-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.explfb-title {
+    font-weight: bold;
+}
+
+#advfb-buttonbar {
+    background-color: #e4b512;
+    border: ridge 1px;
+}
+
+#advfb-buttonbar > button {
+    background-color: #e4b512;
+}
+
+#advfb-buttonbar > button.achieved {
+    color: red;
+}
+
+#advfb-buttonbar > button.selected {
+    font-weight: bold;
+    font-size: 14pt;
+}
+
+#advfb-content {
+    text-align: left;
+    padding: 5px;
+}
+
+#advfb-content > table {
+    border-collapse:collapse;
+}
+
+#advfb-content > table > thead > tr > th {
+    text-align: center;
+    border: 1px solid black;
+    padding: 2px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+#advfb-content > table > tbody > tr > td {
+    vertical-align: top;
+    border: 1px solid black;
+    padding: 4px;
+}
+
+#advfb-content > table > tbody > tr > td.advfb-leftcol {
+    font-weight: bold;
+}
+
+#advfb-advice-header {
+    padding-top: 5px;
+    font-weight: bold;
+}
+
+#advfb-advice-list > li {
+    padding-top: 5px;
+}
+
+.advfb-selected-level {
+    color: red;
+}
+
+/* Used by vspt and sa */
+.done {
+    background-color: #e4b512;
+}
