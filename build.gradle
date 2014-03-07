@@ -16,7 +16,9 @@ dependencies {
     compile 'org.scalatra:scalatra_2.10:2.2.1'
     compile 'org.scalatra:scalatra-scalate_2.10:2.2.1'
     compile 'org.scalatra:scalatra-json_2.10:2.2.1'
-    compile 'org.json4s:json4s-jackson_2.10:3.2.4'
+    compile 'org.json4s:json4s-jackson_2.10:3.2.6'
+    compile 'org.json4s:json4s-native_2.10:3.2.6'
+    compile 'org.scalaj:scalaj-http_2.10:0.3.14'
 
     providedCompile 'javax.servlet:servlet-api:2.5'
     providedCompile 'postgresql:postgresql:9.1-901.jdbc4'
@@ -27,7 +29,7 @@ dependencies {
 }
 
 
-if(hasProperty('profile')) {
+if (hasProperty('profile')) {
     apply from: "${profile}-profile.gradle"
 } else {
     apply from: "dev-profile.gradle"
@@ -38,8 +40,6 @@ war.doLast {
 }
 
 test << {
-
-    //jvmArgs "-XX:MaxPermSize=512m"
 
     ant.taskdef(name: 'scalatest', classname: 'org.scalatest.tools.ScalaTestAntTask', classpath: classpath.asPath)
     ant.scalatest(runpath: testClassesDir, haltonfailure: 'true', fork: 'false') {

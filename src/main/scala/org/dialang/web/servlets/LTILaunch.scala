@@ -10,74 +10,104 @@ import scala.collection.JavaConversions._
 
 import org.slf4j.LoggerFactory
 
+import scalaj.http.{Http,HttpOptions}
+import org.json4s._
+import org.json4s.native.JsonMethods._
+
 import org.scalatra.scalate.ScalateSupport
 
+import java.io.InputStreamReader
 import java.util.UUID
+
+case class TES(al: String, tl: String
+                  , skill: String, showVSPT: Boolean
+                  , showVSPTResult: Boolean, showSA: Boolean
+                  , testDifficulty: String, showItems: Boolean
+                  , showItemResults: Boolean, showInstantFeedback: Boolean)
 
 class LTILaunch extends DialangServlet with ScalateSupport {
 
   private val logger = LoggerFactory.getLogger(classOf[LTILaunch])
 
+  private val DialangAdminLanguageKey = "custom_dialang_admin_language"
+  private val DialangTestLanguageKey = "custom_dialang_test_language"
+  private val DialangTestSkillKey = "custom_dialang_test_skill"
+  private val DialangInstantFeedbackDisabledKey = "custom_dialang_instant_feedback_disabled"
+  private val DialangTESURLKey = "custom_dialang_tes_url"
+
   val db = DBFactory.get()
 
 	post("/") {
 
-    if (logger.isDebugEnabled) logger.debug("lti post")
+    logger.debug("LTI Launch")
 
     val message = OAuthServlet.getMessage(request, null)
 
     try {
-
-      validate(params,message)
+      validate(params, message)
 
       // We're validated, store the user id and consumer key in the session
       val dialangSession = getDialangSession
-      dialangSession.userId = params.get(BasicLTIConstants.USER_ID) match {
-          case Some(s:String) => s
-          case None => {
-            logger.warn("No user id supplied in LTI launch")
-            ""
+
+      dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
+
+      if (logger.isDebugEnabled) {
+        logger.debug("userId:" + dialangSession.userId)
+      }
+
+      val tesUrl = params.getOrElse(DialangTESURLKey, "")
+
+      if (tesUrl != "") {
+        // A Test Execution Script callback has been supplied
+        if (logger.isDebugEnabled) {
+          logger.debug("tesUrl:" + tesUrl)
+        }
+
+        Http(tesUrl).option(HttpOptions.allowUnsafeSSL)
+                      .param("user",dialangSession.userId){inputStream => {
+            implicit val formats = DefaultFormats
+            val tesJson = parse(new InputStreamReader(inputStream))
+            val tes = tesJson.extract[TES]
+            dialangSession.adminLanguage = tes.al
+            dialangSession.testLanguage = tes.tl
+            dialangSession.skill = tes.skill
+            dialangSession.instantFeedbackDisabled = !tes.showInstantFeedback
           }
         }
-      dialangSession.consumerKey = params.get("oauth_consumer_key") match {
+      } else {
+        // Grab the al,tl,skill and instant feedback custom parameters
+        dialangSession.adminLanguage = params.get(DialangAdminLanguageKey) match {
           case Some(s:String) => s
-          case None => {
-            logger.warn("No consumer key supplied in LTI launch")
-            ""
+          case _ => params.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE ) match {
+            case Some(s1:String) => db.getAdminLanguageForTwoLetterLocale(s1)
+            case _ => ""
           }
         }
 
-      // Grab the al,tl,skill and instant feedback custom parameters
-      dialangSession.adminLanguage = params.get("custom_dialang_admin_language") match {
-          case Some(s:String) => s
-          case _ => params.get("launch_presentation_locale") match {
-              case Some(s1:String) => db.getAdminLanguageForTwoLetterLocale(s1)
-              case _ => ""
-            }
+        dialangSession.testLanguage = params.getOrElse(DialangTestLanguageKey, "")
+        dialangSession.skill = params.getOrElse(DialangTestSkillKey, "")
+
+        dialangSession.instantFeedbackDisabled = params.get(DialangInstantFeedbackDisabledKey) match {
+            case Some("true") => true
+            case _ => false
         }
+      }
 
-      dialangSession.testLanguage = params.getOrElse("custom_dialang_test_language", "")
-      dialangSession.skill = params.getOrElse("custom_dialang_test_skill", "")
-
-      dialangSession.instantFeedbackDisabled
-        = params.get("custom_dialang_instant_feedback_disabled") match {
-          case Some("true") => true
-          case _ => false
-        }
-
-      if(logger.isDebugEnabled) {
+      if (logger.isDebugEnabled) {
+        logger.debug("userId:" + dialangSession.userId)
         logger.debug("adminLanguage:" + dialangSession.adminLanguage)
         logger.debug("testLanguage:" + dialangSession.testLanguage)
         logger.debug("skill:" + dialangSession.skill)
         logger.debug("instantFeedbackDisabled:" + dialangSession.instantFeedbackDisabled)
       }
 
-      if(dialangSession.adminLanguage == "") {
+      if (dialangSession.adminLanguage == "") {
         saveDialangSession(dialangSession)
         contentType = "text/html"
         redirect("/dialang-content/als.html")
       } else {
-        if(dialangSession.testLanguage == "" || dialangSession.skill == "") {
+        dialangSession.showALS = false;
+        if (dialangSession.testLanguage == "" || dialangSession.skill == "") {
           saveDialangSession(dialangSession)
           contentType = "text/html"
           mustache("shell","state" -> "legend",
@@ -104,7 +134,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       }
     } catch {
       case e:Exception => {
-        logger.error("The LTI launch blew up.", e.getMessage)
+        logger.error("The LTI launch blew up.", e)
       }
     }
 	}
@@ -121,31 +151,38 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     val context_id = payload.getOrElse(BasicLTIConstants.CONTEXT_ID, "")
 
     if (lti_message_type != "basic-lti-launch-request") {
-      println(lti_message_type)
+      logger.error("Invalid lti_message_type: " + lti_message_type)
       throw new Exception("launch.invalid")
     }
 
     if (lti_version != "LTI-1p0") {
+      logger.error("Invalid lti_version: " + lti_version)
       throw new Exception( "launch.invalid")
     }
 
     if (oauth_consumer_key == "") {
+      logger.error("Missing outh_consumer_key")
       throw new Exception( "launch.missing oauth_consumer_key")
     }
 
-    if(resource_link_id == "") {
+    if (resource_link_id == "") {
+      logger.error("Missing resource_link_id")
       throw new Exception( "launch.missing resource_link_id")
     }
 
-    if(user_id == "") {
+    if (user_id == "") {
+      logger.error("Missing user_id")
       throw new Exception( "launch.missing user_id")
     }
 
     // Lookup the secret
     val oauth_secret = db.getSecret(oauth_consumer_key) match {
-        case Some(s:String) => s
-        case None => throw new Exception( "launch.key.notfound: '" + oauth_consumer_key + "'")
+      case Some(s:String) => s
+      case None => {
+        logger.error("launch.key.notfound: " + oauth_consumer_key)
+        throw new Exception("launch.key.notfound: '" + oauth_consumer_key)
       }
+    }
 
     val oav = new SimpleOAuthValidator
     val cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null)
@@ -164,10 +201,10 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       oav.validateMessage(oam, acc)
     } catch {
       case e:Exception => {
-        logger.warn("Provider failed to validate message")
-        logger.warn(e.getLocalizedMessage, e)
+        logger.error("Provider failed to validate message")
+        logger.error(e.getLocalizedMessage, e)
         if (baseString != null) {
-          logger.warn("BASE STRING: " + baseString)
+          logger.info("BASE STRING: " + baseString)
         }
         throw new Exception( "launch.no.validate", e)
       }
