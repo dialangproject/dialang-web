@@ -110,10 +110,12 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         if (dialangSession.testLanguage == "" || dialangSession.skill == "") {
           saveDialangSession(dialangSession)
           contentType = "text/html"
-          mustache("shell","state" -> "legend",
+          mustache("shell", "state" -> "legend",
                               "al" -> dialangSession.adminLanguage,
+                              "hideALS" -> true,
                               "instantFeedbackDisabled" -> dialangSession.instantFeedbackDisabled)
         } else {
+          dialangSession.showTLS = false;
           dialangSession.sessionId = UUID.randomUUID.toString
           dialangSession.passId = UUID.randomUUID.toString
           dialangSession.ipAddress = request.remoteAddress
@@ -129,6 +131,8 @@ class LTILaunch extends DialangServlet with ScalateSupport {
                               "al" -> dialangSession.adminLanguage,
                               "tl" -> dialangSession.testLanguage,
                               "skill" -> dialangSession.skill,
+                              "hideALS" -> true,
+                              "hideTLS" -> true,
                               "instantFeedbackDisabled" -> dialangSession.instantFeedbackDisabled)
         }
       }

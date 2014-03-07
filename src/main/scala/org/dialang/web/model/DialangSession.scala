@@ -30,6 +30,8 @@ class DialangSession extends Serializable with DialangLogger {
   var currentBasketNumber = 0
   var scoredItemList = List[ImmutableItem]()
   var scoredBasketList = List[Basket]()
+  var showALS = true
+  var showTLS = true
 
   /**
    * Resets all state except adminLanguage

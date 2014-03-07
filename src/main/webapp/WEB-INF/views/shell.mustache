@@ -11,18 +11,24 @@
         <script type="text/javascript" src="/lib/mustache.js"></script>
         <script type="text/javascript">
             var dialang = {
-                'state': '{{state}}',
-                'instantFeedbackDisabled': {{instantFeedbackDisabled}},
-                'session': {
-                    'al': '{{al}}',
-                    'tl': '{{tl}}',
-                    'skill': '{{skill}}',
-                    'vsptDone': {} },
-                'pass': {
-                    'baskets':[],
-                    'itemToBasketMap':{},
-                    'items':[],
-                    'subskills':{} }
+              state: '{{state}}',
+              flags: {
+                instantFeedbackDisabled: {{instantFeedbackDisabled}}{{^instantFeedbackDisabled}}false{{/instantFeedbackDisabled}},
+                hideALS: {{hideALS}}{{^hideALS}}false{{/hideALS}},
+                hideTLS: {{hideTLS}}{{^hideTLS}}false{{/hideTLS}}
+              },
+              session: {
+                  'al': '{{al}}',
+                  'tl': '{{tl}}',
+                  'skill': '{{skill}}',
+                  'vsptDone': {}
+              },
+              pass: {
+                  'baskets':[],
+                  'itemToBasketMap':{},
+                  'items':[],
+                  'subskills':{}
+              }
             };
         </script>
     </head>
