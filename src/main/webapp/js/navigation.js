@@ -38,7 +38,7 @@ dialang.navigation.nextRules = {
     },
     vspt: function () {
 
-        if (!dialang.flags.hideVSPTResults) {
+        if (!dialang.flags.hideVSPTResult) {
             return dialang.switchState('vsptfeedback');
         } else if (!dialang.flags.hideSA && dialang.session.skill !== 'vocabulary' && dialang.session.skill !== 'structures') {
             return dialang.switchState('saintro');
@@ -67,6 +67,8 @@ dialang.navigation.nextRules = {
             return dialang.switchState('testintro');
         } else if (!dialang.flags.hideFeedbackMenu) {
             return dialang.switchState('feedbackmenu');
+        } else {
+            return dialang.switchState('endoftest');
         }
     },
     testintro: function () {

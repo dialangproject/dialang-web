@@ -44,6 +44,8 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       // We're validated, store the user id and consumer key in the session
       val dialangSession = getDialangSession
 
+      dialangSession.clear()
+
       dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
 
       if (logger.isDebugEnabled) {
@@ -67,6 +69,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
             dialangSession.adminLanguage = tes.al
             dialangSession.testLanguage = tes.tl
             dialangSession.skill = tes.skill
+            dialangSession.disallowInstantFeedback = tes.disallowInstantFeedback
           }
         }
       } else {
@@ -110,6 +113,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
                               "al" -> dialangSession.adminLanguage,
                               "hideALS" -> true,
                               "hideVSPT" -> dialangSession.tes.hideVSPT,
+                              "hideVSPTResult" -> dialangSession.tes.hideVSPTResult,
                               "hideSA" -> dialangSession.tes.hideSA,
                               "hideTest" -> dialangSession.tes.hideTest,
                               "hideFeedbackMenu" -> dialangSession.tes.hideFeedbackMenu,
@@ -140,6 +144,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
                               "hideALS" -> true,
                               "hideTLS" -> true,
                               "hideVSPT" -> dialangSession.tes.hideVSPT,
+                              "hideVSPTResult" -> dialangSession.tes.hideVSPTResult,
                               "hideSA" -> dialangSession.tes.hideSA,
                               "hideTest" -> dialangSession.tes.hideTest,
                               "hideFeedbackMenu" -> dialangSession.tes.hideFeedbackMenu,

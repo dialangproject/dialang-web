@@ -44,7 +44,7 @@ class SetTLS extends DialangServlet {
         }
 
       // Zero all state except for the admin language and sessionId
-      dialangSession.startNewTest()
+      dialangSession.clear()
 
       // The session id persists across tests (passes)
       val (sessionId,isNewSession) = dialangSession.sessionId match {

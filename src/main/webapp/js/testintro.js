@@ -28,7 +28,7 @@ $('#skipforward').prop('disabled', false).click(function (e) {
 $.get('/dialang-content/testintro/' + dialang.session.al + '.html', function (data) {
 
     $('#content').html(data);
-    if(!dialang.disallowInstantFeedback) {
+    if(!dialang.flags.disallowInstantFeedback) {
         $('#feedback-button').click(function (e) {
 
             if(dialang.session.instantFeedbackOn) {

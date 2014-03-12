@@ -37,7 +37,7 @@ class DialangSession extends Serializable with DialangLogger {
   /**
    * Resets all state except adminLanguage
    */
-  def startNewTest() {
+  def clear() {
 
     debug("Resetting all state except the adminLanguage and sessionId ...")
 

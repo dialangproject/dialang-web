@@ -60,7 +60,7 @@ if (!dialang.session.reviewMode) {
         });
     }
 
-    if (!dialang.disallowInstantFeedback) {
+    if (!dialang.flags.disallowInstantFeedback) {
         if (dialang.session.instantFeedbackOn) {
             $('#instantfeedback').show().attr('title', instantFeedbackOffTooltip).find('img').attr('src', '/images/instantFeedbackOn.gif');
         } else {
