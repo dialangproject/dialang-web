@@ -1,15 +1,16 @@
 $('#next').prop('disabled', false).click(function (e) {
+
     $.ajax({
-        url:'/starttest',
-        dataType:'json',
-        cache:false,
+        url: '/starttest',
+        dataType: 'json',
+        cache: false,
         success: function (testData, textStatus, jqXHR) {
 
             dialang.session.totalItems = testData.totalItems;
             dialang.session.currentBasketId = testData.startBasket;
             dialang.session.currentBasketNumber = 0;
             dialang.session.itemsCompleted = 0;
-            dialang.switchState('test');
+            dialang.navigation.nextRules.testintro();
         },
         error: function (jqXHR, textStatus, errorThrown) {
             alert('Failed to get test data');
@@ -27,7 +28,7 @@ $('#skipforward').prop('disabled', false).click(function (e) {
 $.get('/dialang-content/testintro/' + dialang.session.al + '.html', function (data) {
 
     $('#content').html(data);
-    if(!dialang.instantFeedbackDisabled) {
+    if(!dialang.disallowInstantFeedback) {
         $('#feedback-button').click(function (e) {
 
             if(dialang.session.instantFeedbackOn) {
@@ -50,8 +51,7 @@ $.get('/dialang-content/testintro/' + dialang.session.al + '.html', function (da
     $('#confirm-skip-yes').click(function (e) {
 
         $('#confirm-skip-dialog').dialog('destroy');
-        dialang.switchState('endoftest');
-        return false;
+        return dialang.switchState('endoftest');
     });
 
     $('#confirm-skip-no').click(function (e) {

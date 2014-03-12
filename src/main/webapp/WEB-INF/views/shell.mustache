@@ -13,9 +13,14 @@
             var dialang = {
               state: '{{state}}',
               flags: {
-                instantFeedbackDisabled: {{instantFeedbackDisabled}}{{^instantFeedbackDisabled}}false{{/instantFeedbackDisabled}},
-                hideALS: {{hideALS}}{{^hideALS}}false{{/hideALS}},
-                hideTLS: {{hideTLS}}{{^hideTLS}}false{{/hideTLS}}
+                disallowInstantFeedback: ('{{disallowInstantFeedback}}' === 'true') ? true : false,
+                hideALS: ('{{hideALS}}' == 'true') ? true : false,
+                hideTLS: ('{{hideTLS}}' == 'true') ? true : false,
+                hideVSPT: ('{{hideVSPT}}' == 'true') ? true : false,
+                hideVSPTResult: ('{{hideVSPTResult}}' == 'true') ? true : false,
+                hideSA: ('{{hideSA}}' == 'true') ? true : false,
+                hideTest: ('{{hideTest}}' == 'true') ? true : false,
+                hideFeedbackMenu: ('{{hideFeedbackMenu}}' == 'true') ? true : false
               },
               session: {
                   'al': '{{al}}',
@@ -57,5 +62,6 @@
             <div class="bottom-margin"></div>
         </div> <!-- /container -->
         <script type="text/javascript" src="/js/dialang.js"></script>
+        <script type="text/javascript" src="/js/navigation.js"></script>
     </body>
 </html>

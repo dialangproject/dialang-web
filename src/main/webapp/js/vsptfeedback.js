@@ -1,24 +1,13 @@
 if (dialang.session.feedbackMode) {
-    $('#back').prop('disabled', false).click(function () {
-
-        dialang.switchState('feedbackmenu');
-        return false;
+    // You can only navigate back from vspt feedback when you
+    // came from the feedback menu
+    $('#back').prop('disabled', false).click(function (e) {
+        return dialang.navigation.backRules.vsptfeedback();
     });
 } else {
-    // There is no SA for structures or vocabulary tests
-    if (dialang.session.skill === 'vocabulary' || dialang.session.skill === 'structures') {
-        $('#next').prop('disabled', false).click(function (e) {
-
-            dialang.switchState('testintro');
-            return false;
-        });
-    } else {
-        $('#next').prop('disabled', false).click(function () {
-
-            dialang.switchState('saintro');
-            return false;
-        });
-    }
+    $('#next').prop('disabled', false).click(function (e) {
+        return dialang.navigation.nextRules.vsptfeedback();
+    });
 }
 
 $.get('/dialang-content/vsptfeedback/' + dialang.session.al + '/' + dialang.session.vsptLevel + '.html', function (data) {

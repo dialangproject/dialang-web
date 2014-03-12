@@ -5,6 +5,7 @@ import net.oauth.server.OAuthServlet
 import net.oauth.signature.OAuthSignatureMethod
 
 import org.dialang.web.db.DBFactory
+import org.dialang.web.model.TES
 
 import scala.collection.JavaConversions._
 
@@ -19,12 +20,6 @@ import org.scalatra.scalate.ScalateSupport
 import java.io.InputStreamReader
 import java.util.UUID
 
-case class TES(al: String, tl: String
-                  , skill: String, showVSPT: Boolean
-                  , showVSPTResult: Boolean, showSA: Boolean
-                  , testDifficulty: String, showItems: Boolean
-                  , showItemResults: Boolean, showInstantFeedback: Boolean)
-
 class LTILaunch extends DialangServlet with ScalateSupport {
 
   private val logger = LoggerFactory.getLogger(classOf[LTILaunch])
@@ -32,7 +27,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
   private val DialangAdminLanguageKey = "custom_dialang_admin_language"
   private val DialangTestLanguageKey = "custom_dialang_test_language"
   private val DialangTestSkillKey = "custom_dialang_test_skill"
-  private val DialangInstantFeedbackDisabledKey = "custom_dialang_instant_feedback_disabled"
+  private val DialangDisallowInstantFeedbackKey = "custom_dialang_disallow_instant_feedback"
   private val DialangTESURLKey = "custom_dialang_tes_url"
 
   val db = DBFactory.get()
@@ -68,10 +63,10 @@ class LTILaunch extends DialangServlet with ScalateSupport {
             implicit val formats = DefaultFormats
             val tesJson = parse(new InputStreamReader(inputStream))
             val tes = tesJson.extract[TES]
+            dialangSession.tes = tes
             dialangSession.adminLanguage = tes.al
             dialangSession.testLanguage = tes.tl
             dialangSession.skill = tes.skill
-            dialangSession.instantFeedbackDisabled = !tes.showInstantFeedback
           }
         }
       } else {
@@ -87,7 +82,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         dialangSession.testLanguage = params.getOrElse(DialangTestLanguageKey, "")
         dialangSession.skill = params.getOrElse(DialangTestSkillKey, "")
 
-        dialangSession.instantFeedbackDisabled = params.get(DialangInstantFeedbackDisabledKey) match {
+        dialangSession.disallowInstantFeedback = params.get(DialangDisallowInstantFeedbackKey) match {
             case Some("true") => true
             case _ => false
         }
@@ -98,24 +93,29 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         logger.debug("adminLanguage:" + dialangSession.adminLanguage)
         logger.debug("testLanguage:" + dialangSession.testLanguage)
         logger.debug("skill:" + dialangSession.skill)
-        logger.debug("instantFeedbackDisabled:" + dialangSession.instantFeedbackDisabled)
       }
 
       if (dialangSession.adminLanguage == "") {
         saveDialangSession(dialangSession)
         contentType = "text/html"
-        redirect("/dialang-content/als.html")
+        redirect("getals")
       } else {
-        dialangSession.showALS = false;
+        // An admin language has been specified
+        //dialangSession.hideALS = false
         if (dialangSession.testLanguage == "" || dialangSession.skill == "") {
+          // ... but the test language and skill have not
           saveDialangSession(dialangSession)
           contentType = "text/html"
           mustache("shell", "state" -> "legend",
                               "al" -> dialangSession.adminLanguage,
                               "hideALS" -> true,
-                              "instantFeedbackDisabled" -> dialangSession.instantFeedbackDisabled)
+                              "hideVSPT" -> dialangSession.tes.hideVSPT,
+                              "hideSA" -> dialangSession.tes.hideSA,
+                              "hideTest" -> dialangSession.tes.hideTest,
+                              "hideFeedbackMenu" -> dialangSession.tes.hideFeedbackMenu,
+                              "disallowInstantFeedback" -> dialangSession.disallowInstantFeedback)
         } else {
-          dialangSession.showTLS = false;
+          //dialangSession.showTLS = false;
           dialangSession.sessionId = UUID.randomUUID.toString
           dialangSession.passId = UUID.randomUUID.toString
           dialangSession.ipAddress = request.remoteAddress
@@ -126,14 +126,24 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           // Usually, this happens after the TLS screen, in SetTLS.scala.
           dataCapture.createSessionAndPass(dialangSession)
 
+          val initialState = {
+              if (!dialangSession.tes.hideVSPT) "vsptintro"
+              else if (!dialangSession.tes.hideSA) "saintro"
+              else "testintro"
+            }
+
           contentType = "text/html"
-          mustache("shell","state" -> "vsptintro",
+          mustache("shell","state" -> initialState,
                               "al" -> dialangSession.adminLanguage,
                               "tl" -> dialangSession.testLanguage,
                               "skill" -> dialangSession.skill,
                               "hideALS" -> true,
                               "hideTLS" -> true,
-                              "instantFeedbackDisabled" -> dialangSession.instantFeedbackDisabled)
+                              "hideVSPT" -> dialangSession.tes.hideVSPT,
+                              "hideSA" -> dialangSession.tes.hideSA,
+                              "hideTest" -> dialangSession.tes.hideTest,
+                              "hideFeedbackMenu" -> dialangSession.tes.hideFeedbackMenu,
+                              "disallowInstantFeedback" -> dialangSession.disallowInstantFeedback)
         }
       }
     } catch {

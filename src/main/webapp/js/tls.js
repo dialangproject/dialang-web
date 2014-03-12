@@ -5,16 +5,16 @@ dialang.session.feedbackMode = false;
 dialang.session.itemsCompleted = 0;
 dialang.session.testDone = false;
 
-$('#skipback').prop('disabled', false).click(function (e) {
+if (!dialang.flags.hideALS) {
+    $('#skipback').prop('disabled', false).click(function (e) {
 
-    window.location.href = '/dialang-content/als.html';
-    return false;
-});
+        dialang.switchState('als');
+        return false;
+    });
+}
 
 $('#back').prop('disabled', false).click(function (e) {
-
-    dialang.switchState('flowchart');
-    return false;
+    return dialang.navigation.backRules.tls();
 });
 
 $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
@@ -59,16 +59,12 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
                     $('#confirmation-dialog').dialog('destroy');
 
                     // If the vspt hasn't been done yet for this test language, switch
-                    // to the vspt.
-                    if(!dialang.session.vsptDone.hasOwnProperty(tl)) {
-                        dialang.switchState('vsptintro');
+                    // to the vsptintro screen.
+                    if (!dialang.session.vsptDone.hasOwnProperty(tl)) {
+                        dialang.navigation.nextRules.tls();
                     } else {
-                        // There is no SA for structures or vocabulary tests
-                        if(dialang.session.skill === 'vocabulary' || dialang.session.skill === 'structures') {
-                            dialang.switchState('testintro');
-                        } else {
-                            dialang.switchState('saintro');
-                        }
+                        // Pretend we are already on the vspt feedback screen
+                        dialang.navigation.nextRules.vsptfeedback();
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -86,7 +82,7 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
     // Disable the completed tests
     var testsDone = dialang.session.testsDone;
 
-    if(testsDone) {
+    if (testsDone) {
         testsDone.forEach(function (test) {
 
             $('#' + test)

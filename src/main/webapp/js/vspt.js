@@ -69,7 +69,7 @@ $.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl +
 
                 dialang.session.vsptDone[dialang.session.tl] = true;
 
-                dialang.switchState('vsptfeedback');
+                dialang.navigation.nextRules.vspt();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Failed to submit vspt');

@@ -14,6 +14,8 @@ class SetALS extends DialangServlet with ScalateSupport {
     saveDialangSession(dialangSession)
 
     contentType = "text/html"
-    mustache("shell","state" -> "legend", "al" -> al, "instantFeedbackDisabled" -> dialangSession.instantFeedbackDisabled)
+    mustache("shell", "state" -> "legend",
+                      "al" -> al,
+                      "disallowInstantFeedback" -> dialangSession.disallowInstantFeedback)
   }
 }

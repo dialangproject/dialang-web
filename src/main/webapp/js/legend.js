@@ -1,12 +1,15 @@
 $('#skipback').prop('disabled', true);
-$('#back').prop('disabled', false).click(function (e) {
-    document.location.href = '/dialang-content/als.html';
-    return false;
-});
+
+if (!dialang.flags.hideALS) {
+    $('#back').prop('disabled', false).click(function (e) {
+        return dialang.navigation.backRules.legend();
+    });
+}
+
 $('#next').prop('disabled', false).click(function (e) {
-    dialang.switchState('flowchart');
-    return false;
+    return dialang.navigation.nextRules.legend();
 });
+
 $('#skipforward').prop('disabled', true);
 
 $.get('/dialang-content/legend/' + dialang.session.al + '.html', function (data) {

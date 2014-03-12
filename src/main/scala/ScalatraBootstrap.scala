@@ -6,6 +6,7 @@ class ScalatraBootstrap extends LifeCycle {
 
   override def init(context: ServletContext) {
 
+    context.mount(new GetALS, "/getals/*")
     context.mount(new SetALS, "/setals/*")
     context.mount(new SetTLS, "/settls/*")
     context.mount(new ScoreVSPT, "/scorevspt/*")

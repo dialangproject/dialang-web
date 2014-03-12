@@ -48,12 +48,12 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
                 dialang.session.saLevel = scores.saLevel;
                 dialang.session.saDone = true;
                 $('#confirm-send-dialog').dialog('destroy');
-                dialang.switchState('testintro');
+                dialang.navigation.nextRules.sa();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Failed to submit sa');
             }
-        }); // ajaxSubmit
+        });
 
         return false;
     });
@@ -73,8 +73,7 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
     $('#confirm-skip-yes').click(function (e) {
 
         $('#confirm-skip-dialog').dialog('destroy');
-        dialang.switchState('testintro');
-        return false;
+        return dialang.navigate.nextRules.sa();
     });
 
     $('#confirm-skip-no').click(function (e) {

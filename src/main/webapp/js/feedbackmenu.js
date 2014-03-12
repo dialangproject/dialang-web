@@ -5,35 +5,41 @@ dialang.session.feedbackMode = true;
 // aboutsa.js
 dialang.session.saFeedbackMode = false;
 
-$('#skipforward').prop('disabled', false).click(function () {
+if (!dialang.flags.hideTLS) {
+  $('#skipforward').prop('disabled', false).click(function () {
 
-    $('#confirm-restart-dialog').dialog('open');
-    return false;
-});
+      $('#confirm-restart-dialog').dialog('open');
+      return false;
+  });
+}
 
 $.get('/dialang-content/feedbackmenu/' + dialang.session.al + '.html', function (data) {
 
     $('#content').html(data);
 
-    $('#confirm-restart-dialog').dialog({modal: true, width: 500, height: 450, autoOpen: false});
-    $('#confirm-restart-yes').click(function (e) {
+    if (!dialang.flags.hideTLS) {
+        $('#confirm-restart-dialog').dialog({modal: true, width: 500, height: 450, autoOpen: false});
+        $('#confirm-restart-yes').click(function (e) {
 
+            $('#confirm-restart-dialog').remove();
+            dialang.switchState('tls');
+            return false;
+        });
+
+        $('#confirm-restart-no').click(function (e) {
+
+            $('#confirm-restart-dialog').dialog('close');
+            return false;
+        });
+
+        $('#confirm-restart-quit').click(function (e) {
+
+            window.close();
+            return false;
+        });
+    } else {
         $('#confirm-restart-dialog').remove();
-        dialang.switchState('tls');
-        return false;
-    });
-
-    $('#confirm-restart-no').click(function (e) {
-
-        $('#confirm-restart-dialog').dialog('close');
-        return false;
-    });
-
-    $('#confirm-restart-quit').click(function (e) {
-
-        window.close();
-        return false;
-    });
+    }
 
     $('#about-sa-button').prop('disabled', false).click(function (e) {
 

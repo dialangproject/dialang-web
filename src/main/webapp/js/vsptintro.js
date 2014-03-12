@@ -1,13 +1,11 @@
-$('#back').prop('disabled', false).click(function (e) {
-
-    dialang.switchState('tls');
-    return false;
-});
+if (!dialang.flags.hideTLS) {
+    $('#back').prop('disabled', false).click(function (e) {
+        return dialang.navigation.backRules.vsptintro();
+    });
+}
 
 $('#next').prop('disabled', false).click(function (e) {
-
-    dialang.switchState('vspt');
-    return false;
+    return dialang.navigation.nextRules.vsptintro();
 });
 
 $('#skipforward').prop('disabled', false).click(function (e) {

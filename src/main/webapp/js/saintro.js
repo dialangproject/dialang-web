@@ -1,8 +1,7 @@
-$('#next').prop('disabled', false).click(function () {
-
-    dialang.switchState('sa');
-    return false;
+$('#next').prop('disabled', false).click(function (e) {
+    return dialang.navigation.nextRules.saintro();
 });
+
 $('#skipforward').prop('disabled', false).click(function () {
 
     $('#confirm-skip-dialog').dialog('open');
@@ -17,8 +16,9 @@ $.get('/dialang-content/saintro/' + dialang.session.al + '/' + dialang.session.s
     $('#confirm-skip-yes').click(function (e) {
 
         $('#confirm-skip-dialog').dialog('destroy');
-        dialang.switchState('testintro');
-        return false;
+
+        // We're skipping the sa, so go from the sa page
+        return dialang.navigation.nextRules.sa();
     });
 
     $('#confirm-skip-no').click(function (e) {

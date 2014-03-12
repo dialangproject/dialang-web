@@ -21,10 +21,18 @@ $('#help').click(function (e) {
 dialang.skipVSPT = function () {
 
     $('#confirm-skip-dialog').dialog('destroy');
-    if (dialang.session.skill === 'structures' || dialang.session.skill === 'vocabulary') {
-        dialang.switchState('testintro');
+    if (!dialang.flags.hideSA) {
+        if (dialang.session.skill === 'structures' || dialang.session.skill === 'vocabulary') {
+            dialang.switchState('testintro');
+        } else {
+            dialang.switchState('saintro');
+        }
     } else {
-        dialang.switchState('saintro');
+        if (!dialang.flags.hideTest) {
+            dialang.switchState('testintro');
+        } else if (!dialang.flags.hideFeedbackMenu) {
+            dialang.switchState('feedbackmenu');
+        }
     }
 };
 
@@ -76,6 +84,14 @@ dialang.launchMultiItemReviewDialog = function (basket, initialIndex, selectCall
 
 dialang.switchState = function (state) {
 
+    if ('als' == state && dialang.flags.hideALS) {
+        return false;
+    }
+
+    if ('tls' == state && dialang.flags.hideTLS) {
+        return false;
+    }
+
     if ('test' !== state) {
         $.get('/dialang-content/' + state + '/' + dialang.session.al + '-toolbarTooltips.json', function (tips) {
 
@@ -88,7 +104,10 @@ dialang.switchState = function (state) {
 
     $('#skipback,#back,#next,#skipforward').off('click').prop('disabled', true);
     $('#confirm-skip-dialog').remove();
+
     $.getScript('/js/' + state + '.js');
+
+    return false;
 };
 
 // TEST MODE ONLY !!!!!!!

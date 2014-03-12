@@ -1,8 +1,8 @@
-$('#next').prop('disabled', false).click(function () {
-
-    dialang.switchState('feedbackmenu');
-    return false;
-});
+if (!dialang.flags.hideFeedbackMenu) {
+    $('#next').prop('disabled', false).click(function () {
+        return dialang.navigation.nextRules.endoftest();
+    });
+}
 
 $('#instantfeedback').hide();
 

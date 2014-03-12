@@ -14,7 +14,7 @@ class DialangSession extends Serializable with DialangLogger {
   var passId = ""
   var testLanguage = ""
   var skill = ""
-  var instantFeedbackDisabled = false
+  var disallowInstantFeedback = false
   var vsptSubmitted = false
   var saSubmitted = false
   var vsptZScore = 0F
@@ -30,8 +30,9 @@ class DialangSession extends Serializable with DialangLogger {
   var currentBasketNumber = 0
   var scoredItemList = List[ImmutableItem]()
   var scoredBasketList = List[Basket]()
-  var showALS = true
-  var showTLS = true
+
+  /* Test Execution Script */
+  var tes = new TES
 
   /**
    * Resets all state except adminLanguage
