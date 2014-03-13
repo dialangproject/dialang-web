@@ -44,6 +44,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       // We're validated, store the user id and consumer key in the session
       val dialangSession = getDialangSession
 
+      // Each LTI launch is a new session, so clear it.
       dialangSession.clear()
 
       dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
@@ -61,7 +62,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         }
 
         Http(tesUrl).option(HttpOptions.allowUnsafeSSL)
-                      .param("user",dialangSession.userId){inputStream => {
+                      .param("user", dialangSession.userId){inputStream => {
             implicit val formats = DefaultFormats
             val tesJson = parse(new InputStreamReader(inputStream))
             val tes = tesJson.extract[TES]
@@ -133,6 +134,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           val initialState = {
               if (!dialangSession.tes.hideVSPT) "vsptintro"
               else if (!dialangSession.tes.hideSA) "saintro"
+              else if (!dialangSession.tes.hideTest) "endoftest"
               else "testintro"
             }
 
