@@ -10,7 +10,6 @@ class StartTest extends DialangServlet {
 
   private val logger = LoggerFactory.getLogger(getClass)
   
-  private val db = DBFactory.get()
   private val scoringMethods = new ScoringMethods
 
   get("/") {

@@ -6,6 +6,7 @@ import net.oauth.signature.OAuthSignatureMethod
 
 import org.dialang.web.db.DBFactory
 import org.dialang.web.model.TES
+import org.dialang.web.util.HashUtils
 
 import scala.collection.JavaConversions._
 
@@ -20,11 +21,6 @@ import org.scalatra.scalate.ScalateSupport
 import java.io.InputStreamReader
 import java.util.UUID
 
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
-
-import org.apache.commons.codec.binary.Base64
-
 class LTILaunch extends DialangServlet with ScalateSupport {
 
   private val logger = LoggerFactory.getLogger(classOf[LTILaunch])
@@ -34,8 +30,6 @@ class LTILaunch extends DialangServlet with ScalateSupport {
   private val DialangTestSkillKey = "custom_dialang_test_skill"
   private val DialangDisallowInstantFeedbackKey = "custom_dialang_disallow_instant_feedback"
   private val DialangTESURLKey = "custom_dialang_tes_url"
-
-  val db = DBFactory.get()
 
 	post("/") {
 
@@ -53,6 +47,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       dialangSession.clear()
 
       dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
+      dialangSession.consumerKey = params.get("oauth_consumer_key").get
 
       if (logger.isDebugEnabled) {
         logger.debug("userId:" + dialangSession.userId)
@@ -66,16 +61,9 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           logger.debug("tesUrl:" + tesUrl)
         }
 
-        val oauth_consumer_key = params.get("oauth_consumer_key").get
-        val oauth_secret = db.getSecret(oauth_consumer_key).get
+        val oauth_secret = db.getSecret(dialangSession.consumerKey).get
 
-        val mac = Mac.getInstance("HmacSHA1")
-        mac.init(new SecretKeySpec(oauth_secret.getBytes, "HmacSHA1"))
-
-        val hashBytes
-           = mac.doFinal((dialangSession.userId + oauth_consumer_key).getBytes)
-
-        val hash = Base64.encodeBase64String(hashBytes) 
+        val hash = HashUtils.getHash(dialangSession.userId + dialangSession.consumerKey, oauth_secret)
 
         if (logger.isDebugEnabled) logger.debug("hash:" + hash)
 
@@ -84,6 +72,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
             implicit val formats = DefaultFormats
             val tesJson = parse(new InputStreamReader(inputStream))
             val tes = tesJson.extract[TES]
+            if (logger.isDebugEnabled) logger.debug("testCompleteUrl: " + tes.testCompleteUrl)
             dialangSession.tes = tes
             dialangSession.adminLanguage = tes.al
             dialangSession.testLanguage = tes.tl

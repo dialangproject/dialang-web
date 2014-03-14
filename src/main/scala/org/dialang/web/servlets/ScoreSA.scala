@@ -52,7 +52,12 @@ class ScoreSA extends DialangServlet {
     dataCapture.logSAResponses(dialangSession,responses.toMap)
     dataCapture.logSAPPE(dialangSession)
 
-   contentType = "application/json"
-   "{\"saLevel\":\"" + saLevel + "\",\"saDone\":\"true\"}"
+    if (dialangSession.tes.hideTest) {
+      // The Test Exectution Script specified to just do the SA and VSPT
+      notifyTestCompletion(dialangSession)
+    }
+
+    contentType = "application/json"
+    "{\"saLevel\":\"" + saLevel + "\",\"saDone\":\"true\"}"
   }
 }

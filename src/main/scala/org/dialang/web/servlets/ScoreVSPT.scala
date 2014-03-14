@@ -12,7 +12,6 @@ class ScoreVSPT extends DialangServlet {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private val db = DBFactory.get()
   private val vsptUtils = new VSPTUtils
 
   post("/") {
@@ -20,7 +19,7 @@ class ScoreVSPT extends DialangServlet {
     val responses = new HashMap[String,Boolean]
     params.foreach(t => {
       val name = t._1.asInstanceOf[String]
-      if(name.startsWith("word:")) {
+      if (name.startsWith("word:")) {
         val id = name.split(":")(1)
         val answer = t._2 match {
             case "valid" => true
@@ -45,6 +44,11 @@ class ScoreVSPT extends DialangServlet {
 
     dataCapture.logVSPTResponses(dialangSession,responses.toMap)
     dataCapture.logVSPTScores(dialangSession)
+
+    if (dialangSession.tes.hideSA && dialangSession.tes.hideTest) {
+      // The Test Exectution Script specified to just do the VSPT
+      notifyTestCompletion(dialangSession)
+    }
 
     contentType = "application/json"
     "{ \"vsptMearaScore\":\"" + mearaScore.toString + "\",\"vsptLevel\":\"" + level + "\",\"vsptDone\": \"true\" }"

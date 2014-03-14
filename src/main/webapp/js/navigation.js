@@ -46,6 +46,8 @@ dialang.navigation.nextRules = {
             return dialang.switchState('testintro');
         } else if (!dialang.flags.hideFeedbackMenu) {
             return dialang.switchState('feedbackmenu');
+        } else {
+            return dialang.switchState('endoftest');
         }
     },
     vsptfeedback: function () {

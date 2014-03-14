@@ -20,8 +20,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
   private val logger = LoggerFactory.getLogger(classOf[SubmitBasket])
 
   protected implicit val jsonFormats: Formats = DefaultFormats
-  
-  private val db = DBFactory.get()
+ 
   private val scoringMethods = new ScoringMethods
 
   post("/") {
@@ -282,6 +281,8 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
 
       dataCapture.logTestResult(dialangSession)
       dataCapture.logTestFinish(dialangSession.passId)
+
+      notifyTestCompletion(dialangSession)
 
       // We set testDone to true so the client js knows to enable the sa feedback and advice buttons
       returnMap += (("itemLevel" -> itemLevel),("testDone" -> "true"))
