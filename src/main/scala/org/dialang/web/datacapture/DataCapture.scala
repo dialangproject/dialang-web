@@ -15,7 +15,6 @@ class DataCapture(dsUrl: String) {
       new Runnable {
         def run {
           dataCapture.createSessionAndPass(dialangSession)
-          //dataCapture.createPass(dialangSession)
         }
       }).start
   }
@@ -91,6 +90,7 @@ class DataCapture(dsUrl: String) {
   }
 
   def logTestStart(passId:String) {
+
     new Thread(
       new Runnable {
         def run {

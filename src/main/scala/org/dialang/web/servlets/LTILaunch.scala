@@ -20,6 +20,11 @@ import org.scalatra.scalate.ScalateSupport
 import java.io.InputStreamReader
 import java.util.UUID
 
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+
+import org.apache.commons.codec.binary.Base64
+
 class LTILaunch extends DialangServlet with ScalateSupport {
 
   private val logger = LoggerFactory.getLogger(classOf[LTILaunch])
@@ -61,8 +66,21 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           logger.debug("tesUrl:" + tesUrl)
         }
 
+        val oauth_consumer_key = params.get("oauth_consumer_key").get
+        val oauth_secret = db.getSecret(oauth_consumer_key).get
+
+        val mac = Mac.getInstance("HmacSHA1")
+        mac.init(new SecretKeySpec(oauth_secret.getBytes, "HmacSHA1"))
+
+        val hashBytes
+           = mac.doFinal((dialangSession.userId + oauth_consumer_key).getBytes)
+
+        val hash = Base64.encodeBase64String(hashBytes) 
+
+        if (logger.isDebugEnabled) logger.debug("hash:" + hash)
+
         Http(tesUrl).option(HttpOptions.allowUnsafeSSL)
-                      .param("user", dialangSession.userId){inputStream => {
+          .params("user" -> dialangSession.userId, "hash" -> hash){inputStream => {
             implicit val formats = DefaultFormats
             val tesJson = parse(new InputStreamReader(inputStream))
             val tes = tesJson.extract[TES]
@@ -120,7 +138,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
                               "hideFeedbackMenu" -> dialangSession.tes.hideFeedbackMenu,
                               "disallowInstantFeedback" -> dialangSession.disallowInstantFeedback)
         } else {
-          //dialangSession.showTLS = false;
+          //dialangSession.showTLS = false
           dialangSession.sessionId = UUID.randomUUID.toString
           dialangSession.passId = UUID.randomUUID.toString
           dialangSession.ipAddress = request.remoteAddress
