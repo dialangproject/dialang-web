@@ -73,7 +73,7 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
     $('#confirm-skip-yes').click(function (e) {
 
         $('#confirm-skip-dialog').dialog('destroy');
-        return dialang.navigate.nextRules.sa();
+        return dialang.navigation.nextRules.sa();
     });
 
     $('#confirm-skip-no').click(function (e) {

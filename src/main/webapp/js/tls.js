@@ -22,10 +22,10 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
     $('#content').html(data);
 
     $('#disclaimer-dialog').dialog({modal: true, width: 500, height: 450});
+
     $('#disclaimer-button').click(function (e) {
 
         $('#disclaimer-dialog').dialog('destroy');
-        $(this).off('click');
         return false;
     });
 

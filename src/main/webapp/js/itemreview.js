@@ -3,8 +3,7 @@ dialang.session.reviewMode = true;
 $('#back').prop('disabled', false).click(function () {
 
     dialang.session.reviewMode = false;
-    dialang.switchState('feedbackmenu');
-    return false;
+    return dialang.switchState('feedbackmenu');
 });
 
 $.get('/dialang-content/itemreview/' + dialang.session.al + '.html', function (data) {

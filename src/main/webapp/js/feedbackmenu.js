@@ -21,9 +21,8 @@ $.get('/dialang-content/feedbackmenu/' + dialang.session.al + '.html', function 
         $('#confirm-restart-dialog').dialog({modal: true, width: 500, height: 450, autoOpen: false});
         $('#confirm-restart-yes').click(function (e) {
 
-            $('#confirm-restart-dialog').remove();
-            dialang.switchState('tls');
-            return false;
+            $('#confirm-restart-dialog').dialog('destroy');
+            return dialang.switchState('tls');
         });
 
         $('#confirm-restart-no').click(function (e) {
@@ -43,33 +42,26 @@ $.get('/dialang-content/feedbackmenu/' + dialang.session.al + '.html', function 
 
     $('#about-sa-button').prop('disabled', false).click(function (e) {
 
-        dialang.switchState('aboutsa');
-        return false;
+        return dialang.switchState('aboutsa');
     });
 
-    if(dialang.session.itemsCompleted) {
+    if (dialang.session.itemsCompleted) {
         $('#check-answers-button').click(function (e) {
-
-            dialang.switchState('itemreview');
-            return false;
+            return dialang.switchState('itemreview');
         });
     } else {
         $('#check-answers-button').attr('disabled',true);
     }
 
-    if(dialang.session.testDone) {
+    if (dialang.session.testDone) {
         $('#your-level-button').click(function (e) {
-
-            dialang.switchState('testresults');
-            return false;
+            return dialang.switchState('testresults');
         });
-        if(dialang.session.skill === 'structures' || dialang.session.skill === 'vocabulary') {
+        if (dialang.session.skill === 'structures' || dialang.session.skill === 'vocabulary') {
             $('#advice-button').attr('disabled', true);
         } else {
             $('#advice-button').click(function (e) {
-
-                dialang.switchState('advfb');
-                return false;
+                return dialang.switchState('advfb');
             });
         }
     } else {
@@ -78,21 +70,17 @@ $.get('/dialang-content/feedbackmenu/' + dialang.session.al + '.html', function 
         $('#advice-button').attr('disabled',true);
     }
 
-    if(dialang.session.vsptDone.hasOwnProperty(dialang.session.tl)) {
+    if (dialang.session.vsptDone.hasOwnProperty(dialang.session.tl)) {
         $('#placement-test-button').prop('disabled', false).click(function (e) {
-
-            dialang.switchState('vsptfeedback');
-            return false;
+            return dialang.switchState('vsptfeedback');
         });
     } else {
         $('#placement-test-button').attr('disabled',true);
     }
 
-    if(dialang.session.saDone) {
+    if (dialang.session.saDone) {
         $('#sa-feedback-button').click(function (e) {
-
-            dialang.switchState('safeedback');
-            return false;
+            return dialang.switchState('safeedback');
         });
     } else {
         $('#sa-feedback-button').prop('disabled', true);
