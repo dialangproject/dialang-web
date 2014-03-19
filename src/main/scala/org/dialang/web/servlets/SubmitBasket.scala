@@ -3,7 +3,7 @@ package org.dialang.web.servlets
 import org.dialang.web.db.DBFactory
 import org.dialang.web.model.{DialangSession,Basket}
 import org.dialang.web.scoring.ScoringMethods
-import org.dialang.common.model._
+import org.dialang.common.model.{Answer,ImmutableItem,ScoredItem}
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
@@ -47,7 +47,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
 
     val returnMap = new HashMap[String,Any]()
 
-    def positionInBasketSorter = (a:ImmutableItem,b:ImmutableItem) => {a.positionInBasket < b.positionInBasket}
+    def positionInBasketSorter = (a: ImmutableItem, b: ImmutableItem) => {a.positionInBasket < b.positionInBasket}
 
     val basketList:ListBuffer[Basket] = (new ListBuffer[Basket]) ++ dialangSession.scoredBasketList
     val itemList:ListBuffer[ImmutableItem] = (new ListBuffer[ImmutableItem]) ++ dialangSession.scoredItemList

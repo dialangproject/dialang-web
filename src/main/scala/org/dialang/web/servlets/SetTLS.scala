@@ -16,8 +16,8 @@ class SetTLS extends DialangServlet {
 
     val dialangSession = getDialangSession
 
-    if(dialangSession.adminLanguage == "") {
-      if(logger.isInfoEnabled) {
+    if (dialangSession.adminLanguage == "") {
+      if (logger.isInfoEnabled) {
         logger.info("No admin language set at test selection. The session may have timed out. Redirecting to ALS page ...")
       }
       // At this stage, the session should have the al set. This
@@ -56,7 +56,7 @@ class SetTLS extends DialangServlet {
       // new one for each test.
       dialangSession.passId = UUID.randomUUID.toString
 
-      if(logger.isDebugEnabled) {
+      if (logger.isDebugEnabled) {
         logger.debug("TL: " + tl)
         logger.debug("SKILL: " + skill)
         logger.debug("SESSION ID: " + sessionId)

@@ -1,8 +1,7 @@
 package org.dialang.web.scoring
 
 import org.dialang.web.db.DBFactory
-import org.dialang.common.model.ImmutableItem
-import org.dialang.common.model.{Item,ScoredItem}
+import org.dialang.common.model.{Item,ImmutableItem,ScoredItem}
 import org.dialang.web.model.{DialangSession,ItemGrade}
 
 import java.util.StringTokenizer
@@ -72,7 +71,7 @@ class ScoringMethods {
   private def getSaRawScore(skill: String,responses: Map[String,Boolean]): Int = {
 
     responses.keys.foldLeft(0)( (rsc,id) => {
-      if(responses.get(id).get) {
+      if (responses.get(id).get) {
         // They responded true to this statement, add its weight.
         db.saWeights.get(skill) match {
             case Some(wordMap) => {
