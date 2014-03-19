@@ -1,6 +1,6 @@
 package org.dialang.web.model
 
-import scala.collection.mutable.HashMap
+//import scala.collection.mutable.HashMap
 
 import java.sql.ResultSet
 
@@ -9,15 +9,16 @@ import java.sql.ResultSet
  * values, through the map function. Note that the index [0][0] is actually illegal, but as there is a map at
  * that location, the get is safe and will by default return null - nothing found.
  */
-class PreestWeights(rs:ResultSet) {
+class PreestWeights(rs: ResultSet) {
 
-  private def createKey(tl:String, skill:String, vDone:Boolean, sDone:Boolean) = {
+  private def createKey(tl: String, skill: String, vDone: Boolean, sDone: Boolean) = {
     tl + "#" + skill + "#" + vDone + "#" + sDone
   }
 
-  private val weights:Map[String,Tuple3[Float,Float,Float]] = {
-      val tmp = new HashMap[String,Tuple3[Float,Float,Float]]
-      while(rs.next) {
+  private val weights: Map[String,Map[String, Float]] = {
+
+      val builder = Map.newBuilder[String, Map[String, Float]]
+      while (rs.next) {
         val tl = rs.getString("tl")
         val skill = rs.getString("skill")
         val vsptDone = rs.getBoolean("vspttaken")
@@ -25,24 +26,26 @@ class PreestWeights(rs:ResultSet) {
         val vspt = rs.getFloat("vspt")
         val sa = rs.getFloat("sa")
         val coe = rs.getFloat("coe")
-        tmp += (createKey(tl,skill,vsptDone,saDone) -> (vspt,sa,coe))
+        builder += (createKey(tl,skill,vsptDone,saDone) -> Map("vspt" -> vspt, "sa" -> sa, "coe" -> coe))
       }
-      tmp.toMap
+      builder.result
     }
 
-	def get(tl:String, skill:String, vsptDone:Boolean, saDone:Boolean):Option[Tuple3[Float,Float,Float]] = {
-    weights.get(createKey(tl,skill,vsptDone,saDone))
+	def get(tl: String, skill: String, vsptDone: Boolean, saDone: Boolean): Option[Map[String, Float]] = {
+
+    weights.get(createKey(tl, skill, vsptDone, saDone))
 	}
 
-	override def toString:String = {
+	override def toString: String = {
+
 		val sb = new StringBuffer
 
     weights.foreach(t => {
-      val (key,value) = t
+      val (key, value) = t
       sb.append("{" + key + ":")
-      sb.append("[" + value._1)
-      sb.append("," + value._2)
-      sb.append("," + value._3 + "]}")
+      sb.append("[" + value.get("vspt").get)
+      sb.append("," + value.get("sa").get)
+      sb.append("," + value.get("coe").get)
       sb.append(System.getProperty("line.separator"))
     })
 

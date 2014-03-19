@@ -16,12 +16,12 @@ class StartTest extends DialangServlet {
 
     val dialangSession = getDialangSession
 
-    if(dialangSession.testLanguage == "" || dialangSession.skill == "") {
+    if (dialangSession.testLanguage == "" || dialangSession.skill == "") {
       logger.error("Neither the test language or skill were set in the session. Returning 500 ...")
       halt(500)
     }
 
-    if(dialangSession.scoredItemList.length > 0) {
+    if (dialangSession.scoredItemList.length > 0) {
       logger.error("The scored item list should be empty at this point. Returning 500 ...")
       halt(500)
     }
@@ -32,7 +32,7 @@ class StartTest extends DialangServlet {
 
     val firstBasketId = db.getBasketIdsForBooklet(bookletId).head
 
-    if(logger.isDebugEnabled) {
+    if (logger.isDebugEnabled) {
       logger.debug("BOOKLET ID: " + bookletId)
       logger.debug("BOOKLET LENGTH: " + bookletLength)
       logger.debug("First Basket Id: " + firstBasketId)

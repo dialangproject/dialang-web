@@ -44,22 +44,22 @@ class ScoringMethods {
 
 		  val vsptZScore:Float = if (session.vsptSubmitted) session.vsptZScore else 0.0F
 
-		  val saPPE:Float = if(session.saSubmitted) session.saPPE else 0.0F
+		  val saPPE:Float = if (session.saSubmitted) session.saPPE else 0.0F
 
-      if(logger.isDebugEnabled) {
+      if (logger.isDebugEnabled) {
 		    logger.debug(session.testLanguage + "," + session.skill + "," + session.vsptSubmitted + "," + session.saSubmitted)
       }
 
 		  // get the appropriate weight for the given context:
 		  db.preestWeights.get(session.testLanguage, session.skill, session.vsptSubmitted, session.saSubmitted) match {
-        case Some(t:Tuple3[Float,Float,Float]) => {
-		      val pe =  (saPPE * t._2) + (vsptZScore * t._1) + t._3
+        case Some(m: Map[String, Float]) => {
+		      val pe =  (saPPE * m.get("sa").get) + (vsptZScore * m.get("vspt").get) + m.get("coe").get
 
 		      // finaly look up the assignment for the resulting values:
-		      db.preestAssign.getBookletId(session.testLanguage,session.skill,pe)
+		      db.preestAssign.getBookletId(session.testLanguage, session.skill, pe)
         }
         case _ => {
-          if(logger.isInfoEnabled) logger.info("No weight returned. The middle booklet will be returned.")
+          if (logger.isInfoEnabled) logger.info("No weight returned. The middle booklet will be returned.")
 			    db.preestAssign.getMiddleBookletId(session.testLanguage,session.skill)
         }
       }
@@ -69,7 +69,7 @@ class ScoringMethods {
   /**
    * Returns the sum of the weights of the questions answered 'true'
    */
-  private def getSaRawScore(skill: String,responses: Map[String,Boolean]):Int = {
+  private def getSaRawScore(skill: String,responses: Map[String,Boolean]): Int = {
 
     responses.keys.foldLeft(0)( (rsc,id) => {
       if(responses.get(id).get) {
