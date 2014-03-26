@@ -28,7 +28,6 @@ dependencies {
     testCompile 'simple-jndi:simple-jndi:0.11.4.1'
 }
 
-
 if (hasProperty('profile')) {
     apply from: "${profile}-profile.gradle"
 } else {

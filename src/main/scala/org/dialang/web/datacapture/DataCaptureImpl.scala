@@ -56,7 +56,7 @@ class DataCaptureImpl(dsUrl: String) {
 
     lazy val conn = ds.getConnection
     lazy val sessionST = conn.prepareStatement("INSERT INTO sessions (id,user_id,consumer_key,ip_address,started) VALUES(?,?,?,?,?)")
-    lazy val passST = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill) VALUES(?,?,?,?,?)")
+    lazy val passST = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill,started) VALUES(?,?,?,?,?,?)")
 
     try {
 
@@ -76,6 +76,7 @@ class DataCaptureImpl(dsUrl: String) {
       passST.setString(3,dialangSession.adminLanguage)
       passST.setString(4,dialangSession.testLanguage)
       passST.setString(5,dialangSession.skill)
+      passST.setLong(6,dialangSession.started)
       if(passST.executeUpdate != 1) {
         logger.error("Failed to log pass creation.")
       }
@@ -183,10 +184,10 @@ class DataCaptureImpl(dsUrl: String) {
     }
   }
 
-  def createPass(dialangSession:DialangSession) {
+  def createPass(dialangSession: DialangSession) {
 
     lazy val conn = ds.getConnection
-    lazy val st = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill) VALUES(?,?,?,?,?)")
+    lazy val st = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill,started) VALUES(?,?,?,?,?,?)")
 
     try {
       st.setString(1,dialangSession.passId)
@@ -194,6 +195,7 @@ class DataCaptureImpl(dsUrl: String) {
       st.setString(3,dialangSession.adminLanguage)
       st.setString(4,dialangSession.testLanguage)
       st.setString(5,dialangSession.skill)
+      st.setLong(6,dialangSession.started)
       if(st.executeUpdate != 1) {
         logger.error("Failed to log pass creation.")
       }
@@ -374,7 +376,7 @@ class DataCaptureImpl(dsUrl: String) {
     try {
 
       st.setString(1,passId)
-      st.setLong(2,(new Date()).getTime())
+      st.setLong(2,((new Date()).getTime()) / 1000L)
       if(st.executeUpdate != 1) {
         logger.error("Failed to log test start time.")
       }
@@ -554,7 +556,7 @@ class DataCaptureImpl(dsUrl: String) {
 
     try {
 
-      st.setLong(1,(new Date()).getTime())
+      st.setLong(1,((new Date()).getTime()) / 1000L)
       st.setString(2,passId)
       if(st.executeUpdate != 1) {
         logger.error("Failed to log test finish time.")

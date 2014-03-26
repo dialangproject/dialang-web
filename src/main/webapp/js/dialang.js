@@ -1,10 +1,12 @@
 "use strict";
 
+$.ajaxSetup({ cache: false });
+
 if (typeof dialang === 'undefined') {
     alert("No dialang object defined. Returning prematurely from dialang.js ...");
 }
 
-if(typeof console === "undefined") {
+if (typeof console === "undefined") {
 
     console = {
         debug: function () {},

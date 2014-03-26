@@ -60,7 +60,8 @@ $.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl +
     $('#confirm-send-yes').click(function (e) {
 
         $('#vsptform').ajaxSubmit({
-            'dataType':'json',
+            dataType: 'json',
+            timeout: 5000,
             success: function (scores, textStatus, jqXHR, jqFormElement) {
 
                 dialang.session.vsptMearaScore = scores.vsptMearaScore;
@@ -72,7 +73,7 @@ $.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl +
                 dialang.navigation.nextRules.vspt();
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert('Failed to submit vspt');
+                alert('Failed to submit vspt. Reason: ' + textStatus);
             }
         }); // ajaxSubmit
         return false;

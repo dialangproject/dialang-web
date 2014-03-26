@@ -3,7 +3,7 @@ $('#next').prop('disabled', false).click(function (e) {
     $.ajax({
         url: '/starttest',
         dataType: 'json',
-        cache: false,
+        timeout: 5000,
         success: function (testData, textStatus, jqXHR) {
 
             dialang.session.totalItems = testData.totalItems;
@@ -13,7 +13,7 @@ $('#next').prop('disabled', false).click(function (e) {
             dialang.navigation.nextRules.testintro();
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            alert('Failed to get test data');
+            alert('Failed to get test data. Reason: ' + textStatus);
         }
     });
     return false;

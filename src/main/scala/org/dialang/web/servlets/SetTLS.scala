@@ -14,6 +14,8 @@ class SetTLS extends DialangServlet {
 
   post("/") {
 
+    logger.debug("settls")
+
     val dialangSession = getDialangSession
 
     if (dialangSession.adminLanguage == "") {
@@ -67,7 +69,7 @@ class SetTLS extends DialangServlet {
       dialangSession.testLanguage = tl
       dialangSession.skill = skill.toLowerCase
       dialangSession.ipAddress = request.remoteAddress
-      dialangSession.started = (new Date).getTime
+      dialangSession.started = ((new Date).getTime) / 1000L
 
       saveDialangSession(dialangSession)
 

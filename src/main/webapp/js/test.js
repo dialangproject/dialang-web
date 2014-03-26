@@ -91,8 +91,6 @@ if (!dialang.session.reviewMode) {
         $('#progressbar').progressbar('option', 'value', parseInt(dialang.session.itemsCompleted, 10));
     }
 
-    $.ajaxSetup({ cache: false });
-
     $.get('/dialang-content/baskets/' + dialang.session.al + "/" + dialang.session.currentBasketId + '.html', function (data) {
 
         $('#content').html(data);
@@ -112,8 +110,8 @@ if (!dialang.session.reviewMode) {
         }
 
         $('#basketform').ajaxForm({
-            'dataType': 'json',
-            'async': false,
+            dataType: 'json',
+            timeout: 5000,
             success: function (nextBasketData, textStatus, jqXHR, jqFormElement) {
 
                 var basket = nextBasketData.scoredBasket;
@@ -226,7 +224,7 @@ if (!dialang.session.reviewMode) {
                 } // if (dialang.session.instantFeedbackOn)
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert('Failed to submit basket');
+                alert('Failed to submit basket. Reason: ' + textStatus);
             }
         }); // ajaxForm
 

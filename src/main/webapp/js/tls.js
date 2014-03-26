@@ -51,6 +51,7 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
                 type: 'POST',
                 data: {'tl':tl,'skill':skill},
                 dataType: 'text',
+                timeout: 5000,
                 success: function (response, textStatus, jqXHR) {
 
                     dialang.pass = {'baskets':[],'itemToBasketMap':{},'items':[],'subskills':{}};
@@ -69,7 +70,7 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
 
-                    alert('Failed to set test language and skill');
+                    alert('Failed to set test language and skill. Reason: ' + textStatus);
                     $('#confirmation-dialog').dialog('destroy');
                 }
             });

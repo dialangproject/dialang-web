@@ -42,7 +42,8 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
     $('#confirm-send-yes').click(function (e) {
 
         $('#saform').ajaxSubmit({
-            'dataType':'json',
+            dataType: 'json',
+            timeout: 5000,
             success: function (scores, textStatus, jqXHR, jqFormElement) {
 
                 dialang.session.saLevel = scores.saLevel;
@@ -51,7 +52,7 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
                 dialang.navigation.nextRules.sa();
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert('Failed to submit sa');
+                alert('Failed to submit sa. Reason: ' + textStatus);
             }
         });
 
