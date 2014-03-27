@@ -35,7 +35,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
     logger.debug("LTI Launch")
 
-    val message = OAuthServlet.getMessage(request, null)
+    val message:OAuthMessage = OAuthServlet.getMessage(request, null)
 
     try {
       validate(params, message)
@@ -168,72 +168,59 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 	}
 
   @throws[Exception]
-  private def validate(payload:Map[String,String], oam:OAuthMessage) {
+  private def validate(payload: Map[String, String], oam: OAuthMessage) {
 
     //check parameters
     val lti_message_type = payload.getOrElse(BasicLTIConstants.LTI_MESSAGE_TYPE, "")
-    val lti_version = payload.getOrElse(BasicLTIConstants.LTI_VERSION, "")
-    val oauth_consumer_key = payload.getOrElse("oauth_consumer_key", "")
-    val resource_link_id = payload.getOrElse(BasicLTIConstants.RESOURCE_LINK_ID, "")
-    val user_id = payload.getOrElse(BasicLTIConstants.USER_ID, "")
-    val context_id = payload.getOrElse(BasicLTIConstants.CONTEXT_ID, "")
 
     if (lti_message_type != "basic-lti-launch-request") {
-      logger.error("Invalid lti_message_type: " + lti_message_type)
-      throw new Exception("launch.invalid")
+      throw new Exception("launch.invalid. Invalid lti_message_type: " + lti_message_type)
     }
 
-    if (lti_version != "LTI-1p0") {
-      logger.error("Invalid lti_version: " + lti_version)
-      throw new Exception( "launch.invalid")
-    }
+    val lti_version = payload.get(BasicLTIConstants.LTI_VERSION) match {
+        case Some(s: String) => s
+        case None => {
+          throw new Exception("launch.invalid. No lti_version.")
+        }
+      }
 
-    if (oauth_consumer_key == "") {
-      logger.error("Missing outh_consumer_key")
-      throw new Exception( "launch.missing oauth_consumer_key")
-    }
+    val oauth_consumer_key = payload.get("oauth_consumer_key") match {
+        case Some(s: String) => s
+        case None => {
+          throw new Exception("launch.invalid. Missing oauth_consumer_key.")
+        }
+      }
 
-    if (resource_link_id == "") {
-      logger.error("Missing resource_link_id")
-      throw new Exception( "launch.missing resource_link_id")
-    }
+    val resource_link_id = payload.get(BasicLTIConstants.RESOURCE_LINK_ID) match {
+        case Some(s: String) => s
+        case None => {
+          throw new Exception("launch.invalid Missing resource_link_id.")
+        }
+      }
 
-    if (user_id == "") {
-      logger.error("Missing user_id")
-      throw new Exception( "launch.missing user_id")
-    }
+    val user_id = payload.get(BasicLTIConstants.USER_ID) match {
+        case Some(s: String) => s
+        case None => {
+          throw new Exception("launch.invalid. Missing user_id.")
+        }
+      }
 
     // Lookup the secret
     val oauth_secret = db.getSecret(oauth_consumer_key) match {
       case Some(s:String) => s
       case None => {
-        logger.error("launch.key.notfound: " + oauth_consumer_key)
-        throw new Exception("launch.key.notfound: '" + oauth_consumer_key)
+        throw new Exception("launch.invalid. No secret for consumer key: '" + oauth_consumer_key)
       }
     }
 
-    val oav = new SimpleOAuthValidator
-    val cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null)
+    val cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key, oauth_secret, null)
     val acc = new OAuthAccessor(cons)
-
-    var baseString:String = null
-    try {
-      baseString = OAuthSignatureMethod.getBaseString(oam)
-    } catch {
-      case e:Exception => {
-        logger.error(e.getLocalizedMessage(), e)
-      }
-    }
+    val oav = new SimpleOAuthValidator
 
     try {
       oav.validateMessage(oam, acc)
     } catch {
       case e:Exception => {
-        logger.error("Provider failed to validate message")
-        logger.error(e.getLocalizedMessage, e)
-        if (baseString != null) {
-          logger.info("BASE STRING: " + baseString)
-        }
         throw new Exception( "launch.no.validate", e)
       }
     }

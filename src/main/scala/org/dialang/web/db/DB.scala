@@ -458,21 +458,21 @@ class DB(datasourceUrl: String) extends DialangLogger {
     }
   }
 
-  def getSecret(consumerKey: String):Option[String] = {
+  def getSecret(consumerKey: String): Option[String] = {
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("SELECT secret FROM lti_consumers WHERE consumer_key = ?")
 
     try {
-      st.setString(1,consumerKey)
+      st.setString(1, consumerKey)
       val rs = st.executeQuery
-      if(rs.next) {
+      if (rs.next) {
         Some(rs.getString("secret"))
       } else {
         None
       }
     } finally {
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch {
@@ -480,7 +480,7 @@ class DB(datasourceUrl: String) extends DialangLogger {
         }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch {
