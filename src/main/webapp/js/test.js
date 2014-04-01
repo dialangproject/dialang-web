@@ -283,14 +283,14 @@ if (!dialang.session.reviewMode) {
 
         $('#confirm-skip-dialog').hide();
 
-        var i,j;
-
         if (basket.basketType === 'mcq' ) {
             // MCQ baskets only ever have one item.
             var item = basket.items[0];
             $('#mcq-review-dialog').dialog('open');
             if (!item.correct) {
-                $('.review-smiley > img').attr('src','/images/frowney.gif');
+                $('.review-smiley > img').attr('src', '/images/frowney.gif');
+            } else {
+                $('.review-smiley > img').attr('src', '/images/smiley.gif');
             }
             $('.review-given-answer p').html(item.responseText);
 
