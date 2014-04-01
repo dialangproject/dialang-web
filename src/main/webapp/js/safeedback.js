@@ -1,6 +1,7 @@
 dialang.session.saFeedbackMode = true;
 
 $('#back').prop('disabled', false).click(function () {
+
     dialang.switchState('feedbackmenu');
     return false;
 });
