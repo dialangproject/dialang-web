@@ -7,14 +7,10 @@ class DialangSession extends Serializable with DialangLogger {
 
   var userId = ""
   var consumerKey = ""
-  var adminLanguage = ""
   var sessionId = ""
   var ipAddress = ""
   var started = 0L
   var passId = ""
-  var testLanguage = ""
-  var skill = ""
-  var disallowInstantFeedback = false
   var vsptSubmitted = false
   var saSubmitted = false
   var vsptZScore = 0F
@@ -42,8 +38,8 @@ class DialangSession extends Serializable with DialangLogger {
     debug("Resetting all state except the adminLanguage and sessionId ...")
 
     passId = ""
-    testLanguage = ""
-    skill = ""
+    tes.tl = ""
+    tes.skill = ""
     vsptSubmitted = false
     saSubmitted = false
     vsptZScore = 0F

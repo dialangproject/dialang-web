@@ -10,12 +10,12 @@ class SetALS extends DialangServlet with ScalateSupport {
 
     // Stash the admin language in the session
     val dialangSession = getDialangSession
-    dialangSession.adminLanguage = al
+    dialangSession.tes.al = al
     saveDialangSession(dialangSession)
 
     contentType = "text/html"
     mustache("shell", "state" -> "legend",
                       "al" -> al,
-                      "disallowInstantFeedback" -> dialangSession.disallowInstantFeedback)
+                      "disallowInstantFeedback" -> dialangSession.tes.disallowInstantFeedback)
   }
 }

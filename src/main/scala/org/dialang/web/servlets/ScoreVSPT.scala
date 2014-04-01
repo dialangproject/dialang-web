@@ -33,7 +33,7 @@ class ScoreVSPT extends DialangServlet {
     val dialangSession = getDialangSession
 
     // This is a Tuple3 of zscore, meara score and level.
-    val (zScore,mearaScore,level) = vsptUtils.getBand(dialangSession.testLanguage,responses.toMap)
+    val (zScore,mearaScore,level) = vsptUtils.getBand(dialangSession.tes.tl,responses.toMap)
 
     dialangSession.vsptZScore = zScore.toFloat
     dialangSession.vsptMearaScore = mearaScore

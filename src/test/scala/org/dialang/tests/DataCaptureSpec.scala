@@ -22,9 +22,9 @@ class DataCaptureSpec extends FlatSpec with Matchers {
     dialangSession.started = (new Date).getTime
 
     dialangSession.passId = UUID.randomUUID.toString
-    dialangSession.adminLanguage = "eng_gb"
-    dialangSession.testLanguage = "spa_es"
-    dialangSession.skill = "reading"
+    dialangSession.tes.al = "eng_gb"
+    dialangSession.tes.tl = "spa_es"
+    dialangSession.tes.skill = "reading"
 
     val dataCapture = new DataCaptureImpl("jdbc.dialangdatacapture")
 
@@ -49,9 +49,9 @@ class DataCaptureSpec extends FlatSpec with Matchers {
       storedDialangSession.started should equal (dialangSession.started)
 
       storedDialangPass.passId should equal (dialangSession.passId)
-      storedDialangPass.adminLanguage should equal (dialangSession.adminLanguage)
-      storedDialangPass.testLanguage should equal (dialangSession.testLanguage)
-      storedDialangPass.skill should equal (dialangSession.skill)
+      storedDialangPass.tes.al should equal (dialangSession.tes.al)
+      storedDialangPass.tes.tl should equal (dialangSession.tes.tl)
+      storedDialangPass.tes.skill should equal (dialangSession.tes.skill)
     } catch {
       case s:SQLException => {
         println(s.getMessage)

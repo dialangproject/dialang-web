@@ -18,6 +18,38 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
   private val ds = (new InitialContext).lookup(datasourceUrl).asInstanceOf[DataSource];
 
+  val adminLanguages:List[String] = {
+
+      debug("Caching admin languages ...")
+
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
+      try {
+        val buffer = new ListBuffer[String]
+        val rs = st.executeQuery("SELECT locale FROM admin_languages")
+        while(rs.next) {
+          buffer += rs.getString(1)
+        }
+        rs.close()
+        buffer.toList
+      } finally {
+        if(st != null) {
+          try {
+            st.close()
+          } catch { case e:SQLException => }
+        }
+
+        if(conn != null) {
+          try {
+            conn.close()
+          } catch { case e:SQLException => }
+        }
+
+        debug("Admin languages cached.")
+      }
+    }
+
   private val adminLanguageMappingsCache:Map[String,String] = {
 
       debug("Caching admin language mappings ...")
@@ -55,7 +87,7 @@ class DB(datasourceUrl: String) extends DialangLogger {
     adminLanguageMappingsCache.getOrElse(twoLetterLocale.toLowerCase.replace("-","_"),"")
   }
 
-  private val testLanguageCache:List[String] = {
+  val testLanguages:List[String] = {
 
       debug("Caching test languages ...")
 
@@ -96,7 +128,7 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       try {
         val tmp = new HashMap[String,List[VSPTWord]]
-        testLanguageCache.foreach(tl => {
+        testLanguages.foreach(tl => {
           val rs = st.executeQuery("SELECT words.word_id,words.word,words.valid,words.weight FROM vsp_test_word,words WHERE locale = '" + tl + "' AND vsp_test_word.word_id = words.word_id")
           val words = new ListBuffer[VSPTWord]
           while(rs.next) {
@@ -328,7 +360,7 @@ class DB(datasourceUrl: String) extends DialangLogger {
       }
     }
 
-  private val skillCache:List[String] = {
+  val skills:List[String] = {
 
       debug("Caching skills ...")
 
@@ -401,9 +433,9 @@ class DB(datasourceUrl: String) extends DialangLogger {
 
       try {
         val map = new HashMap[String,Map[String,Map[Int,ItemGrades]]]
-        testLanguageCache.foreach(tl => {
+        testLanguages.foreach(tl => {
           val skillMap = new HashMap[String,Map[Int,ItemGrades]]
-          skillCache.foreach(skill => {
+          skills.foreach(skill => {
             val bookletMap = new HashMap[Int,ItemGrades]
             bookletIdCache.foreach(bookletId => {
               val rs = st.executeQuery("SELECT rsc,ppe,se,grade FROM item_grading WHERE tl = '" + tl + "' AND skill = '" + skill + "' AND booklet_id = " + bookletId)

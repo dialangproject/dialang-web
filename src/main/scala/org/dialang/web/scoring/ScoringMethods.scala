@@ -35,7 +35,7 @@ class ScoringMethods {
 
 		if (!session.vsptSubmitted && !session.saSubmitted) {
 			// No sa or vspt, request the default assignment.
-			db.preestAssign.getMiddleBookletId(session.testLanguage,session.skill)
+			db.preestAssign.getMiddleBookletId(session.tes.tl,session.tes.skill)
 		} else {
 
 		  // if either test is done, then we need to get the grade 
@@ -46,20 +46,20 @@ class ScoringMethods {
 		  val saPPE:Float = if (session.saSubmitted) session.saPPE else 0.0F
 
       if (logger.isDebugEnabled) {
-		    logger.debug(session.testLanguage + "," + session.skill + "," + session.vsptSubmitted + "," + session.saSubmitted)
+		    logger.debug(session.tes.tl + "," + session.tes.skill + "," + session.vsptSubmitted + "," + session.saSubmitted)
       }
 
 		  // get the appropriate weight for the given context:
-		  db.preestWeights.get(session.testLanguage, session.skill, session.vsptSubmitted, session.saSubmitted) match {
+		  db.preestWeights.get(session.tes.tl, session.tes.skill, session.vsptSubmitted, session.saSubmitted) match {
         case Some(m: Map[String, Float]) => {
 		      val pe =  (saPPE * m.get("sa").get) + (vsptZScore * m.get("vspt").get) + m.get("coe").get
 
 		      // finaly look up the assignment for the resulting values:
-		      db.preestAssign.getBookletId(session.testLanguage, session.skill, pe)
+		      db.preestAssign.getBookletId(session.tes.tl, session.tes.skill, pe)
         }
         case _ => {
           if (logger.isInfoEnabled) logger.info("No weight returned. The middle booklet will be returned.")
-			    db.preestAssign.getMiddleBookletId(session.testLanguage,session.skill)
+			    db.preestAssign.getMiddleBookletId(session.tes.tl,session.tes.skill)
         }
       }
     }
@@ -170,7 +170,7 @@ class ScoringMethods {
 
     val (rawScore, weight) = results.foldLeft((0,0))( (t, item) => (t._1 + item.score, t._2 + item.weight) )
 
-    val itemGrades = db.getItemGrades(session.testLanguage, session.skill, session.bookletId)
+    val itemGrades = db.getItemGrades(session.tes.tl, session.tes.skill, session.bookletId)
 
     // normalize:
     val normalisedRawScore = ((rawScore.toFloat) * (itemGrades.max / weight.toFloat)).toInt

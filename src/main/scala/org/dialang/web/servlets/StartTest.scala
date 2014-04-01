@@ -16,7 +16,7 @@ class StartTest extends DialangServlet {
 
     val dialangSession = getDialangSession
 
-    if (dialangSession.testLanguage == "" || dialangSession.skill == "") {
+    if (dialangSession.tes.tl == "" || dialangSession.tes.skill == "") {
       logger.error("Neither the test language or skill were set in the session. Returning 500 ...")
       halt(500)
     }

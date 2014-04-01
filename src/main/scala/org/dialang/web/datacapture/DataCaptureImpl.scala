@@ -16,42 +16,6 @@ class DataCaptureImpl(dsUrl: String) {
   val ctx = new InitialContext
   val ds = ctx.lookup(dsUrl).asInstanceOf[DataSource]
 
-  /*
-  def createSession(dialangSession:DialangSession) {
-
-    lazy val conn = ds.getConnection
-    lazy val st = conn.prepareStatement("INSERT INTO sessions (id,user_id,consumer_key,ip_address,started) VALUES(?,?,?,?,?)")
-
-    try {
-      st.setString(1,dialangSession.sessionId)
-      st.setString(2,dialangSession.userId)
-      st.setString(3,dialangSession.consumerKey)
-      st.setString(4,dialangSession.ipAddress)
-      st.setLong(5,dialangSession.started)
-      if(st.executeUpdate != 1) {
-        logger.error("Failed to log session creation.")
-      }
-    } catch {
-      case e:Exception => {
-        logger.error("Caught exception whilst create session", e)
-      }
-    } finally {
-
-      if(st != null) {
-        try {
-          st.close()
-        } catch { case _ : SQLException => }
-      }
-
-      if(conn != null) {
-        try {
-          conn.close()
-        } catch { case _ : SQLException => }
-      }
-    }
-  }
-  */
-
   def createSessionAndPass(dialangSession:DialangSession) {
 
     lazy val conn = ds.getConnection
@@ -73,9 +37,9 @@ class DataCaptureImpl(dsUrl: String) {
 
       passST.setString(1,dialangSession.passId)
       passST.setString(2,dialangSession.sessionId)
-      passST.setString(3,dialangSession.adminLanguage)
-      passST.setString(4,dialangSession.testLanguage)
-      passST.setString(5,dialangSession.skill)
+      passST.setString(3,dialangSession.tes.al)
+      passST.setString(4,dialangSession.tes.tl)
+      passST.setString(5,dialangSession.tes.skill)
       passST.setLong(6,dialangSession.started)
       if(passST.executeUpdate != 1) {
         logger.error("Failed to log pass creation.")
@@ -161,9 +125,9 @@ class DataCaptureImpl(dsUrl: String) {
       if(rs.next) {
         val dialangSession = new DialangSession
         dialangSession.passId = passId
-        dialangSession.adminLanguage = rs.getString("al")
-        dialangSession.testLanguage = rs.getString("tl")
-        dialangSession.skill = rs.getString("skill")
+        dialangSession.tes.al = rs.getString("al")
+        dialangSession.tes.tl = rs.getString("tl")
+        dialangSession.tes.skill = rs.getString("skill")
         Some(dialangSession)
       } else {
         None
@@ -192,9 +156,9 @@ class DataCaptureImpl(dsUrl: String) {
     try {
       st.setString(1,dialangSession.passId)
       st.setString(2,dialangSession.sessionId)
-      st.setString(3,dialangSession.adminLanguage)
-      st.setString(4,dialangSession.testLanguage)
-      st.setString(5,dialangSession.skill)
+      st.setString(3,dialangSession.tes.al)
+      st.setString(4,dialangSession.tes.tl)
+      st.setString(5,dialangSession.tes.skill)
       st.setLong(6,dialangSession.started)
       if(st.executeUpdate != 1) {
         logger.error("Failed to log pass creation.")
@@ -229,7 +193,7 @@ class DataCaptureImpl(dsUrl: String) {
       // Insert this session's vspt responses in a transaction
       conn.setAutoCommit(false)
 
-      st.setString(1,dialangSession.passId)
+      st.setString(1, dialangSession.passId)
       responses.foreach(t => {
         st.setString(2,t._1)
         st.setBoolean(3,t._2)
@@ -295,7 +259,7 @@ class DataCaptureImpl(dsUrl: String) {
     }
   }
 
-  def logSAResponses(dialangSession:DialangSession, responses: Map[String,Boolean]) {
+  def logSAResponses(dialangSession: DialangSession, responses: Map[String, Boolean]) {
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("INSERT INTO sa_responses (pass_id,statement_id,response) VALUES(?,?,?)")

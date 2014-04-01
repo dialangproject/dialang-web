@@ -6,8 +6,6 @@ import org.dialang.common.model.ImmutableItem
 
 import org.slf4j.LoggerFactory
 
-import org.dialang.web.datacapture.DataLogger
-
 class SetTLS extends DialangServlet {
 
   private val logger = LoggerFactory.getLogger(getClass)
@@ -18,7 +16,7 @@ class SetTLS extends DialangServlet {
 
     val dialangSession = getDialangSession
 
-    if (dialangSession.adminLanguage == "") {
+    if (dialangSession.tes.al == "") {
       if (logger.isInfoEnabled) {
         logger.info("No admin language set at test selection. The session may have timed out. Redirecting to ALS page ...")
       }
@@ -66,8 +64,8 @@ class SetTLS extends DialangServlet {
       }
 
       dialangSession.sessionId = sessionId
-      dialangSession.testLanguage = tl
-      dialangSession.skill = skill.toLowerCase
+      dialangSession.tes.tl = tl
+      dialangSession.tes.skill = skill.toLowerCase
       dialangSession.ipAddress = request.remoteAddress
       dialangSession.started = ((new Date).getTime) / 1000L
 

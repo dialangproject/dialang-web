@@ -36,12 +36,12 @@ class ScoreSA extends DialangServlet {
 
     val dialangSession = getDialangSession
 
-    if(dialangSession.testLanguage == "" || dialangSession.skill == "") {
+    if(dialangSession.tes.tl == "" || dialangSession.tes.skill == "") {
       // This should not happen. The skill should be set by now.
       halt(500)
     }
 
-    val (saPPE,saLevel) = scoringMethods.getSaPPEAndLevel(dialangSession.skill,responses)
+    val (saPPE,saLevel) = scoringMethods.getSaPPEAndLevel(dialangSession.tes.skill,responses)
 
     dialangSession.saPPE = saPPE
     dialangSession.saSubmitted = true

@@ -4,9 +4,8 @@ import net.oauth._
 import net.oauth.server.OAuthServlet
 import net.oauth.signature.OAuthSignatureMethod
 
-import org.dialang.web.db.DBFactory
 import org.dialang.web.model.TES
-import org.dialang.web.util.HashUtils
+import org.dialang.web.util.{HashUtils, ValidityChecks}
 
 import scala.collection.JavaConversions._
 
@@ -29,6 +28,12 @@ class LTILaunch extends DialangServlet with ScalateSupport {
   private val DialangTestLanguageKey = "custom_dialang_test_language"
   private val DialangTestSkillKey = "custom_dialang_test_skill"
   private val DialangDisallowInstantFeedbackKey = "custom_dialang_disallow_instant_feedback"
+  private val DialangHideVSPTKey = "custom_dialang_hide_vspt"
+  private val DialangHideVSPTResultKey = "custom_dialang_hide_vspt_result"
+  private val DialangHideSAKey = "custom_dialang_hide_sa"
+  private val DialangHideTestKey = "custom_dialang_hide_test"
+  private val DialangTestDifficultyKey = "custom_dialang_test_difficulty"
+  private val DialangHideFeedbackMenuKey = "custom_dialang_hide_feedback_menu"
   private val DialangTESURLKey = "custom_dialang_tes_url"
 
 	post("/") {
@@ -46,6 +51,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       // Each LTI launch is a new session, so clear it.
       dialangSession.clear()
 
+      // validate checks that these are present
       dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
       dialangSession.consumerKey = params.get("oauth_consumer_key").get
 
@@ -71,93 +77,105 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           .params("user" -> dialangSession.userId, "hash" -> hash){inputStream => {
             implicit val formats = DefaultFormats
             val tesJson = parse(new InputStreamReader(inputStream))
-            val tes = tesJson.extract[TES]
-            if (logger.isDebugEnabled) logger.debug("testCompleteUrl: " + tes.testCompleteUrl)
-            dialangSession.tes = tes
-            dialangSession.adminLanguage = tes.al
-            dialangSession.testLanguage = tes.tl
-            dialangSession.skill = tes.skill
-            dialangSession.disallowInstantFeedback = tes.disallowInstantFeedback
+            dialangSession.tes = tesJson.extract[TES]
           }
         }
       } else {
-        // Grab the al,tl,skill and instant feedback custom parameters
-        dialangSession.adminLanguage = params.get(DialangAdminLanguageKey) match {
-          case Some(s:String) => s
-          case _ => params.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE ) match {
-            case Some(s1:String) => db.getAdminLanguageForTwoLetterLocale(s1)
-            case _ => ""
+        // Grab the script parameters
+        val al = params.get(DialangAdminLanguageKey) match {
+            case Some(s:String) => s
+            case _ => params.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE ) match {
+              case Some(s1:String) => db.getAdminLanguageForTwoLetterLocale(s1)
+              case _ => ""
+            }
           }
-        }
-
-        dialangSession.testLanguage = params.getOrElse(DialangTestLanguageKey, "")
-        dialangSession.skill = params.getOrElse(DialangTestSkillKey, "")
-
-        dialangSession.disallowInstantFeedback = params.get(DialangDisallowInstantFeedbackKey) match {
+        val tl = params.getOrElse(DialangTestLanguageKey, "")
+        val skill = params.getOrElse(DialangTestSkillKey, "")
+        val hideVSPT = params.get(DialangHideVSPTKey) match {
             case Some("true") => true
             case _ => false
-        }
+          }
+        val hideVSPTResult = params.get(DialangHideVSPTResultKey) match {
+            case Some("true") => true
+            case _ => false
+          }
+        val hideSA = params.get(DialangHideSAKey) match {
+            case Some("true") => true
+            case _ => false
+          }
+        val hideTest = params.get(DialangHideTestKey) match {
+            case Some("true") => true
+            case _ => false
+          }
+        val testDifficulty = params.getOrElse(DialangTestDifficultyKey, "")
+        val hideFeedbackMenu = params.get(DialangHideFeedbackMenuKey) match {
+            case Some("true") => true
+            case _ => false
+          }
+        val disallowInstantFeedback = params.get(DialangDisallowInstantFeedbackKey) match {
+            case Some("true") => true
+            case _ => false
+          }
+
+        dialangSession.tes = TES("", al, tl, skill, hideVSPT, hideVSPTResult, hideSA, hideTest, testDifficulty, hideFeedbackMenu, disallowInstantFeedback, "")
       }
 
       if (logger.isDebugEnabled) {
-        logger.debug("userId:" + dialangSession.userId)
-        logger.debug("adminLanguage:" + dialangSession.adminLanguage)
-        logger.debug("testLanguage:" + dialangSession.testLanguage)
-        logger.debug("skill:" + dialangSession.skill)
+        logger.debug(dialangSession.tes.toString)
       }
 
-      if (dialangSession.adminLanguage == "") {
+      if (dialangSession.tes.al == "") {
         saveDialangSession(dialangSession)
         contentType = "text/html"
         redirect("getals")
       } else {
         // An admin language has been specified
-        //dialangSession.hideALS = false
-        if (dialangSession.testLanguage == "" || dialangSession.skill == "") {
-          // ... but the test language and skill have not
-          saveDialangSession(dialangSession)
-          contentType = "text/html"
-          mustache("shell", "state" -> "legend",
-                              "al" -> dialangSession.adminLanguage,
-                              "hideALS" -> true,
-                              "hideVSPT" -> dialangSession.tes.hideVSPT,
-                              "hideVSPTResult" -> dialangSession.tes.hideVSPTResult,
-                              "hideSA" -> dialangSession.tes.hideSA,
-                              "hideTest" -> dialangSession.tes.hideTest,
-                              "hideFeedbackMenu" -> dialangSession.tes.hideFeedbackMenu,
-                              "disallowInstantFeedback" -> dialangSession.disallowInstantFeedback)
-        } else {
-          //dialangSession.showTLS = false
-          dialangSession.sessionId = UUID.randomUUID.toString
-          dialangSession.passId = UUID.randomUUID.toString
-          dialangSession.ipAddress = request.remoteAddress
-          saveDialangSession(dialangSession)
+        if (ValidityChecks.adminLanguageExists(dialangSession.tes.al)) {
+          if (dialangSession.tes.tl == "" || dialangSession.tes.skill == "") {
+            // ... but the test language and skill have not
+            saveDialangSession(dialangSession)
+            renderPostALSView(dialangSession.tes, "legend")
+          } else {
+            if (ValidityChecks.testLanguageExists(dialangSession.tes.tl) && ValidityChecks.skillExists(dialangSession.tes.skill)) {
+              dialangSession.sessionId = UUID.randomUUID.toString
+              dialangSession.passId = UUID.randomUUID.toString
+              dialangSession.ipAddress = request.remoteAddress
+              saveDialangSession(dialangSession)
 
-          // An admin languge, test language and skill have been specified as
-          // launch parameters, so we can create a data capture session.
-          // Usually, this happens after the TLS screen, in SetTLS.scala.
-          dataCapture.createSessionAndPass(dialangSession)
+              // An admin languge, test language and skill have been specified as
+              // launch parameters, so we can create a data capture session.
+              // Usually, this happens after the TLS screen, in SetTLS.scala.
+              dataCapture.createSessionAndPass(dialangSession)
 
-          val initialState = {
-              if (!dialangSession.tes.hideVSPT) "vsptintro"
-              else if (!dialangSession.tes.hideSA) "saintro"
-              else if (!dialangSession.tes.hideTest) "endoftest"
-              else "testintro"
+              val initialState = {
+                  if (!dialangSession.tes.hideVSPT) "vsptintro"
+                  else if (!dialangSession.tes.hideSA) "saintro"
+                  else if (!dialangSession.tes.hideTest) "endoftest"
+                  else "testintro"
+                }
+
+              contentType = "text/html"
+              mustache("shell","state" -> initialState,
+                                  "al" -> dialangSession.tes.al,
+                                  "tl" -> dialangSession.tes.tl,
+                                  "skill" -> dialangSession.tes.skill,
+                                  "hideALS" -> true,
+                                  "hideTLS" -> true,
+                                  "hideVSPT" -> dialangSession.tes.hideVSPT,
+                                  "hideVSPTResult" -> dialangSession.tes.hideVSPTResult,
+                                  "hideSA" -> dialangSession.tes.hideSA,
+                                  "hideTest" -> dialangSession.tes.hideTest,
+                                  "hideFeedbackMenu" -> dialangSession.tes.hideFeedbackMenu,
+                                  "disallowInstantFeedback" -> dialangSession.tes.disallowInstantFeedback)
+            } else {
+              logger.warn("Invalid test language '" + dialangSession.tes.tl + "' supplied. Rendering the TLS view ...")
+              renderPostALSView(dialangSession.tes, "tl")
             }
-
+          }
+        } else {
+          logger.warn("Invalid admin language '" + dialangSession.tes.al + "' supplied. Rendering the ALS view ...")
           contentType = "text/html"
-          mustache("shell","state" -> initialState,
-                              "al" -> dialangSession.adminLanguage,
-                              "tl" -> dialangSession.testLanguage,
-                              "skill" -> dialangSession.skill,
-                              "hideALS" -> true,
-                              "hideTLS" -> true,
-                              "hideVSPT" -> dialangSession.tes.hideVSPT,
-                              "hideVSPTResult" -> dialangSession.tes.hideVSPTResult,
-                              "hideSA" -> dialangSession.tes.hideSA,
-                              "hideTest" -> dialangSession.tes.hideTest,
-                              "hideFeedbackMenu" -> dialangSession.tes.hideFeedbackMenu,
-                              "disallowInstantFeedback" -> dialangSession.disallowInstantFeedback)
+          redirect("getals")
         }
       }
     } catch {
@@ -224,5 +242,19 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         throw new Exception( "launch.no.validate", e)
       }
     }
+  }
+
+  private def renderPostALSView(tes: TES, state: String) {
+
+    contentType = "text/html"
+    mustache("shell", "state" -> state,
+                        "al" -> tes.al,
+                        "hideALS" -> true,
+                        "hideVSPT" -> tes.hideVSPT,
+                        "hideVSPTResult" -> tes.hideVSPTResult,
+                        "hideSA" -> tes.hideSA,
+                        "hideTest" -> tes.hideTest,
+                        "hideFeedbackMenu" -> tes.hideFeedbackMenu,
+                        "disallowInstantFeedback" -> tes.disallowInstantFeedback)
   }
 }
