@@ -190,6 +190,8 @@ if (!dialang.session.reviewMode) {
                         $('.ui-dialog-titlebar-close span').removeClass('ui-icon-closethick').addClass('ui-icon-nextButton');
                         if (!mcqItem.correct) {
                             $('.review-smiley > img').attr('src','/images/frowney.gif');
+                        } else {
+                            $('.review-smiley > img').attr('src','/images/smiley.gif');
                         }
                         $('.review-given-answer p').html(mcqItem.responseText);
                         mcqItem.answers.forEach(function (answer) {

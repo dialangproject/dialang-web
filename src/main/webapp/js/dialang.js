@@ -63,6 +63,8 @@ dialang.launchMultiItemReviewDialog = function (basket, initialIndex, selectCall
 
             if (!item.correct) {
                 $('#reviewtab-' + item.id + ' > div > img').attr('src','/images/frowney.gif');
+            } else {
+                $('#reviewtab-' + item.id + ' > div > img').attr('src','/images/smiley.gif');
             }
         });
 
