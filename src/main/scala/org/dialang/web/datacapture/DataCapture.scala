@@ -16,7 +16,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.createSessionAndPass(dialangSession)
         }
-      }).start
+      }, "createSessionAndPass").start
   }
 
   /**
@@ -28,7 +28,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.createPass(dialangSession)
         }
-      }).start
+      }, "createPass").start
   }
 
   /**
@@ -43,7 +43,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.logVSPTResponses(dialangSession, responses)
         }
-      }).start
+      }, "logVSPTResponses").start
   }
 
   /**
@@ -57,7 +57,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.logVSPTScores(dialangSession)
         }
-      }).start
+      }, "logVSPTScores").start
   }
 
   /**
@@ -72,7 +72,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.logSAResponses(dialangSession, responses)
         }
-      }).start
+      }, "logSAResponses").start
   }
 
   /**
@@ -86,7 +86,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.logSAPPE(dialangSession)
         }
-      }).start
+      }, "logSAPPE").start
   }
 
   def logTestStart(passId:String) {
@@ -96,7 +96,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.logTestStart(passId)
         }
-      }).start
+      }, "logTestStart").start
   }
 
   def logSingleIdResponse(sessionId: String, basketId: Int, itemId: Int, answerId: Int) {
@@ -106,7 +106,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.logSingleIdResponse(sessionId, basketId, itemId, answerId)
         }
-      }).start
+      }, "logSingleIdResponse").start
   }
 
   def logMultipleTextualResponses(sessionId: String, basketId: Int, responses: Map[Int,String]) {
@@ -116,7 +116,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.logMultipleTextualResponses(sessionId, basketId, responses)
         }
-      }).start
+      }, "logMultipleTextualResponses").start
   }
 
   def logMultipleIdResponses(sessionId: String, basketId: Int, responses: Map[Int,Int]) {
@@ -126,7 +126,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.logMultipleIdResponses(sessionId, basketId, responses)
         }
-      }).start
+      }, "logMultipleIdResponses").start
   }
 
   def logTestResult(dialangSession:DialangSession) {
@@ -136,7 +136,7 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.logTestResult(dialangSession)
         }
-      }).start
+      }, "logTestResult").start
   }
 
   def logTestFinish(passId:String) {
@@ -146,6 +146,6 @@ class DataCapture(dsUrl: String) {
         def run {
           dataCapture.logTestFinish(passId)
         }
-      }).start
+      }, "logTestFinish").start
   }
 }
