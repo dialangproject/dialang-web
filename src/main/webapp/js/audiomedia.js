@@ -1,5 +1,7 @@
 $(document).ready(function () {
 
+    $('#basketform *').filter(':input').prop('disabled', true);
+
     var audio = document.getElementById('audio');
     audio.paused = true;
     var playButton = $('#playaudio');
@@ -13,6 +15,11 @@ $(document).ready(function () {
     }, false);
 
     audio.addEventListener('ended', function () {
+
+        if (!dialang.session.reviewMode) {
+            $('#basketform *').filter(':input').prop('disabled', false);
+        }
+
         playButton.prop('disabled', true).find('img').attr('src','/images/SpkDisabled.gif');
     }, false);
 
