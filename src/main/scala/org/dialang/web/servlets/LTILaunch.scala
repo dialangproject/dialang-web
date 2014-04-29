@@ -169,7 +169,8 @@ class LTILaunch extends DialangServlet with ScalateSupport {
                                   "disallowInstantFeedback" -> dialangSession.tes.disallowInstantFeedback)
             } else {
               logger.warn("Invalid test language '" + dialangSession.tes.tl + "' supplied. Rendering the TLS view ...")
-              renderPostALSView(dialangSession.tes, "tl")
+              saveDialangSession(dialangSession)
+              renderPostALSView(dialangSession.tes, "tls")
             }
           }
         } else {
@@ -244,7 +245,11 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     }
   }
 
-  private def renderPostALSView(tes: TES, state: String) {
+  private def renderPostALSView(tes: TES, state: String) = {
+
+    if (logger.isDebugEnabled) {
+      logger.debug("Showing '" + state + "' view ...")
+    }
 
     contentType = "text/html"
     mustache("shell", "state" -> state,

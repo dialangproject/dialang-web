@@ -344,6 +344,10 @@ if (!dialang.session.reviewMode) {
                 $("input[name=\"" + item.id + "-response\"]").val(item.responseText);
             });
         }
+
+        $(document).ready(function () {
+            $('#basketform *').filter(':input').prop('disabled', true);
+        });
     });
 }
 

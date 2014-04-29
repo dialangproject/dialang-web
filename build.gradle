@@ -1,6 +1,10 @@
 apply plugin: 'scala'
 apply plugin: 'war'
 
+tasks.withType(ScalaCompile) {
+    scalaCompileOptions.useAnt = false
+}
+
 repositories {
     mavenCentral()
     mavenLocal()
