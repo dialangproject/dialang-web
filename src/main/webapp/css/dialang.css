@@ -517,3 +517,15 @@ button[disabled] {
 .done {
     background-color: #e4b512;
 }
+
+#keyboard-dialog {
+    text-align: center;
+}
+
+#keyboard-button {
+    display: none;
+}
+
+.no-close .ui-dialog-titlebar-close {
+    display: none;
+}

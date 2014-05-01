@@ -2,7 +2,6 @@
 dialang.session.reviewBasket = null;
 dialang.session.reviewItemId = null;
 dialang.session.feedbackMode = false;
-dialang.session.itemsCompleted = 0;
 dialang.session.testDone = false;
 
 if (!dialang.flags.hideALS) {
@@ -54,7 +53,7 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
                 timeout: 5000,
                 success: function (response, textStatus, jqXHR) {
 
-                    dialang.pass = {'baskets':[],'itemToBasketMap':{},'items':[],'subskills':{}};
+                    dialang.pass = { baskets: [], itemToBasketMap: {}, items: [], subskills: {} };
                     dialang.session.tl = tl;
                     dialang.session.skill = skill;
                     $('#confirmation-dialog').dialog('destroy');

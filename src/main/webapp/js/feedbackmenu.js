@@ -45,12 +45,12 @@ $.get('/dialang-content/feedbackmenu/' + dialang.session.al + '.html', function 
         return dialang.switchState('aboutsa');
     });
 
-    if (dialang.session.itemsCompleted) {
+    if (dialang.pass.items.length > 0) {
         $('#check-answers-button').click(function (e) {
             return dialang.switchState('itemreview');
         });
     } else {
-        $('#check-answers-button').attr('disabled',true);
+        $('#check-answers-button').prop('disabled', true);
     }
 
     if (dialang.session.testDone) {

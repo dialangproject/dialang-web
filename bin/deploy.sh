@@ -1,6 +1,6 @@
 #!/bin/sh
 
 cd ..
-gradle -i clean build
+gradle --offline build
 sudo -S cp build/libs/dialang-web.war /usr/local/dialang-tomcat/webapps/ROOT.war
 

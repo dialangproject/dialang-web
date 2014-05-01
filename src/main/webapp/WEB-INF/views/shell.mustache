@@ -23,16 +23,16 @@
                 hideFeedbackMenu: ('{{hideFeedbackMenu}}' == 'true') ? true : false
               },
               session: {
-                  'al': '{{al}}',
-                  'tl': '{{tl}}',
-                  'skill': '{{skill}}',
-                  'vsptDone': {}
+                  al: '{{al}}',
+                  tl: '{{tl}}',
+                  skill: '{{skill}}',
+                  vsptDone: {}
               },
               pass: {
-                  'baskets':[],
-                  'itemToBasketMap':{},
-                  'items':[],
-                  'subskills':{}
+                  baskets: [],
+                  itemToBasketMap: {},
+                  items: [],
+                  subskills: {}
               }
             };
         </script>
@@ -47,6 +47,7 @@
                     <button id="skipforward"><img src="/images/skipf.gif"/></button>
                     <button id="help"><img src="/images/help.gif" height="23px;"/></button>
                     <button id="instantfeedback"><img src="/images/instantFeedbackOff.gif" height="23px;"/></button>
+                    <button id="keyboard-button"><img src="/images/keyb.gif" height="23px;"/></button>
                 </div>  <!-- /navbar -->
                 <div id="logo">
                     <div id="progressbar" class="dialang-progressbar"><div id="progressbar-label"></div></div>
@@ -61,6 +62,9 @@
             </div> <!-- /content -->
             <div class="bottom-margin"></div>
         </div> <!-- /container -->
+        <div id="keyboard-dialog">
+            <div id="keyboard"></div>
+        </div>
         <script type="text/javascript" src="/js/dialang.js"></script>
         <script type="text/javascript" src="/js/navigation.js"></script>
     </body>
