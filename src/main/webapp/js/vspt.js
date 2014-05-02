@@ -17,11 +17,11 @@ $.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl +
 
         // Switch the button image appropriately.
         if ($(this).hasClass('valid-button')) {
-            $("[for=" + this.id + "]").html("<img src=\"/images/trueselected.gif\"/>");
-            $("[for=" + wordId + "_incorrect]").html("<img src=\"/images/false.gif\"/>");
+            $('#' + this.id + '_image').attr('src', '/images/trueselected.gif');
+            $('#' + wordId + '_incorrect_image').attr('src', '/images/false.gif');
         } else {
-            $("[for=" + this.id + "]").html("<img src=\"/images/falseselected.gif\"/>");
-            $("[for=" + wordId + "_correct]").html("<img src=\"/images/true.gif\"/>");
+            $('#' + this.id + '_image').attr('src', '/images/falseselected.gif');
+            $('#' + wordId + '_correct_image').attr('src', '/images/true.gif');
         }
 
         // Have we answered all the words?
@@ -34,23 +34,23 @@ $.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl +
 
         if (allAnswered) {
             // All the words have been answered, enable the send and next buttons.
-            $('#send-button').prop('disabled', false);
+            $('#vspt-send-button').prop('disabled', false);
             $('#next').prop('disabled', false);
         }
 
         // This will change the colour of the word. The css class is called 'done'.
-        $(this).parent().addClass('done');
+        $(this).parent().parent().addClass('done');
     });
 
     $(document).keydown(function (e) {
 
         if(e.keyCode == '72' && e.ctrlKey) {
-            $('#send-button,#next').prop('disabled', false);
-            $('#vspt-table > tbody > tr > td > input.correct').attr('checked','checked').trigger('click');
+            $('#vspt-send-button,#next').prop('disabled', false);
+            $('#vspt-table input.correct').prop('checked', true).trigger('click');
             return false;
         } else if(e.keyCode == '76' && e.ctrlKey) {
-            $('#send-button,#next').prop('disabled', false);
-            $('#vspt-table > tbody > tr > td > input.incorrect').attr('checked','checked').trigger('click');
+            $('#vspt-send-button,#next').prop('disabled', false);
+            $('#vspt-table input.incorrect').prop('checked', true).trigger('click');
             return false;
         }
     });
@@ -85,7 +85,7 @@ $.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl +
         return false;
     });
 
-    $('#send-button,#next').click(function (e) {
+    $('#vspt-send-button,#next').click(function (e) {
 
         $('#confirm-send-dialog').dialog('open');
         return false;

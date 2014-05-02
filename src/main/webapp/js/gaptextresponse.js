@@ -14,3 +14,5 @@ $('#radios > span > input').keyup(function (e) {
 
     return false;
 });
+
+$('input[type=text]:first').focus();

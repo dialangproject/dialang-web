@@ -65,11 +65,6 @@ img {
     border:2px solid black;
 }
 
-/*
-#progressbar div {
-    display:inline-block;
-}
-    */
 #progressbar div.ui-progressbar-value {
     display:block;
 }
@@ -529,3 +524,13 @@ button[disabled] {
 .no-close .ui-dialog-titlebar-close {
     display: none;
 }
+
+/* START VSPT HACKS FOR IE11 */
+#vspt-table label {
+    display: inline-block;
+}
+
+#vspt-table label img {
+    pointer-events: none;
+}
+/* END HACKS FOR IE11 */

@@ -20,7 +20,7 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
         }
 
         if (allAnswered) {
-            $('#send-button,#next').prop('disabled', false);
+            $('#sa-send-button,#next').prop('disabled', false);
         }
 
         $(this).parent().parent().addClass('done');
@@ -30,10 +30,10 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
 
         if (e.keyCode == '72' && e.ctrlKey) {
             $('#sa-table > tbody > tr > td > input.valid-button').attr('checked','checked').trigger('click');
-            $('#send-button,#next').prop('disabled', false);
+            $('#sa-send-button,#next').prop('disabled', false);
         } else if (e.keyCode == '76' && e.ctrlKey) {
             $('#sa-table > tbody > tr > td > input.invalid-button').attr('checked','checked').trigger('click');
-            $('#send-button,#next').prop('disabled', false);
+            $('#sa-send-button,#next').prop('disabled', false);
         }
     });
 
@@ -63,7 +63,7 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
         $('#confirm-send-dialog').dialog('close');
         return false;
     });
-    $('#send-button,#next').click(function (e) {
+    $('#sa-send-button,#next').click(function (e) {
 
         $('#confirm-send-dialog').dialog('open');
         return false;
