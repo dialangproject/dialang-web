@@ -11,7 +11,13 @@ $('#skipforward').prop('disabled', false).click(function () {
 $.get('/dialang-content/saintro/' + dialang.session.al + '/' + dialang.session.skill + '.html', function (data) {
 
     $('#content').html(data);
-    $('#confirm-skip-dialog').dialog({modal: true, width: 500, height: 450, autoOpen: false});
+
+    $('#confirm-skip-dialog').dialog({
+        modal: true,
+        width: 'auto',
+        autoOpen: false,
+        resizable: false
+    });
 
     $('#confirm-skip-yes').click(function (e) {
 

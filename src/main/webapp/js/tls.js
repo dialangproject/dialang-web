@@ -20,7 +20,11 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
 
     $('#content').html(data);
 
-    $('#disclaimer-dialog').dialog({modal: true, width: 500, height: 450});
+    $('#disclaimer-dialog').dialog({
+        modal: true,
+        width: 'auto',
+        resizable: false
+    });
 
     $('#disclaimer-button').click(function (e) {
 
@@ -28,11 +32,16 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
         return false;
     });
 
-    $('#confirmation-dialog').dialog({modal: true, width: 500, height: 450, autoOpen: false});
+    $('#confirm-dialog').dialog({
+        modal: true,
+        width: 'auto',
+        autoOpen: false,
+        resizable: false
+    });
 
-    $('#confirmation_no').click(function (e) {
+    $('#confirm-no').click(function (e) {
 
-        $('#confirmation-dialog').dialog('close');
+        $('#confirm-dialog').dialog('close');
         return false;
     });
 
@@ -43,7 +52,7 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
         var skill = $(this).attr('skill');
 
         $('#confirmation_langskill').html(langskill);
-        $('#confirmation_yes').off('click').click(function (e) {
+        $('#confirm-yes').off('click').click(function (e) {
 
             $.ajax({
                 url: '/settls',
@@ -56,7 +65,7 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
                     dialang.pass = { baskets: [], itemToBasketMap: {}, items: [], subskills: {} };
                     dialang.session.tl = tl;
                     dialang.session.skill = skill;
-                    $('#confirmation-dialog').dialog('destroy');
+                    $('#confirm-dialog').dialog('destroy');
 
                     // If the vspt hasn't been done yet for this test language, switch
                     // to the vsptintro screen.
@@ -70,12 +79,12 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
                 error: function (jqXHR, textStatus, errorThrown) {
 
                     alert('Failed to set test language and skill. Reason: ' + textStatus);
-                    $('#confirmation-dialog').dialog('destroy');
+                    $('#confirm-dialog').dialog('destroy');
                 }
             });
             return false;
         });
-        $('#confirmation-dialog').dialog('open');
+        $('#confirm-dialog').dialog('open');
         return false;
     }); // tls-link click
 

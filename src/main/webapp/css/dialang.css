@@ -12,13 +12,12 @@ img {
 
 #cookie-text {
     font-size: 10pt;
-    text-align:left;
+    text-align: left;
     padding-left: 50px;
     padding-right: 50px;
 }
 
 #container {
-    width: 800px;
     width: 770px;
     margin-left: auto;
     margin-right: auto;
@@ -31,11 +30,11 @@ img {
 #content {
     width: 750px;
     background-color: #FFFFFF;
-    text-align:center;
+    text-align: center;
     clear: both;
     margin-left: auto;
     margin-right: auto;
-    overflow:none;
+    overflow: none;
 }
 
 #topbar {
@@ -45,7 +44,7 @@ img {
 
 #navbar {
     float: left;
-    width:370px;
+    width: 370px;
     padding-left: 8px;
 }
 
@@ -81,11 +80,28 @@ img {
     padding-bottom: 3px;
 }
 
+.flowchart-dialog {
+    text-align: left;
+}
+
 #large-logo-wrapper {
     text-align: center;
     margin-left: auto;
     margin-right: auto;
     margin-top: 20px;
+}
+
+.dialang-dialog-content {
+    width: 400px;
+    text-align: center;
+}
+
+.flowchart-dialog > .dialang-dialog-content {
+    text-align: left;
+}
+
+.dialang-dialog-content button {
+    background-color: white;
 }
 
 button[disabled] {
@@ -127,23 +143,42 @@ button[disabled] {
 }
 
 #disclaimer-text {
-    height: 275px;
+    height: 300px;
+    border: 2px #e4b512 solid;
     overflow: scroll;
     overflow-x: hidden;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
 }
 
 #disclaimer-button {
     background-color: white;
 }
 
-.confirmation-dialog {
+.confirmation-dialog button {
+    background-color: white;
+}
+
+#confirmation-button-table {
+    display: table;
     margin-left: auto;
     margin-right: auto;
 }
 
-.dialang-dialog {
+#confirmation-button-table > div {
+    display: table-row;
+}
+
+#confirmation-button-table > div > div {
+    display: table-cell;
     text-align: center;
 }
+
+/*.dialang-dialog {
+    text-align: center;
+}
+*/
 
 .dialang-dialog > table{
     margin-left: auto;
@@ -171,9 +206,6 @@ button[disabled] {
     text-align: center;
 }
 
-.confirmation-dialog button {
-    background-color: white;
-}
 
 .review-dialog {
     margin-left: auto;
@@ -238,7 +270,6 @@ button[disabled] {
     text-align: center;
 }
 
-
 #word-tabs {
     width: 600px;
     margin-left: auto;
@@ -246,14 +277,72 @@ button[disabled] {
 }
 
 #vspt-table  {
+    display: table;
     width: 85%;
     margin-left: auto;
     margin-right: auto;
 }
 
-#vspt-table td {
+#vspt-table > div {
+    display: table-row;
+    width: 100%;
+}
+
+#vspt-table > div > div{
+    display: table-cell;
     width: 33%;
     text-align: left;
+}
+
+@media (max-width: 800px) {
+
+    #container {
+        width: 100%;
+    }
+
+    #content {
+        width: 96%;
+    }
+
+    #logo > img {
+        display: none;
+    }
+
+    #legend {
+        width: 96%;
+    }
+
+    .dialang-dialog-content {
+        width: 340px;
+    }
+
+    #vspt-table {
+        display: block;
+    }
+
+    #vspt-table > div {
+        display: inline;
+    }
+
+    #vspt-table > div > div {
+        display: block;
+        width: fit-content;
+        white-space: nowrap;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #vsptfeedback-tabs {
+        width: 96% !important;
+    }
+
+    #vsptfeedback-tabs .ui-tabs-panel {
+        width: 40% !important;
+    }
+
+    #itemreview-table {
+        width: 80% !important;
+    }
 }
 
 .ui-state-active {
@@ -356,10 +445,10 @@ button[disabled] {
 }
 
 #itemreview-table {
-    width:600px;
+    width: 600px;
     margin-left: auto;
     margin-right: auto;
-    border-collapse:collapse;
+    border-collapse: collapse;
 }
 
 #itemreview-table th,td {
@@ -525,6 +614,10 @@ button[disabled] {
     display: none;
 }
 
+#confirm-restart-dialog > div > p {
+    width: 460px;
+}
+
 /* START VSPT HACKS FOR IE11 */
 #vspt-table label {
     display: inline-block;
@@ -534,3 +627,4 @@ button[disabled] {
     pointer-events: none;
 }
 /* END HACKS FOR IE11 */
+

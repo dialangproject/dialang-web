@@ -14,5 +14,9 @@ $('#skipforward').prop('disabled', true);
 $.get('/dialang-content/flowchart/' + dialang.session.al + '.html', function (data) {
 
     $('#content').html(data);
-    $('.dialog').dialog({autoOpen: false, width: 500, height: 450});
+    $('.dialog').dialog({
+        width: 'auto',
+        autoOpen: false,
+        resizable: false
+    });
 });

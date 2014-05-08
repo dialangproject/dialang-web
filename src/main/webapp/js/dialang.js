@@ -131,7 +131,13 @@ $.get('/dialang-content/help/' + dialang.session.al + '.html', function (helpDia
 
     $('#help-dialog').html(helpDialogMarkup);
     $('#help-tabs').tabs();
-    $('#help-dialog').dialog({modal: true, width: 600, height: 535, autoOpen: false});
+    $('#help-dialog').dialog({
+        modal: true,
+        width: 'auto',
+        height: 600,
+        autoOpen: false,
+        resizable: false
+    });
 });
 
 /*

@@ -55,7 +55,12 @@ $.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl +
         }
     });
 
-    $('#confirm-send-dialog').dialog({modal: true, width: 400, height: 250, autoOpen: false});
+    $('#confirm-send-dialog').dialog({
+        modal: true,
+        width: 'auto',
+        autoOpen: false,
+        resizable: false
+    });
 
     $('#confirm-send-yes').click(function (e) {
 
@@ -91,8 +96,13 @@ $.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl +
         return false;
     });
 
-    $('#confirm-skip-dialog').dialog({modal: true, width: 500, height: 450, autoOpen: false});
-    $('#confirm-skip-yes').on('click',dialang.skipVSPT);
+    $('#confirm-skip-dialog').dialog({
+        modal: true,
+        width: 'auto',
+        autoOpen: false,
+        resizable: false
+    });
+    $('#confirm-skip-yes').click(dialang.skipVSPT);
     $('#confirm-skip-no').click(function (e) {
         $('#confirm-skip-dialog').dialog('close');
         return false;

@@ -18,7 +18,12 @@ $.get('/dialang-content/feedbackmenu/' + dialang.session.al + '.html', function 
     $('#content').html(data);
 
     if (!dialang.flags.hideTLS) {
-        $('#confirm-restart-dialog').dialog({modal: true, width: 500, height: 450, autoOpen: false});
+        $('#confirm-restart-dialog').dialog({
+            modal: true,
+            width: 'auto',
+            autoOpen: false,
+            resizable: false
+        });
         $('#confirm-restart-yes').click(function (e) {
 
             $('#confirm-restart-dialog').dialog('destroy');

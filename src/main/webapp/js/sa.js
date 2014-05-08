@@ -37,7 +37,12 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
         }
     });
 
-    $('#confirm-send-dialog').dialog({modal: true, width: 400, height: 250, autoOpen: false});
+    $('#confirm-send-dialog').dialog({
+        modal: true,
+        width: 'auto',
+        autoOpen: false,
+        resizable: false
+    });
 
     $('#confirm-send-yes').click(function (e) {
 
@@ -69,7 +74,12 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
         return false;
     });
 
-    $('#confirm-skip-dialog').dialog({modal: true, width: 500, height: 450, autoOpen: false});
+    $('#confirm-skip-dialog').dialog({
+        modal: true,
+        width: 'auto',
+        autoOpen: false,
+        resizable: false
+    });
 
     $('#confirm-skip-yes').click(function (e) {
 

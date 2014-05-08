@@ -71,7 +71,7 @@ class SetTLS extends DialangServlet {
 
       saveDialangSession(dialangSession)
 
-      if(isNewSession) {
+      if (isNewSession) {
         dataCapture.createSessionAndPass(dialangSession)
       } else {
         dataCapture.createPass(dialangSession)

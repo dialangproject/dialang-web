@@ -35,7 +35,7 @@ class ScoringMethods {
 
 		if (!session.vsptSubmitted && !session.saSubmitted) {
 			// No sa or vspt, request the default assignment.
-			db.preestAssign.getMiddleBookletId(session.tes.tl,session.tes.skill)
+			db.preestAssign.getMiddleBookletId(session.tes.tl, session.tes.skill)
 		} else {
 
 		  // if either test is done, then we need to get the grade 
@@ -68,9 +68,9 @@ class ScoringMethods {
   /**
    * Returns the sum of the weights of the questions answered 'true'
    */
-  private def getSaRawScore(skill: String,responses: Map[String,Boolean]): Int = {
+  private def getSaRawScore(skill: String, responses: Map[String, Boolean]): Int = {
 
-    responses.keys.foldLeft(0)( (rsc,id) => {
+    responses.keys.foldLeft(0)( (rsc, id) => {
       if (responses.get(id).get) {
         // They responded true to this statement, add its weight.
         db.saWeights.get(skill) match {
@@ -88,16 +88,17 @@ class ScoringMethods {
     })
   }
 
-  def getSaPPEAndLevel(skill: String,responses: Map[String,Boolean]):Tuple2[Float,String] = {
+  def getSaPPEAndLevel(skill: String, responses: Map[String, Boolean]): Tuple2[Float, String] = {
+
     val rsc = getSaRawScore(skill,responses)
     val levelMap = db.levels
-    ((db.saGrades.getPPE(skill,rsc),levelMap.get(db.saGrades.getGrade(skill,rsc)).get))
+    ((db.saGrades.getPPE(skill,rsc), levelMap.get(db.saGrades.getGrade(skill,rsc)).get))
   }
 
   /**
    * Used for mcq and gap drop
    */
-  def getScoredIdResponseItem(itemId:Int,responseId:Int): Option[ScoredItem] = {
+  def getScoredIdResponseItem(itemId:Int, responseId:Int): Option[ScoredItem] = {
 
     db.items.get(itemId) match {
         case Some(item) => {
@@ -105,7 +106,7 @@ class ScoringMethods {
           scoredItem.responseId = responseId
           db.getAnswer(responseId) match {
               case Some(answer) => {
-                if(answer.correct) {
+                if (answer.correct) {
                   scoredItem.correct = true
                   scoredItem.score = item.weight
                 } else {
@@ -141,7 +142,7 @@ class ScoringMethods {
           db.getAnswers(itemId) match {
               case Some(answers) => {
                 answers.foreach(correctAnswer => {
-                  if(removeWhiteSpaceAndPunctuation(correctAnswer.text).equalsIgnoreCase(removeWhiteSpaceAndPunctuation(answerText))) {
+                  if (removeWhiteSpaceAndPunctuation(correctAnswer.text).equalsIgnoreCase(removeWhiteSpaceAndPunctuation(answerText))) {
                     scoredItem.score = item.weight;
                     scoredItem.correct = true
                   }
@@ -161,9 +162,9 @@ class ScoringMethods {
       }
   }
 
-  def getItemGrade(session:DialangSession,results:List[ImmutableItem]):Tuple2[Int,String] = {
+  def getItemGrade(session: DialangSession, results: List[ImmutableItem]): Tuple2[Int, String] = {
 
-    if(logger.isDebugEnabled) logger.debug("NUM ITEMS: " + results.length)
+    if (logger.isDebugEnabled) logger.debug("NUM ITEMS: " + results.length)
 
     // results contains the set of results for the entire test - ie the
     // results for each item type.
@@ -175,8 +176,8 @@ class ScoringMethods {
     // normalize:
     val normalisedRawScore = ((rawScore.toFloat) * (itemGrades.max / weight.toFloat)).toInt
 
-    if(logger.isDebugEnabled) logger.debug("NORMALISED RAW SCORE: " + normalisedRawScore)
-    if(logger.isDebugEnabled) logger.debug("WEIGHT: " + weight)
+    if (logger.isDebugEnabled) logger.debug("NORMALISED RAW SCORE: " + normalisedRawScore)
+    if (logger.isDebugEnabled) logger.debug("WEIGHT: " + weight)
 
     val itemGrade = itemGrades.get(normalisedRawScore) match {
         case Some(ig) => ig
@@ -193,11 +194,11 @@ class ScoringMethods {
    *  Trim leading and trailing whitespace and then replace tab, newline,
    *  carriage return and form-feed characters with a whitespace.
    */
-  private def removeWhiteSpaceAndPunctuation(in:String) = {
+  private def removeWhiteSpaceAndPunctuation(in: String) = {
 
     val punctuationList = db.punctuation
 
-    if(punctuationList.size > 0) {
+    if (punctuationList.size > 0) {
 
       // Trim the white space and tokenize it around default delimiters
       val st = new StringTokenizer (in.trim)

@@ -1,9 +1,9 @@
 dialang.initialiseReviewDialog = function (modal) {
 
     $('.review-dialog').dialog({modal: modal || false,
-        width: 500,
-        height: 450,
+        width: 370,
         autoOpen: false,
+        resizable: false,
         close: function (event, ui) {
 
             if (dialang.session.instantFeedbackOn) {
@@ -44,17 +44,20 @@ dialang.responseComplete = function () {
 if (!dialang.session.reviewMode) {
 
     $('#skipforward').prop('disabled', false).click(function (e) {
+
         $('#confirm-skip-dialog').dialog('open');
         return false;
     });
 
     $('#next').click(function (e) {
+
         $('#basketform').submit();
         return false;
     });
 
     if (!dialang.nextBasketTooltip || !dialang.quitTestTooltip) {
         $.get('/dialang-content/baskets/' + dialang.session.al + '-toolbarTooltips.json', function (tips) {
+
             dialang.nextBasketTooltip = tips.next;
             dialang.quitTestTooltip = tips.skipforward;
             $('#next').attr('title', dialang.nextBasketTooltip);
@@ -97,6 +100,26 @@ if (!dialang.session.reviewMode) {
     $.get('/dialang-content/baskets/' + dialang.session.al + "/" + dialang.session.currentBasketId + '.html', function (data) {
 
         $('#content').html(data);
+
+        $('#confirm-skip-dialog').dialog({
+            modal: true,
+            width: 'auto',
+            autoOpen: false,
+            resizable: false
+        });
+
+        $('#confirm-skip-yes').click(function (e) {
+
+            dialang.switchState("endoftest");
+            $('#confirm-skip-dialog').dialog('destroy');
+            return false;
+        });
+
+        $('#confirm-skip-no').click(function (e) {
+
+            $('#confirm-skip-dialog').dialog('close');
+            return false;
+        });
 
         $('input[type=text]').focusout(function (e) {
             dialang.lastFocused = this;
@@ -258,21 +281,7 @@ if (!dialang.session.reviewMode) {
         } else if ('tabbedpane' === dialang.pass.currentBasketType) {
             $.getScript('/js/tabbedpaneresponse.js');
         }
-
-        $('#confirm-skip-dialog').dialog({modal: true, width: 500, height: 450, autoOpen: false});
-
-        $('#confirm-skip-yes').off('click').click(function (e) {
-
-            dialang.switchState("endoftest");
-            return false;
-        });
-
-        $('#confirm-skip-no').off('click').click(function (e) {
-
-            $('#confirm-skip-dialog').dialog('close');
-            return false;
-        });
-    });
+    }); // get basket html
 } else {
 
     // We're in item review mode
@@ -298,9 +307,10 @@ if (!dialang.session.reviewMode) {
 
         $('#content').html(data);
 
-        dialang.initialiseReviewDialog();
+        // We don't need the confirm dialog when reviewing
+        $('#confirm-skip-dialog').remove();
 
-        $('#confirm-skip-dialog').hide();
+        dialang.initialiseReviewDialog();
 
         if (reviewBasket.basketType === 'mcq' ) {
             // MCQ baskets only ever have one item.

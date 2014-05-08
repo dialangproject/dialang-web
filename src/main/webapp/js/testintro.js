@@ -85,7 +85,13 @@ $.get('/dialang-content/testintro/' + dialang.session.al + '.html', function (da
         $('#feedback-label').hide();
     }
 
-    $('#confirm-skip-dialog').dialog({modal: true, width: 500, height: 450, autoOpen: false});
+    $('#confirm-skip-dialog').dialog({
+        modal: true,
+        width: 'auto',
+        autoOpen: false,
+        resizable: false
+    });
+
     $('#confirm-skip-yes').click(function (e) {
 
         $('#confirm-skip-dialog').dialog('destroy');
