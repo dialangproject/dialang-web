@@ -31,7 +31,7 @@ class ScoringMethods {
    * calculate a theta estimate (ppe). Passes the TLS, SKILL and coefficient
    * in the PreestAssign.
 	 */
-  def calculateBookletId(session: DialangSession) : Int = {
+  def calculateBookletId(session: DialangSession): Int = {
 
 		if (!session.vsptSubmitted && !session.saSubmitted) {
 			// No sa or vspt, request the default assignment.
@@ -41,9 +41,9 @@ class ScoringMethods {
 		  // if either test is done, then we need to get the grade 
 		  // associated with that test:
 
-		  val vsptZScore:Float = if (session.vsptSubmitted) session.vsptZScore else 0.0F
+		  val vsptZScore: Float = if (session.vsptSubmitted) session.vsptZScore else 0.0F
 
-		  val saPPE:Float = if (session.saSubmitted) session.saPPE else 0.0F
+		  val saPPE: Float = if (session.saSubmitted) session.saPPE else 0.0F
 
       if (logger.isDebugEnabled) {
 		    logger.debug(session.tes.tl + "," + session.tes.skill + "," + session.vsptSubmitted + "," + session.saSubmitted)
@@ -98,7 +98,7 @@ class ScoringMethods {
   /**
    * Used for mcq and gap drop
    */
-  def getScoredIdResponseItem(itemId:Int, responseId:Int): Option[ScoredItem] = {
+  def getScoredIdResponseItem(itemId: Int, responseId: Int): Option[ScoredItem] = {
 
     db.items.get(itemId) match {
         case Some(item) => {

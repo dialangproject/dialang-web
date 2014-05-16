@@ -80,7 +80,7 @@ img {
     padding-bottom: 3px;
 }
 
-.flowchart-dialog {
+.flowchart-dialog,.testlevel-dialog {
     text-align: left;
 }
 

@@ -2,6 +2,8 @@
 
 $.ajaxSetup({ cache: false });
 
+dialang.uploadTimeout = 10000; // 10 seconds
+
 if (typeof dialang === 'undefined') {
     alert("No dialang object defined. Returning prematurely from dialang.js ...");
 }

@@ -152,7 +152,7 @@ if (!dialang.session.reviewMode) {
 
         $('#basketform').ajaxForm({
             dataType: 'json',
-            timeout: 5000,
+            timeout: dialang.uploadTimeout,
             success: function (nextBasketData, textStatus, jqXHR, jqFormElement) {
 
                 var scoredBasket = nextBasketData.scoredBasket;

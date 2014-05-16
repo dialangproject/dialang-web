@@ -3,7 +3,7 @@ $('#next').prop('disabled', false).click(function (e) {
     $.ajax({
         url: '/starttest',
         dataType: 'json',
-        timeout: 5000,
+        timeout: dialang.uploadTimeout,
         success: function (testData, textStatus, jqXHR) {
 
             dialang.session.totalItems = testData.totalItems;

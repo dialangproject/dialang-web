@@ -59,7 +59,7 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
                 type: 'POST',
                 data: {'tl':tl,'skill':skill},
                 dataType: 'text',
-                timeout: 5000,
+                timeout: dialang.uploadTimeout,
                 success: function (response, textStatus, jqXHR) {
 
                     dialang.pass = { baskets: [], itemToBasketMap: {}, items: [], subskills: {} };

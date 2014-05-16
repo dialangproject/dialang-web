@@ -6,13 +6,18 @@ $('#back').prop('disabled', false).click(function () {
 
 dialang.launchTestLevelDialog = function (number) {
 
-    $('.testleveldialog').dialog('close');
-    $('#testleveldialog' + number).dialog('open');
+    $('.testlevel-dialog').dialog('close');
+    $('#testlevel-dialog' + number).dialog('open');
 };
 
 $.get('/dialang-content/testresults/' + dialang.session.al + '/' + dialang.session.skill + '/' + dialang.session.itemLevel + '.html', function (data) {
 
     $('#content').html(data);
-    $('.testleveldialog').dialog({autoOpen: false, width: 500, height: 450});
+
+    $('.testlevel-dialog').dialog({
+        width: 'auto',
+        autoOpen: false,
+        resizable: false
+    });
 });
 

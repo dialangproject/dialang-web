@@ -24,7 +24,7 @@ class VSPTUtils(db:DB = DBFactory.get()) {
     }
   }
 
-  private def getZScore(tl:String,responses:Map[String,Boolean]):Double = {
+  private def getZScore(tl: String, responses: Map[String, Boolean]): Double = {
 
     val REAL = 1
     val FAKE = 0
@@ -69,11 +69,11 @@ class VSPTUtils(db:DB = DBFactory.get()) {
       // No hits whatsoever results in a zero score
       0
     } else {
-      VSPTScoringAlgorithms.getVersion6ZScore(hits,realWordsAnswered,falseAlarms,fakeWordsAnswered)
+      VSPTScoringAlgorithms.getVersion6ZScore(hits, realWordsAnswered, falseAlarms, fakeWordsAnswered)
     }
   }
 
-  def getBand(tl:String, responses:Map[String,Boolean]):Tuple3[Double,Int,String] = {
+  def getBand(tl: String, responses: Map[String, Boolean]): Tuple3[Double, Int, String] = {
 
     val (zScore,mearaScore) = getScore(tl,responses)
 
@@ -82,7 +82,7 @@ class VSPTUtils(db:DB = DBFactory.get()) {
     }
 
     val level = db.vsptBands.get(tl) match {
-        case Some(band:Vector[(String,Int,Int)]) => {
+        case Some(band: Vector[(String, Int, Int)]) => {
           val filtered = band.filter(t => mearaScore >= t._2 && mearaScore <= t._3)
           if(filtered.length == 1) {
             filtered(0)._1

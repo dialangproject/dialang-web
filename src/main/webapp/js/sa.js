@@ -48,7 +48,7 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
 
         $('#saform').ajaxSubmit({
             dataType: 'json',
-            timeout: 5000,
+            timeout: dialang.uploadTimeout,
             success: function (scores, textStatus, jqXHR, jqFormElement) {
 
                 dialang.session.saLevel = scores.saLevel;
