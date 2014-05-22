@@ -44,6 +44,33 @@ class DB(datasourceUrl: String) extends DialangLogger {
       }
     }
 
+  val ltiLocaleLookup: Map[String, String] = {
+      debug("Caching LTI locale lookup ...")
+      lazy val conn = ds.getConnection
+      lazy val st = conn.createStatement
+
+      try {
+        val rs = st.executeQuery("SELECT * FROM lti_locale_lookup")
+        rs.map( (row) => {
+            (row.getString(1) -> row.getString(2))
+          }).toMap
+      } finally {
+        if (st != null) {
+          try {
+            st.close()
+          } catch { case e:SQLException => }
+        }
+
+        if (conn != null) {
+          try {
+            conn.close()
+          } catch { case e:SQLException => }
+        }
+
+        debug("LTI locale lookups cached.")
+      }
+    }
+
   private val adminLanguageMappingsCache: Map[String, String] = {
       debug("Caching admin language mappings ...")
 

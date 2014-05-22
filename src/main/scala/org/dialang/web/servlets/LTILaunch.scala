@@ -4,7 +4,7 @@ import net.oauth._
 import net.oauth.server.OAuthServlet
 import net.oauth.signature.OAuthSignatureMethod
 
-import org.dialang.web.model.TES
+import org.dialang.web.model.{DialangSession, TES}
 import org.dialang.web.util.{HashUtils, ValidityChecks}
 
 import scala.collection.JavaConversions._
@@ -24,23 +24,23 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
   private val logger = LoggerFactory.getLogger(classOf[LTILaunch])
 
-  private val DialangAdminLanguageKey = "custom_dialang_admin_language"
-  private val DialangTestLanguageKey = "custom_dialang_test_language"
-  private val DialangTestSkillKey = "custom_dialang_test_skill"
-  private val DialangDisallowInstantFeedbackKey = "custom_dialang_disallow_instant_feedback"
-  private val DialangHideVSPTKey = "custom_dialang_hide_vspt"
-  private val DialangHideVSPTResultKey = "custom_dialang_hide_vspt_result"
-  private val DialangHideSAKey = "custom_dialang_hide_sa"
-  private val DialangHideTestKey = "custom_dialang_hide_test"
-  private val DialangTestDifficultyKey = "custom_dialang_test_difficulty"
-  private val DialangHideFeedbackMenuKey = "custom_dialang_hide_feedback_menu"
-  private val DialangTESURLKey = "custom_dialang_tes_url"
+  private val AdminLanguageKey = "custom_admin_language"
+  private val TestLanguageKey = "custom_test_language"
+  private val TestSkillKey = "custom_test_skill"
+  private val DisallowInstantFeedbackKey = "custom_disallow_instant_feedback"
+  private val HideVSPTKey = "custom_hide_vspt"
+  private val HideVSPTResultKey = "custom_hide_vspt_result"
+  private val HideSAKey = "custom_hide_sa"
+  private val HideTestKey = "custom_hide_test"
+  private val TestDifficultyKey = "custom__test_difficulty"
+  private val HideFeedbackMenuKey = "custom_hide_feedback_menu"
+  private val TESURLKey = "custom_tes_url"
 
 	post("/") {
 
     logger.debug("LTI Launch")
 
-    val message:OAuthMessage = OAuthServlet.getMessage(request, null)
+    val message: OAuthMessage = OAuthServlet.getMessage(request, null)
 
     try {
       validate(params, message)
@@ -58,73 +58,15 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       if (logger.isDebugEnabled) {
         logger.debug("userId:" + dialangSession.userId)
       }
-
-      val tesUrl = params.getOrElse(DialangTESURLKey, "")
-
-      if (tesUrl != "") {
-        // A Test Execution Script callback has been supplied
-        if (logger.isDebugEnabled) {
-          logger.debug("tesUrl:" + tesUrl)
-        }
-
-        val oauth_secret = db.getSecret(dialangSession.consumerKey).get
-
-        val hash = HashUtils.getHash(dialangSession.userId + dialangSession.consumerKey, oauth_secret)
-
-        if (logger.isDebugEnabled) logger.debug("hash:" + hash)
-
-        Http(tesUrl).option(HttpOptions.allowUnsafeSSL)
-          .params("user" -> dialangSession.userId, "hash" -> hash){inputStream => {
-            implicit val formats = DefaultFormats
-            val tesJson = parse(new InputStreamReader(inputStream))
-            dialangSession.tes = tesJson.extract[TES]
-          }
-        }
-      } else {
-        // Grab the script parameters
-        val al = params.get(DialangAdminLanguageKey) match {
-            case Some(s:String) => s
-            case _ => params.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE ) match {
-              case Some(s1:String) => db.getAdminLanguageForTwoLetterLocale(s1)
-              case _ => ""
-            }
-          }
-        val tl = params.getOrElse(DialangTestLanguageKey, "")
-        val skill = params.getOrElse(DialangTestSkillKey, "")
-        val hideVSPT = params.get(DialangHideVSPTKey) match {
-            case Some("true") => true
-            case _ => false
-          }
-        val hideVSPTResult = params.get(DialangHideVSPTResultKey) match {
-            case Some("true") => true
-            case _ => false
-          }
-        val hideSA = params.get(DialangHideSAKey) match {
-            case Some("true") => true
-            case _ => false
-          }
-        val hideTest = params.get(DialangHideTestKey) match {
-            case Some("true") => true
-            case _ => false
-          }
-        val testDifficulty = params.getOrElse(DialangTestDifficultyKey, "")
-        val hideFeedbackMenu = params.get(DialangHideFeedbackMenuKey) match {
-            case Some("true") => true
-            case _ => false
-          }
-        val disallowInstantFeedback = params.get(DialangDisallowInstantFeedbackKey) match {
-            case Some("true") => true
-            case _ => false
-          }
-
-        dialangSession.tes = TES("", al, tl, skill, hideVSPT, hideVSPTResult, hideSA, hideTest, testDifficulty, hideFeedbackMenu, disallowInstantFeedback, "")
-      }
-
+      
       if (logger.isDebugEnabled) {
         logger.debug(dialangSession.tes.toString)
       }
 
+      dialangSession.tes = getTestExecutionScript(params, dialangSession)
+
       if (dialangSession.tes.al == "") {
+        // Still no admin language, launch the als screen.
         saveDialangSession(dialangSession)
         contentType = "text/html"
         redirect("getals")
@@ -185,6 +127,71 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       }
     }
 	}
+
+  private def getTestExecutionScript(params: Map[String, String], dialangSession: DialangSession): TES = {
+
+    val tesUrl = params.getOrElse(TESURLKey, "")
+
+    if (tesUrl != "") {
+      // A Test Execution Script callback has been supplied
+
+      val oauth_secret = db.getSecret(dialangSession.consumerKey).get
+
+      val hash = HashUtils.getHash(dialangSession.userId + dialangSession.consumerKey, oauth_secret)
+
+      if (logger.isDebugEnabled) logger.debug("hash:" + hash)
+
+      Http(tesUrl)
+        .option(HttpOptions.allowUnsafeSSL)
+        .params("user" -> dialangSession.userId, "hash" -> hash){inputStream => {
+            implicit val formats = DefaultFormats
+            val tesJson = parse(new InputStreamReader(inputStream))
+            //dialangSession.tes = tesJson.extract[TES]
+            tesJson.extract[TES]
+          }
+        }
+    } else {
+      // If no admin language has been specified by custom LTI launch
+      // parameters, try and get the LTI launch locale.
+      val al = params.get(AdminLanguageKey) match {
+          case Some(s: String) => s
+          case _ => params.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE ) match {
+            case Some(s1: String) => db.ltiLocaleLookup.getOrElse(s1, "")
+            case _ => ""
+          }
+        }
+      val tl = params.getOrElse(TestLanguageKey, "")
+      val skill = params.getOrElse(TestSkillKey, "")
+      val hideVSPT = params.get(HideVSPTKey) match {
+          case Some("true") => true
+          case _ => false
+        }
+      val hideVSPTResult = params.get(HideVSPTResultKey) match {
+          case Some("true") => true
+          case _ => false
+        }
+      val hideSA = params.get(HideSAKey) match {
+          case Some("true") => true
+          case _ => false
+        }
+      val hideTest = params.get(HideTestKey) match {
+          case Some("true") => true
+          case _ => false
+        }
+      val testDifficulty = params.getOrElse(TestDifficultyKey, "")
+      val hideFeedbackMenu = params.get(HideFeedbackMenuKey) match {
+          case Some("true") => true
+          case _ => false
+        }
+      val disallowInstantFeedback = params.get(DisallowInstantFeedbackKey) match {
+          case Some("true") => true
+          case _ => false
+        }
+
+      //dialangSession.tes = TES("", al, tl, skill, hideVSPT, hideVSPTResult, hideSA, hideTest, testDifficulty, hideFeedbackMenu, disallowInstantFeedback, "")
+      TES("", al, tl, skill, hideVSPT, hideVSPTResult, hideSA, hideTest, testDifficulty, hideFeedbackMenu, disallowInstantFeedback, "")
+    }
+  }
 
   @throws[Exception]
   private def validate(payload: Map[String, String], oam: OAuthMessage) {
