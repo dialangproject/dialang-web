@@ -18,7 +18,7 @@ import org.json4s.native.JsonMethods._
 import org.scalatra.scalate.ScalateSupport
 
 import java.io.InputStreamReader
-import java.util.UUID
+import java.util.{Date, UUID}
 
 class LTILaunch extends DialangServlet with ScalateSupport {
 
@@ -50,6 +50,8 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
       // Each LTI launch is a new session, so clear it.
       dialangSession.clear()
+
+      dialangSession.started = ((new Date).getTime) / 1000L
 
       // validate checks that these are present
       dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
