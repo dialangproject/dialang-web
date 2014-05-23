@@ -69,7 +69,7 @@ class VSPTUtils(db:DB = DBFactory.get()) {
       // No hits whatsoever results in a zero score
       0
     } else {
-      VSPTScoringAlgorithms.getVersion6ZScore(hits, realWordsAnswered, falseAlarms, fakeWordsAnswered)
+      VSPTScoringAlgorithms.getVersion10ZScore(hits, realWordsAnswered, falseAlarms, fakeWordsAnswered)
     }
   }
 
