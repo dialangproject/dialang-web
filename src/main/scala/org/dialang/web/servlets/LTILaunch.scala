@@ -126,6 +126,13 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     } catch {
       case e:Exception => {
         logger.error("The LTI launch blew up.", e)
+        contentType = "text/html"
+        <html>
+          <body>
+            <h1>Launch Error</h1>
+            <p>{e.getMessage}</p>
+          </body>
+        </html>
       }
     }
 	}

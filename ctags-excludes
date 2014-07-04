@@ -1,0 +1,8 @@
+build
+bin
+dialang-content
+content.tgz
+*.gradle
+README.md
+docs
+*.js
