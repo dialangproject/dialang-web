@@ -152,6 +152,8 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
       Http(tesUrl)
         .option(HttpOptions.allowUnsafeSSL)
+        .option(HttpOptions.connTimeout(1000))
+        .option(HttpOptions.readTimeout(5000))
         .params("user" -> dialangSession.userId, "hash" -> hash){inputStream => {
             implicit val formats = DefaultFormats
             val tesJson = parse(new InputStreamReader(inputStream))
