@@ -1,6 +1,7 @@
 import org.scalatra.LifeCycle
 import javax.servlet.ServletContext
 import org.dialang.web.servlets._
+import org.dialang.dr.servlets._
 
 class ScalatraBootstrap extends LifeCycle {
 
@@ -14,5 +15,6 @@ class ScalatraBootstrap extends LifeCycle {
     context.mount(new StartTest, "/starttest/*")
     context.mount(new SubmitBasket, "/submitbasket/*")
     context.mount(new LTILaunch, "/lti/*")
+    context.mount(new Results, "/data/*")
   }
 }
