@@ -2,7 +2,7 @@
 $user = $_GET['user'];
 $theirhash = $_GET['hash'];
 
-$ourhash = base64_encode(hash_hmac('sha1', $user . 'adrian_moodle', 'secret', true));
+$ourhash = base64_encode(hash_hmac('sha1', $user . 'lti_test', 'secret', true));
 
 if ($ourhash == $theirhash) {
 
