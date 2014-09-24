@@ -4,6 +4,8 @@ war.eachFile {
 
     if (name == 'context.xml') {
         filter(ReplaceTokens, tokens: ['db.user': 'dialangadmin', 'db.password': 'dialangadmin', 'db.host': 'localhost'])
+    } else if (name == 'web.xml') {
+        filter(ReplaceTokens, tokens: ['lti.launch.url': ''])
     }
 }
 

@@ -24,7 +24,21 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
         <servlet-name>cache-loader</servlet-name>
         <servlet-class>org.dialang.web.servlets.CacheLoader</servlet-class>
         <load-on-startup>1</load-on-startup>
+      </servlet>
+
+    <servlet>
+        <servlet-name>LTILaunch</servlet-name>
+        <servlet-class>org.dialang.web.servlets.LTILaunch</servlet-class>
+        <init-param>
+          <param-name>launchUrl</param-name>
+          <param-value>@lti.launch.url@</param-value>
+        </init-param>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>LTILaunch</servlet-name>
+        <url-pattern>/lti/*</url-pattern>
+    </servlet-mapping>
 
     <listener>
         <listener-class>org.scalatra.servlet.ScalatraListener</listener-class>

@@ -2,7 +2,9 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 war.eachFile {
 
-    if(name == 'context.xml') {
+    if (name == 'context.xml') {
         filter(ReplaceTokens, tokens: ['db.user': 'dialangadmin', 'db.password': 'faic8Ahf', 'db.host': 'dialangdata.lancs.ac.uk'])
+    } else if (name == 'web.xml') {
+        filter(ReplaceTokens, tokens: ['lti.launch.url': 'https://dialangweb.lancaster.ac.uk/lti'])
     }
 }

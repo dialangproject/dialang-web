@@ -19,6 +19,7 @@ import org.scalatra.scalate.ScalateSupport
 
 import java.io.InputStreamReader
 import java.util.{Date, UUID}
+import javax.servlet.{ServletConfig,ServletContext}
 
 class LTILaunch extends DialangServlet with ScalateSupport {
 
@@ -36,11 +37,20 @@ class LTILaunch extends DialangServlet with ScalateSupport {
   private val HideFeedbackMenuKey = "custom_hide_feedback_menu"
   private val TESURLKey = "custom_tes_url"
 
+  private lazy val launchUrl = {
+      config.getInitParameter("launchUrl") match {
+          case "" => null
+          case s: String => s
+        }
+    }
+
 	post("/") {
 
     logger.debug("LTI Launch")
 
-    val message: OAuthMessage = OAuthServlet.getMessage(request, null)
+    if (logger.isDebugEnabled) logger.debug("launchUrl:" + launchUrl);
+
+    val message: OAuthMessage = OAuthServlet.getMessage(request, launchUrl)
 
     try {
       validate(params, message)
