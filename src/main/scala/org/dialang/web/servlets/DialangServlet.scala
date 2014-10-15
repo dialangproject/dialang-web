@@ -27,9 +27,9 @@ class DialangServlet extends ScalatraServlet {
   protected def getDialangSession = {
 
     session.get(dialangSessionKey) match {
-      case Some(d: DialangSession) => d
-      case _ => new DialangSession
-    }
+        case Some(d: DialangSession) => d
+        case _ => new DialangSession
+      }
   }
 
   protected def saveDialangSession(dialangSession: DialangSession) {
@@ -39,8 +39,12 @@ class DialangServlet extends ScalatraServlet {
 
   protected def notifyTestCompletion(dialangSession: DialangSession) {
 
+    logger.debug("notifyTestCompletion")
+
     val url = dialangSession.tes.testCompleteUrl
     val id = dialangSession.tes.id
+
+    if (logger.idDebugEnabled) logger.debug("URL: " + url + ". ID: " + id)
 
     if (url != "" && id != "") {
       val oauth_secret = db.getSecret(dialangSession.consumerKey).get

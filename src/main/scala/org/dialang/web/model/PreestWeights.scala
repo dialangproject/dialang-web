@@ -1,7 +1,5 @@
 package org.dialang.web.model
 
-//import scala.collection.mutable.HashMap
-
 import java.sql.ResultSet
 
 /**
@@ -26,7 +24,7 @@ class PreestWeights(rs: ResultSet) {
         val vspt = rs.getFloat("vspt")
         val sa = rs.getFloat("sa")
         val coe = rs.getFloat("coe")
-        builder += (createKey(tl,skill,vsptDone,saDone) -> Map("vspt" -> vspt, "sa" -> sa, "coe" -> coe))
+        builder += (createKey(tl, skill, vsptDone, saDone) -> Map("vspt" -> vspt, "sa" -> sa, "coe" -> coe))
       }
       builder.result
     }

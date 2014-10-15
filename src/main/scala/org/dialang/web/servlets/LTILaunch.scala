@@ -46,7 +46,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
 	post("/") {
 
-    logger.debug("LTI Launch")
+    logger.debug("LTILaunch.post")
 
     if (logger.isDebugEnabled) logger.debug("launchUrl:" + launchUrl);
 
@@ -134,7 +134,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         }
       }
     } catch {
-      case e:Exception => {
+      case e: Exception => {
         logger.error("The LTI launch blew up.", e)
         contentType = "text/html"
         <html>
@@ -176,7 +176,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       // parameters, try and get the LTI launch locale.
       val al = params.get(AdminLanguageKey) match {
           case Some(s: String) => s
-          case _ => params.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE ) match {
+          case _ => params.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE) match {
             case Some(s1: String) => db.ltiLocaleLookup.getOrElse(s1, "")
             case _ => ""
           }
@@ -209,7 +209,6 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           case _ => false
         }
 
-      //dialangSession.tes = TES("", al, tl, skill, hideVSPT, hideVSPTResult, hideSA, hideTest, testDifficulty, hideFeedbackMenu, disallowInstantFeedback, "")
       TES("", al, tl, skill, hideVSPT, hideVSPTResult, hideSA, hideTest, testDifficulty, hideFeedbackMenu, disallowInstantFeedback, "")
     }
   }
@@ -254,7 +253,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
     // Lookup the secret
     val oauth_secret = db.getSecret(oauth_consumer_key) match {
-      case Some(s:String) => s
+      case Some(s: String) => s
       case None => {
         throw new Exception("launch.invalid. No secret for consumer key: '" + oauth_consumer_key)
       }
@@ -267,7 +266,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     try {
       oav.validateMessage(oam, acc)
     } catch {
-      case e:Exception => {
+      case e: Exception => {
         throw new Exception( "launch.no.validate", e)
       }
     }
