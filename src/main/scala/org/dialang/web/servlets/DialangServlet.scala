@@ -44,7 +44,7 @@ class DialangServlet extends ScalatraServlet {
     val url = dialangSession.tes.testCompleteUrl
     val id = dialangSession.tes.id
 
-    if (logger.idDebugEnabled) logger.debug("URL: " + url + ". ID: " + id)
+    if (logger.isDebugEnabled) logger.debug("URL: " + url + ". ID: " + id)
 
     if (url != "" && id != "") {
       val oauth_secret = db.getSecret(dialangSession.consumerKey).get

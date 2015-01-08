@@ -3,7 +3,7 @@ package org.dialang.web.db
 import java.sql.{DriverManager,Connection,Statement,PreparedStatement,SQLException}
 
 import scala.collection.JavaConversions._
-import scala.collection.mutable.{ConcurrentMap,ListBuffer,HashMap,ArrayBuffer}
+import scala.collection.mutable.{ListBuffer,HashMap,ArrayBuffer}
 
 import org.dialang.web.model._
 import org.dialang.web.util.DialangLogger
