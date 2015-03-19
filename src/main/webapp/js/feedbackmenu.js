@@ -35,6 +35,12 @@ $.get('/dialang-content/feedbackmenu/' + dialang.session.al + '.html', function 
             $('#confirm-restart-dialog').dialog('close');
             return false;
         });
+
+        $('#confirm-restart-quit').click(function (e) {
+
+            $('#confirm-restart-dialog').dialog('close');
+            return dialang.switchState('als');
+        });
     } else {
         $('#confirm-restart-dialog').remove();
     }
