@@ -47,9 +47,9 @@ class SetTLS extends DialangServlet {
       dialangSession.clear()
 
       // The session id persists across tests (passes)
-      val (sessionId,isNewSession) = dialangSession.sessionId match {
-          case "" => (UUID.randomUUID.toString,true)
-          case _ => (dialangSession.sessionId,false)
+      val (sessionId, isNewSession) = dialangSession.sessionId match {
+          case "" => (UUID.randomUUID.toString, true)
+          case _ => (dialangSession.sessionId, false)
         }
 
       // The pass id correlates with a test run. We always need a

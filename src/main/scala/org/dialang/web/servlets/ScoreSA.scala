@@ -50,7 +50,7 @@ class ScoreSA extends DialangServlet {
     saveDialangSession(dialangSession)
 
     dataCapture.logSAResponses(dialangSession,responses.toMap)
-    dataCapture.logSAPPE(dialangSession)
+    dataCapture.logSAScores(dialangSession)
 
     if (dialangSession.tes.hideTest) {
       // The Test Exectution Script specified to just do the SA and VSPT

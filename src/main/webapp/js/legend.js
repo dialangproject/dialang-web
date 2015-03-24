@@ -1,4 +1,5 @@
 $('#skipback').prop('disabled', true);
+$('#save-button').prop('disabled', true);
 
 if (!dialang.flags.hideALS) {
     $('#back').prop('disabled', false).click(function (e) {

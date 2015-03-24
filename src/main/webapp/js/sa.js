@@ -53,6 +53,7 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
 
                 dialang.session.saLevel = scores.saLevel;
                 dialang.session.saDone = true;
+                $('#save-button').prop('disabled', false);
                 $('#confirm-send-dialog').dialog('destroy');
                 dialang.navigation.nextRules.sa();
             },
@@ -83,6 +84,7 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
 
     $('#confirm-skip-yes').click(function (e) {
 
+        $.get('/skipsa');
         $('#confirm-skip-dialog').dialog('destroy');
         return dialang.navigation.nextRules.sa();
     });

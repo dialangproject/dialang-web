@@ -5,6 +5,7 @@ import java.util.Date
 import javax.naming.InitialContext
 import javax.sql.DataSource
 
+import org.dialang.common.model.ImmutableItem
 import org.dialang.web.model.DialangSession
 
 import org.slf4j.LoggerFactory
@@ -13,59 +14,67 @@ class DataCaptureImpl(dsUrl: String) {
 
   private val logger = LoggerFactory.getLogger(classOf[DataCaptureImpl])
 
+  private val itemResponseSql =
+    """INSERT INTO item_responses (pass_id,basket_id,item_id,answer_id,score,correct,pass_order)
+          VALUES(?,?,?,?,?,?,?)"""
+
+  private val basketSql = "INSERT INTO baskets (pass_id,basket_id,basket_number) VALUES(?,?,?)"
+
   val ctx = new InitialContext
   val ds = ctx.lookup(dsUrl).asInstanceOf[DataSource]
 
   def createSessionAndPass(dialangSession:DialangSession) {
 
     lazy val conn = ds.getConnection
-    lazy val sessionST = conn.prepareStatement("INSERT INTO sessions (id,user_id,consumer_key,ip_address,started) VALUES(?,?,?,?,?)")
-    lazy val passST = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill,started) VALUES(?,?,?,?,?,?)")
+    lazy val sessionST
+      = conn.prepareStatement("INSERT INTO sessions (id,user_id,consumer_key,ip_address,started) VALUES(?,?,?,?,?)")
+    lazy val passST
+      = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill,started) VALUES(?,?,?,?,?,?)")
 
     try {
 
       conn.setAutoCommit(false)
 
-      sessionST.setString(1,dialangSession.sessionId)
-      sessionST.setString(2,dialangSession.userId)
-      sessionST.setString(3,dialangSession.consumerKey)
-      sessionST.setString(4,dialangSession.ipAddress)
-      sessionST.setLong(5,dialangSession.started)
-      if(sessionST.executeUpdate != 1) {
+      sessionST.setString(1, dialangSession.sessionId)
+      sessionST.setString(2, dialangSession.userId)
+      sessionST.setString(3, dialangSession.consumerKey)
+      sessionST.setString(4, dialangSession.ipAddress)
+      sessionST.setLong(5, dialangSession.started)
+      if (sessionST.executeUpdate != 1) {
         logger.error("Failed to insert session.")
       }
 
-      passST.setString(1,dialangSession.passId)
-      passST.setString(2,dialangSession.sessionId)
-      passST.setString(3,dialangSession.tes.al)
-      passST.setString(4,dialangSession.tes.tl)
-      passST.setString(5,dialangSession.tes.skill)
-      passST.setLong(6,dialangSession.started)
-      if(passST.executeUpdate != 1) {
+      passST.setString(1, dialangSession.passId)
+      passST.setString(2, dialangSession.sessionId)
+      passST.setString(3, dialangSession.tes.al)
+      passST.setString(4, dialangSession.tes.tl)
+      passST.setString(5, dialangSession.tes.skill)
+      passST.setLong(6, dialangSession.started)
+      if (passST.executeUpdate != 1) {
         logger.error("Failed to log pass creation.")
       }
 
       conn.commit()
     } catch {
-      case e:Exception => {
+      case e: Exception => {
         logger.error("Caught exception whilst creating session and pass.", e)
         conn.rollback()
       }
     } finally {
 
-      if(sessionST != null) {
+      if (sessionST != null) {
         try {
           sessionST.close()
         } catch { case _ : SQLException => }
       }
 
-      if(passST != null) {
+      if (passST != null) {
         try {
           passST.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.setAutoCommit(true)
           conn.close()
@@ -85,7 +94,7 @@ class DataCaptureImpl(dsUrl: String) {
 
       st.setString(1,sessionId)
       val rs = st.executeQuery
-      if(rs.next) {
+      if (rs.next) {
         val dialangSession = new DialangSession
         dialangSession.sessionId = sessionId
         dialangSession.userId = rs.getString("user_id")
@@ -98,13 +107,13 @@ class DataCaptureImpl(dsUrl: String) {
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
@@ -122,7 +131,7 @@ class DataCaptureImpl(dsUrl: String) {
 
       st.setString(1,passId)
       val rs = st.executeQuery
-      if(rs.next) {
+      if (rs.next) {
         val dialangSession = new DialangSession
         dialangSession.passId = passId
         dialangSession.tes.al = rs.getString("al")
@@ -134,13 +143,13 @@ class DataCaptureImpl(dsUrl: String) {
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
@@ -160,7 +169,7 @@ class DataCaptureImpl(dsUrl: String) {
       st.setString(4,dialangSession.tes.tl)
       st.setString(5,dialangSession.tes.skill)
       st.setLong(6,dialangSession.started)
-      if(st.executeUpdate != 1) {
+      if (st.executeUpdate != 1) {
         logger.error("Failed to log pass creation.")
       }
     } catch {
@@ -169,13 +178,13 @@ class DataCaptureImpl(dsUrl: String) {
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
@@ -197,7 +206,7 @@ class DataCaptureImpl(dsUrl: String) {
       responses.foreach(t => {
         st.setString(2,t._1)
         st.setBoolean(3,t._2)
-        if(st.executeUpdate != 1) {
+        if (st.executeUpdate != 1) {
           logger.error("Failed to log vspt word response.")
         }
       })
@@ -208,13 +217,13 @@ class DataCaptureImpl(dsUrl: String) {
         logger.error("Caught exception whilst logging VSPT responses", e)
       }
     } finally {
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.setAutoCommit(true)
           conn.close()
@@ -235,7 +244,7 @@ class DataCaptureImpl(dsUrl: String) {
       st.setDouble(2,dialangSession.vsptZScore)
       st.setInt(3,dialangSession.vsptMearaScore)
       st.setString(4,dialangSession.vsptLevel)
-      if(st.executeUpdate != 1) {
+      if (st.executeUpdate != 1) {
         logger.error("Failed to log vspt scores.")
       }
     } catch {
@@ -244,13 +253,13 @@ class DataCaptureImpl(dsUrl: String) {
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
@@ -273,7 +282,7 @@ class DataCaptureImpl(dsUrl: String) {
       responses.foreach(t => {
         st.setString(2,t._1)
         st.setBoolean(3,t._2)
-        if(st.executeUpdate != 1) {
+        if (st.executeUpdate != 1) {
           logger.error("Failed to log sa response.")
         }
       })
@@ -285,13 +294,13 @@ class DataCaptureImpl(dsUrl: String) {
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.setAutoCommit(true)
           conn.close()
@@ -300,31 +309,31 @@ class DataCaptureImpl(dsUrl: String) {
     }
   }
 
-  def logSAPPE(dialangSession:DialangSession) {
+  def logSAScores(dialangSession: DialangSession) {
 
     lazy val conn = ds.getConnection
-    lazy val st = conn.prepareStatement("INSERT INTO sa_ppe (pass_id,ppe) VALUES(?,?)")
+    lazy val st = conn.prepareStatement("INSERT INTO sa_scores (pass_id,ppe,level) VALUES(?,?,?)")
 
     try {
-
       // Now insert the scores
-      st.setString(1,dialangSession.passId)
-      st.setDouble(2,dialangSession.saPPE)
-      if(st.executeUpdate != 1) {
-        logger.error("Failed to log SA PPE.")
+      st.setString(1, dialangSession.passId)
+      st.setDouble(2, dialangSession.saPPE)
+      st.setString(3, dialangSession.saLevel)
+      if (st.executeUpdate != 1) {
+        logger.error("Failed to log SA scores.")
       }
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst logging SA PPE", e)
+        logger.error("Caught exception whilst logging SA scores", e)
       }
     } finally {
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
@@ -332,31 +341,37 @@ class DataCaptureImpl(dsUrl: String) {
     }
   }
 
-  def logTestStart(passId:String) {
+  def logTestStart(passId: String, bookletId: Int, bookletLength: Int) {
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("INSERT INTO test_durations (pass_id,start) VALUES(?,?)")
+    lazy val bookletST = conn.prepareStatement("INSERT INTO pass_booklet (pass_id,booklet_id, length) VALUES(?,?,?)")
 
     try {
-
-      st.setString(1,passId)
-      st.setLong(2,((new Date()).getTime()) / 1000L)
-      if(st.executeUpdate != 1) {
+      st.setString(1, passId)
+      st.setLong(2, ((new Date()).getTime()) / 1000L)
+      if (st.executeUpdate != 1) {
         logger.error("Failed to log test start time.")
       }
+      bookletST.setString(1, passId)
+      bookletST.setInt(2, bookletId)
+      bookletST.setInt(3, bookletLength)
+      if (bookletST.executeUpdate != 1) {
+        logger.error("Failed to log booklet.")
+      }
     } catch {
-      case e:Exception => {
+      case e: Exception => {
         logger.error("Caught exception whilst logging test start time", e)
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
@@ -364,36 +379,75 @@ class DataCaptureImpl(dsUrl: String) {
     }
   }
 
-  def logSingleIdResponse(passId: String, basketId: Int, itemId: Int, answerId: Int) {
+  def logBasket(passId: String, basketId: Int, basketNumber: Int) {
 
-    if(logger.isDebugEnabled()) {
-      logger.debug("PASS ID: " + passId + ". BASKET ID: " + basketId + ". ITEM ID: " + itemId + ". ANSWER ID: " + answerId)
+    if (logger.isDebugEnabled()) {
+      logger.debug("logBasket(" + passId + "," + basketId + "," + basketNumber + ")")
     }
 
     lazy val conn = ds.getConnection
-    lazy val st = conn.prepareStatement("INSERT INTO item_responses (pass_id,basket_id,item_id,answer_id) VALUES(?,?,?,?)")
+    lazy val st = conn.prepareStatement(basketSql)
 
     try {
-      st.setString(1,passId)
-      st.setInt(2,basketId)
-      st.setInt(3,itemId)
-      st.setInt(4,answerId)
-      if(st.executeUpdate != 1) {
+      st.setString(1, passId)
+      st.setInt(2, basketId)
+      st.setInt(3,basketNumber)
+      if (st.executeUpdate != 1) {
+        logger.error("Failed to log basket.")
+      }
+    } catch {
+      case e: Exception => {
+        logger.error("Caught exception whilst logging basket.", e)
+      }
+    } finally {
+      if (st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if (conn != null) {
+        try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
+
+  def logSingleIdResponse(passId: String, item: ImmutableItem) {
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("PASS ID: " + passId + ". BASKET ID: " + item.basketId
+                    + ". ITEM ID: " + item.id + ". ANSWER ID: " + item.responseId)
+    }
+
+    lazy val conn = ds.getConnection
+    lazy val st = conn.prepareStatement(itemResponseSql)
+
+    try {
+      st.setString(1, passId)
+      st.setInt(2, item.basketId)
+      st.setInt(3,item.id)
+      st.setInt(4, item.responseId)
+      st.setInt(5, item.score)
+      st.setBoolean(6, item.correct)
+      st.setInt(7, item.positionInTest)
+      if (st.executeUpdate != 1) {
         logger.error("Failed to log single id response.")
       }
     } catch {
-      case e:Exception => {
+      case e: Exception => {
         logger.error("Caught exception whilst logging single id response.", e)
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
@@ -401,20 +455,23 @@ class DataCaptureImpl(dsUrl: String) {
     }
   }
 
-  def logMultipleTextualResponses(passId: String, basketId: Int, responses: Map[Int,String]) {
+  def logMultipleTextualResponses(passId: String, items: List[ImmutableItem]) {
 
     lazy val conn = ds.getConnection
-    lazy val st:PreparedStatement = conn.prepareStatement("INSERT INTO item_responses (pass_id,basket_id,item_id,answer_text) VALUES(?,?,?,?)")
+    lazy val st:PreparedStatement = conn.prepareStatement("INSERT INTO item_responses (pass_id,basket_id,item_id,answer_text,score,correct,pass_order) VALUES(?,?,?,?,?,?,?)")
 
     try {
 
-      st.setString(1,passId)
-      st.setInt(2,basketId)
+      st.setString(1, passId)
+      st.setInt(2, items.last.basketId)
 
-      responses.foreach(t => {
-        st.setInt(3,t._1)
-        st.setString(4,t._2)
-        if(st.executeUpdate != 1) {
+      items.foreach(item => {
+        st.setInt(3, item.id)
+        st.setString(4, item.responseText)
+        st.setInt(5, item.score)
+        st.setBoolean(6, item.correct)
+        st.setInt(7, item.positionInTest)
+        if (st.executeUpdate != 1) {
           logger.error("Failed to log textual response.")
         }
       })
@@ -424,13 +481,13 @@ class DataCaptureImpl(dsUrl: String) {
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
@@ -438,24 +495,27 @@ class DataCaptureImpl(dsUrl: String) {
     }
   }
 
-  def logMultipleIdResponses(passId: String, basketId: Int, responses: Map[Int,Int]) {
+  def logMultipleIdResponses(passId: String, items: List[ImmutableItem]) {
 
-    if(logger.isDebugEnabled()) {
-      logger.debug("PASS ID: " + passId + ". BASKET ID: " + basketId)
+    if (logger.isDebugEnabled()) {
+      logger.debug("PASS ID: " + passId + ". BASKET ID: " + items.last.basketId)
     }
 
     lazy val conn = ds.getConnection
-    lazy val st = conn.prepareStatement("INSERT INTO item_responses (pass_id,basket_id,item_id,answer_id) VALUES(?,?,?,?)")
+    lazy val st = conn.prepareStatement(itemResponseSql)
 
     try {
 
-      st.setString(1,passId)
-      st.setInt(2,basketId)
+      st.setString(1, passId)
+      st.setInt(2, items.last.basketId)
 
-      responses.foreach(t => {
-        st.setInt(3,t._1)
-        st.setInt(4,t._2)
-        if(st.executeUpdate != 1) {
+      items.foreach(item => {
+        st.setInt(3, item.id)
+        st.setInt(4, item.responseId)
+        st.setInt(5, item.score)
+        st.setBoolean(6, item.correct)
+        st.setInt(7, item.positionInTest)
+        if (st.executeUpdate != 1) {
           logger.error("Failed to log id response.")
         }
       })
@@ -465,13 +525,13 @@ class DataCaptureImpl(dsUrl: String) {
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
@@ -490,7 +550,7 @@ class DataCaptureImpl(dsUrl: String) {
       st.setString(1,dialangSession.passId)
       st.setInt(2,dialangSession.itemGrade)
       st.setString(3,dialangSession.itemLevel)
-      if(st.executeUpdate != 1) {
+      if (st.executeUpdate != 1) {
         logger.error("Failed to log test result.")
       }
     } catch {
@@ -499,13 +559,13 @@ class DataCaptureImpl(dsUrl: String) {
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
@@ -522,7 +582,7 @@ class DataCaptureImpl(dsUrl: String) {
 
       st.setLong(1,((new Date()).getTime()) / 1000L)
       st.setString(2,passId)
-      if(st.executeUpdate != 1) {
+      if (st.executeUpdate != 1) {
         logger.error("Failed to log test finish time.")
       }
     } catch {
@@ -531,13 +591,47 @@ class DataCaptureImpl(dsUrl: String) {
       }
     } finally {
 
-      if(st != null) {
+      if (st != null) {
         try {
           st.close()
         } catch { case _ : SQLException => }
       }
 
-      if(conn != null) {
+      if (conn != null) {
+        try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+  }
+
+  def deleteToken(token: String): Boolean = {
+
+    lazy val conn = ds.getConnection
+    lazy val st = conn.prepareStatement("DELETE FROM tokens WHERE token = ?")
+
+    try {
+      st.setString(1, token)
+      if (st.executeUpdate != 1) {
+        logger.error("Failed to delete token.")
+        false
+      } else {
+        true
+      }
+    } catch {
+      case e:Exception => {
+        logger.error("Caught exception whilst deleting token.", e)
+        false
+      }
+    } finally {
+
+      if (st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if (conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }

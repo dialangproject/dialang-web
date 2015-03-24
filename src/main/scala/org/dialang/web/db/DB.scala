@@ -6,13 +6,13 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.{ListBuffer,HashMap,ArrayBuffer}
 
 import org.dialang.web.model._
+import org.dialang.common.model._
 import org.dialang.web.util.DialangLogger
 
 import javax.naming.InitialContext
 import javax.sql.DataSource
 import java.util.concurrent.ConcurrentHashMap
 
-import org.dialang.common.model.{Answer,Item}
 import org.dialang.util.ResultSetImplicits._
 
 class DB(datasourceUrl: String) extends DialangLogger {
@@ -554,7 +554,7 @@ class DB(datasourceUrl: String) extends DialangLogger {
       debug("Caching basket ids ...")
 
       lazy val conn = ds.getConnection
-      lazy val st = conn.prepareStatement("SELECT basket_id FROM booklet_basket WHERE booklet_id = ?")
+      lazy val st = conn.prepareStatement("SELECT basket_id FROM booklet_basket WHERE booklet_id = ? ORDER BY basket_id")
 
       try {
         val temp = new HashMap[Int,List[Int]]
@@ -621,6 +621,8 @@ class DB(datasourceUrl: String) extends DialangLogger {
         debug("Items cached ...")
       }
     }
+
+  def getItem(itemId: Int): Option[Item] = items.get(itemId)
 
   private val (answerCache: Map[Int, Answer], itemAnswerCache: Map[Int, List[Answer]]) = {
       debug("Caching answers ...")

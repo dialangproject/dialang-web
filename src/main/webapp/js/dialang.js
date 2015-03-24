@@ -9,7 +9,6 @@ if (typeof dialang === 'undefined') {
 }
 
 if (typeof console === "undefined") {
-
     console = {
         debug: function () {},
         error: function (message) {
@@ -22,7 +21,25 @@ $('#help').click(function (e) {
     $('#help-dialog').dialog('open');
 });
 
+$('#save-button').click(function (e) {
+
+    $.ajax({
+        url: '/save',
+        success: function (data, textStatus, jqXHR) {
+
+            $('#save-dialog').dialog('open');
+            $('#dialang-token').html(data.token);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+
+            alert('Error!');
+        }
+    });
+});
+
 dialang.skipVSPT = function () {
+
+    $.get('/skipvspt');
 
     $('#confirm-skip-dialog').dialog('destroy');
     if (!dialang.flags.hideSA) {
@@ -105,6 +122,7 @@ dialang.switchState = function (state) {
             $('#back').attr('title', tips.back);
             $('#next').attr('title', tips.next);
             $('#skipforward').attr('title', tips.skipforward);
+            $('#save-button').attr('title', tips.save);
         });
     }
 
@@ -114,8 +132,7 @@ dialang.switchState = function (state) {
     $.getScript('/js/' + state + '.js');
 
     return false;
-};
-
+}; 
 // TEST MODE ONLY !!!!!!!
 /*
 dialang.state = 'test';
@@ -137,6 +154,19 @@ $.get('/dialang-content/help/' + dialang.session.al + '.html', function (helpDia
         modal: true,
         width: 'auto',
         height: 600,
+        autoOpen: false,
+        resizable: false
+    });
+});
+
+$.get('/dialang-content/save/' + dialang.session.al + '.html', function (saveDialogMarkup) {
+
+    $('#save-dialog').html(saveDialogMarkup);
+    $('#save-dialog').dialog({
+        modal: true,
+        width: 'auto',
+        height: 300,
+        width: 'auto',
         autoOpen: false,
         resizable: false
     });

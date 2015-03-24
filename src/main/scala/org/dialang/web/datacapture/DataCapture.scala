@@ -1,6 +1,7 @@
 package org.dialang.web.datacapture
 
 import org.dialang.web.model.DialangSession
+import org.dialang.common.model.ImmutableItem
 
 class DataCapture(dsUrl: String) {
 
@@ -79,52 +80,62 @@ class DataCapture(dsUrl: String) {
    * Sends the sa scores if, and only if, a userId is set on the session. This
    * is management data and only makes sense with a user id from an LTI launch.
    */
-  def logSAPPE(dialangSession: DialangSession) {
+  def logSAScores(dialangSession: DialangSession) {
 
     new Thread(
       new Runnable {
         def run {
-          dataCapture.logSAPPE(dialangSession)
+          dataCapture.logSAScores(dialangSession)
         }
       }, "logSAPPE").start
   }
 
-  def logTestStart(passId:String) {
+  def logTestStart(passId: String, bookletId: Int, bookletLength: Int) {
 
     new Thread(
       new Runnable {
         def run {
-          dataCapture.logTestStart(passId)
+          dataCapture.logTestStart(passId, bookletId, bookletLength)
         }
       }, "logTestStart").start
   }
 
-  def logSingleIdResponse(sessionId: String, basketId: Int, itemId: Int, answerId: Int) {
+  def logBasket(passId: String, basketId: Int, basketNumber: Int) {
 
     new Thread(
       new Runnable {
         def run {
-          dataCapture.logSingleIdResponse(sessionId, basketId, itemId, answerId)
+          dataCapture.logBasket(passId, basketId, basketNumber)
+        }
+      }, "logBasket").start
+  }
+
+  def logSingleIdResponse(sessionId: String, item: ImmutableItem) {
+
+    new Thread(
+      new Runnable {
+        def run {
+          dataCapture.logSingleIdResponse(sessionId, item)
         }
       }, "logSingleIdResponse").start
   }
 
-  def logMultipleTextualResponses(sessionId: String, basketId: Int, responses: Map[Int,String]) {
+  def logMultipleTextualResponses(sessionId: String, items: List[ImmutableItem]) {
 
     new Thread(
       new Runnable {
         def run {
-          dataCapture.logMultipleTextualResponses(sessionId, basketId, responses)
+          dataCapture.logMultipleTextualResponses(sessionId, items)
         }
       }, "logMultipleTextualResponses").start
   }
 
-  def logMultipleIdResponses(sessionId: String, basketId: Int, responses: Map[Int,Int]) {
+  def logMultipleIdResponses(sessionId: String, items: List[ImmutableItem]) {
 
     new Thread(
       new Runnable {
         def run {
-          dataCapture.logMultipleIdResponses(sessionId, basketId, responses)
+          dataCapture.logMultipleIdResponses(sessionId, items)
         }
       }, "logMultipleIdResponses").start
   }
@@ -148,4 +159,6 @@ class DataCapture(dsUrl: String) {
         }
       }, "logTestFinish").start
   }
+
+  def deleteToken(token: String): Boolean = dataCapture.deleteToken(token)
 }

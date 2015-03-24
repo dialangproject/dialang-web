@@ -648,3 +648,20 @@ button[disabled] {
 }
 /* END HACKS FOR IE11 */
 
+#dialang-loadsaved-instruction {
+    margin-bottom: 10px;
+}
+
+#dialang-loadsaved-input {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+#dialang-token-instruction {
+    width: 400px;
+}
+
+#dialang-token {
+    white-space: nowrap;
+    margin-top: 10px;
+}

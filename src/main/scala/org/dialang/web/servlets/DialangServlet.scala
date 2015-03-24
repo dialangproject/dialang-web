@@ -24,6 +24,9 @@ class DialangServlet extends ScalatraServlet {
 
   private val dialangSessionKey = "dialangSession"
 
+  /**
+   * Gets the existing, or creates a new, DialangSession
+   */
   protected def getDialangSession = {
 
     session.get(dialangSessionKey) match {

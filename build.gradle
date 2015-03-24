@@ -12,9 +12,9 @@ repositories {
 
 dependencies {
     compile 'org.scala-lang:scala-library:2.11.4'
-    compile 'org.dialang.common:dialang-common:0.1'
     compile 'log4j:log4j:1.2.8'
     compile 'commons-codec:commons-codec:1.5'
+    compile 'org.dialang.common:dialang-common:0.1'
     compile 'net.oauth:oauth-core:20100601'
     compile 'ch.qos.logback:logback-classic:1.0.11'
     compile 'org.scalatra:scalatra_2.11:2.3.0'

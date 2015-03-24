@@ -7,7 +7,7 @@ $('#next').prop('disabled', false).click(function (e) {
         success: function (testData, textStatus, jqXHR) {
 
             dialang.session.totalItems = testData.totalItems;
-            dialang.session.currentBasketId = testData.startBasket;
+            dialang.pass.currentBasketId = testData.startBasket;
             dialang.session.currentBasketNumber = 0;
             dialang.navigation.nextRules.testintro();
         },

@@ -55,11 +55,13 @@ if (!dialang.session.reviewMode) {
         return false;
     });
 
-    if (!dialang.nextBasketTooltip || !dialang.quitTestTooltip) {
+    if (!dialang.nextBasketTooltip || !dialang.quitTestTooltip || !dialang.instantFeedbackOnTooltip || !dialang.instantFeedbackOffTooltip) {
         $.get('/dialang-content/baskets/' + dialang.session.al + '-toolbarTooltips.json', function (tips) {
 
             dialang.nextBasketTooltip = tips.next;
             dialang.quitTestTooltip = tips.skipforward;
+            dialang.instantFeedbackOnTooltip = tips.instantFeedbackOnTooltip;
+            dialang.instantFeedbackOffTooltip = tips.instantFeedbackOffTooltip;
             $('#next').attr('title', dialang.nextBasketTooltip);
             $('#skipforward').attr('title', dialang.quitTestTooltip);
         });
@@ -67,9 +69,9 @@ if (!dialang.session.reviewMode) {
 
     if (!dialang.flags.disallowInstantFeedback) {
         if (dialang.session.instantFeedbackOn) {
-            $('#instantfeedback').show().attr('title', instantFeedbackOffTooltip).find('img').attr('src', '/images/instantFeedbackOn.gif');
+            $('#instantfeedback').show().attr('title', dialang.instantFeedbackOffTooltip).find('img').attr('src', '/images/instantFeedbackOn.gif');
         } else {
-            $('#instantfeedback').show().attr('title', instantFeedbackOnTooltip).find('img').attr('src', '/images/instantFeedbackOff.gif');
+            $('#instantfeedback').show().attr('title', dialang.instantFeedbackOnTooltip).find('img').attr('src', '/images/instantFeedbackOff.gif');
         }
     } else {
         $('#instantfeedback').hide();
@@ -78,26 +80,30 @@ if (!dialang.session.reviewMode) {
     $('#instantfeedback').off('click').click(function (e) {
         if (dialang.session.instantFeedbackOn) {
             dialang.session.instantFeedbackOn = false;
-            $(this).attr('title', instantFeedbackOnTooltip)
+            $(this).attr('title', dialang.instantFeedbackOnTooltip)
                 .find('img').attr('src', "/images/instantFeedbackOff.gif");
         } else {
             dialang.session.instantFeedbackOn = true;
             dialang.initialiseReviewDialog(true);
-            $(this).attr('title', instantFeedbackOffTooltip)
+            $(this).attr('title', dialang.instantFeedbackOffTooltip)
                 .find('img').attr('src', "/images/instantFeedbackOn.gif");
         }
         return false;
     });
 
     // We're not in review mode, so show the progress bar
-    if (dialang.pass.items.length == 0) {
+    if (dialang.pass.items.length == 0 || dialang.pass.loading) {
         $('#progressbar').css('display', 'inline-block').progressbar({max: parseInt(dialang.session.totalItems, 10), value: 0});
         $('#keyboard-button').show();
+
+        if (dialang.pass.loading) {
+            $('#progressbar').progressbar('option', 'value', parseInt(dialang.pass.items.length, 10));
+        }
     } else {
         $('#progressbar').progressbar('option', 'value', parseInt(dialang.pass.items.length, 10));
     }
 
-    $.get('/dialang-content/baskets/' + dialang.session.al + "/" + dialang.session.currentBasketId + '.html', function (data) {
+    $.get('/dialang-content/baskets/' + dialang.session.al + "/" + dialang.pass.currentBasketId + '.html', function (data) {
 
         $('#content').html(data);
 
@@ -155,58 +161,11 @@ if (!dialang.session.reviewMode) {
             timeout: dialang.uploadTimeout,
             success: function (nextBasketData, textStatus, jqXHR, jqFormElement) {
 
+                $('#save-button').prop('disabled', false);
+
                 var scoredBasket = nextBasketData.scoredBasket;
 
-                // Map the basket onto the basket id for lookup later.
-                dialang.pass.baskets[scoredBasket.id] = scoredBasket;
-
-                scoredBasket.items.forEach(function (item) {
-
-                    // Map the item id onto the basket id for lookup later.
-                    dialang.pass.itemToBasketMap[item.id] = scoredBasket.id;
-
-                    dialang.pass.items.push(item);
-
-                    if (item.itemType === 'mcq' || item.itemType === 'gapdrop') {
-
-                        // Set the response text on this item
-                        item.answers.forEach(function (answer) {
-
-                            if (answer.correct) {
-                                item.correctAnswer = answer.text;
-                            }
-                            if (answer.id === item.responseId) {
-                                item.responseText = answer.text;
-                            }
-                        });
-                    } else if (item.itemType === 'gaptext' || item.itemType === 'shortanswer') {
-
-                        var answersMarkup = '';
-                        item.answers.forEach(function (answer) {
-                            answersMarkup += answer.text + '<br />';
-                        });
-                        item.correctAnswer = answersMarkup;
-                    }
-        
-                    var subskill = item.subskill;
-
-                    if (!dialang.pass.subskills[subskill]) {
-                        // No subskill keyed yet, ensure that one is.
-                        dialang.pass.subskills[subskill] = {'correct':[],'incorrect':[]};
-                    }
-
-                    if (item.correct) {
-                        dialang.pass.subskills[subskill].correct.push(item);
-                    } else {
-                        dialang.pass.subskills[subskill].incorrect.push(item);
-                    }
-                }); // end items loop
-
-                if (!dialang.scoredBaskets) {
-                    dialang.scoredBaskets = [];
-                }
-
-                dialang.scoredBaskets.push(scoredBasket);
+                dialang.utils.configureScoredBasket(scoredBasket);
 
                 if (nextBasketData.testDone) {
                     dialang.session.testDone = true;
@@ -215,8 +174,7 @@ if (!dialang.session.reviewMode) {
                         dialang.switchState('endoftest');
                     }
                 } else {
-
-                    dialang.session.currentBasketId = nextBasketData.nextBasketId;
+                    dialang.pass.currentBasketId = nextBasketData.nextBasketId;
                     if (!dialang.session.instantFeedbackOn) {
                         dialang.switchState('test');
                     }

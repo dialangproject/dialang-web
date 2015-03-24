@@ -1,13 +1,13 @@
 package org.dialang.web.scoring
 
 import org.dialang.web.db.DBFactory
-import org.dialang.common.model.{Item,ImmutableItem,ScoredItem}
-import org.dialang.web.model.{DialangSession,ItemGrade}
+import org.dialang.common.model.{ImmutableItem, Item, ScoredItem}
+import org.dialang.web.model.{DialangSession, ItemGrade}
 
 import java.util.StringTokenizer
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory
 
 /**
  *  A utility class intended to hold all of the scoring code used by the system
@@ -102,7 +102,7 @@ class ScoringMethods {
 
     db.items.get(itemId) match {
         case Some(item) => {
-          val scoredItem = new ScoredItem(item)
+          val scoredItem = new ScoredItem(item.id, item.itemType, item.skill, item.subskill, item.text, item.weight)
           scoredItem.responseId = responseId
           db.getAnswer(responseId) match {
               case Some(answer) => {
@@ -136,7 +136,8 @@ class ScoringMethods {
 
     db.items.get(itemId) match {
         case Some(item) => {
-          val scoredItem = new ScoredItem(item)
+          //val scoredItem = new ScoredItem(item)
+          val scoredItem = new ScoredItem(item.id, item.itemType, item.skill, item.subskill, item.text, item.weight)
           scoredItem.responseText = answerText
           var score = 0
           db.getAnswers(itemId) match {

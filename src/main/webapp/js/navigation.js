@@ -5,6 +5,9 @@ dialang.navigation = {};
 dialang.navigation.nextRules = {
 
     legend: function () {
+        return dialang.switchState('loadsaved');
+    },
+    loadsaved: function () {
         return dialang.switchState('flowchart');
     },
     flowchart: function () {
@@ -89,8 +92,11 @@ dialang.navigation.backRules = {
     legend: function () {
         return dialang.switchState('als');
     },
-    flowchart: function () {
+    loadsaved: function () {
         return dialang.switchState('legend');
+    },
+    flowchart: function () {
+        return dialang.switchState('loadsaved');
     },
     tls: function () {
         return dialang.switchState('flowchart');

@@ -40,11 +40,10 @@ class StartTest extends DialangServlet {
 
     dialangSession.bookletId = bookletId
     dialangSession.bookletLength = bookletLength
-    dialangSession.currentBasketNumber = 0
 
     saveDialangSession(dialangSession)
 
-    dataCapture.logTestStart(dialangSession.passId)
+    dataCapture.logTestStart(dialangSession.passId, dialangSession.bookletId, dialangSession.bookletLength)
 
     contentType = "application/json";
     "{\"totalItems\":\"" + bookletLength.toString + "\",\"startBasket\":\"" + firstBasketId.toString + "\"}"

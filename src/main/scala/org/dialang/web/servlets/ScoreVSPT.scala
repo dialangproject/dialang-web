@@ -42,7 +42,7 @@ class ScoreVSPT extends DialangServlet {
 
     saveDialangSession(dialangSession)
 
-    dataCapture.logVSPTResponses(dialangSession,responses.toMap)
+    dataCapture.logVSPTResponses(dialangSession, responses.toMap)
     dataCapture.logVSPTScores(dialangSession)
 
     if (dialangSession.tes.hideSA && dialangSession.tes.hideTest) {

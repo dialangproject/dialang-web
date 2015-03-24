@@ -75,6 +75,8 @@ $.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl +
 
                 dialang.session.vsptDone[dialang.session.tl] = true;
 
+                $('#save-button').prop('disabled', false);
+
                 dialang.navigation.nextRules.vspt();
             },
             error: function (jqXHR, textStatus, errorThrown) {
