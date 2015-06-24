@@ -15,7 +15,5 @@ $("#radios > input").click(function (e) {
         }
     });
 
-    if(complete) {
-        dialang.responseComplete();
-    }
+    dialang.responseComplete(complete);
 });

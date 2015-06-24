@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.scala-lang:scala-library:2.11.4'
+    compile 'org.scala-lang:scala-library:2.11.7'
     compile 'log4j:log4j:1.2.8'
     compile 'commons-codec:commons-codec:1.5'
     compile 'org.dialang.common:dialang-common:0.1'
@@ -27,7 +27,7 @@ dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5'
     providedCompile 'org.postgresql:postgresql:9.3-1102-jdbc41'
 
-    testCompile 'org.scala-lang:scala-library:2.11.4'
+    testCompile 'org.scala-lang:scala-library:2.11.7'
     testCompile 'org.scalatest:scalatest_2.11:2.2.1'
     testCompile 'simple-jndi:simple-jndi:0.11.4.1'
 }

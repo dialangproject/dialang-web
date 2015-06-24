@@ -1,0 +1,18 @@
+Add missing admin language translations for popup keyboard. Add the missing strings to Crowdin.
+
+We need to do:
+
+Chinese
+Danish
+German
+Greek
+Finish
+Irish
+Indonesian
+Icelandic
+Italian
+Japanese
+Dutch
+Norwegian
+Spanish
+Swedish

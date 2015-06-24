@@ -163,7 +163,7 @@ class ScoringMethods {
       }
   }
 
-  def getItemGrade(session: DialangSession, results: List[ImmutableItem]): Tuple2[Int, String] = {
+  def getItemGrade(tl: String, skill: String, bookletId: Int, results: List[ImmutableItem]): Tuple2[Int, String] = {
 
     if (logger.isDebugEnabled) logger.debug("NUM ITEMS: " + results.length)
 
@@ -172,7 +172,7 @@ class ScoringMethods {
 
     val (rawScore, weight) = results.foldLeft((0,0))( (t, item) => (t._1 + item.score, t._2 + item.weight) )
 
-    val itemGrades = db.getItemGrades(session.tes.tl, session.tes.skill, session.bookletId)
+    val itemGrades = db.getItemGrades(tl, skill, bookletId)
 
     // normalize:
     val normalisedRawScore = ((rawScore.toFloat) * (itemGrades.max / weight.toFloat)).toInt

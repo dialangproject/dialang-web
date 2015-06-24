@@ -24,44 +24,7 @@ $('#skipforward').prop('disabled', false).click(function (e) {
     return false;
 });
 
-$.get('/dialang-content/keyboards/' + dialang.session.tl + '.html', function (data) {
-
-    $('#keyboard').html(data);
-
-    $(document).ready(function () {
-
-        $('#keyboard-dialog').dialog({
-            dialogClass: "no-close",
-            resizable: false,
-            width: 'auto',
-            autoOpen: false
-        });
-
-        $('#keyboard button').click(function (e) {
-
-            var v = dialang.lastFocused.value;
-            var pre = v.substring(0, dialang.lastSelectionStart);
-            var post = v.substring(dialang.lastSelectionEnd);
-            var c = this.getAttribute('data-char');
-            dialang.lastFocused.value = pre + c + post;
-            dialang.lastSelectionStart = dialang.lastFocused.selectionStart;
-            dialang.lastSelectionEnd = dialang.lastFocused.selectionEnd;
-            $(dialang.lastFocused).focus().keyup();
-            return false;
-        });
-
-        $('#keyboard-button').click(function (e) {
-
-            if (dialang.session.keyboardDisplayed) {
-                $('#keyboard-dialog').dialog('close');
-                dialang.session.keyboardDisplayed = false;
-            } else {
-                $('#keyboard-dialog').dialog('open');
-                dialang.session.keyboardDisplayed = true;
-            }
-        });
-    });
-});
+dialang.setupKeyboardButton();
 
 $.get('/dialang-content/testintro/' + dialang.session.al + '.html', function (data) {
 

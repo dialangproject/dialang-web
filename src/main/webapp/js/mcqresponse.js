@@ -1,3 +1,3 @@
 $('#radios > input').click(function (e) {
-    dialang.responseComplete();
+    dialang.responseComplete(true);
 });

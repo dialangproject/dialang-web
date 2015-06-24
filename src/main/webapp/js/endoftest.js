@@ -8,7 +8,6 @@ $('#instantfeedback').hide();
 dialang.session.instantFeedback = false;
 
 $('#keyboard-button').off('click').hide();
-$('#keyboard-dialog').dialog('destroy');
 dialang.session.keyboardDisplayed = false;
 
 $('#progressbar').hide();

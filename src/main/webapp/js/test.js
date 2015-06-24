@@ -29,15 +29,19 @@ dialang.initialiseReviewDialog = function (modal) {
     return false;
 };
 
-dialang.responseComplete = function () {
+dialang.responseComplete = function (complete) {
 
-    var audio = $('#audio');
-    if (audio.length) {
-        if (audio[0].ended) {
+    if (complete) {
+        var audio = $('#audio');
+        if (audio.length) {
+            if (audio[0].ended) {
+                $('#next').prop('disabled', false);
+            }
+        } else {
             $('#next').prop('disabled', false);
         }
     } else {
-        $('#next').prop('disabled', false);
+        $('#next').prop('disabled', true);
     }
 };
 
@@ -138,8 +142,8 @@ if (!dialang.session.reviewMode) {
             $('#keyboard-button').prop('disabled', false);
         } else {
             $('#keyboard-button').prop('disabled', true);
-            $('#keyboard-dialog').dialog('close');
-            dialang.session.keyboardDisplayed = false;
+            //$('#keyboard-dialog').dialog('close');
+            //dialang.session.keyboardDisplayed = false;
         }
 
         var numItemsInThisBasket = parseInt($('#number-of-items').val(), 10);

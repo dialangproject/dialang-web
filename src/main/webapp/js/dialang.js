@@ -17,6 +17,19 @@ if (typeof console === "undefined") {
     };
 }
 
+dialang.keyboardMappings = {
+    "dan_dk": "danish-qwerty",
+    "deu_de": "german-qwertz-1",
+    "spa_es": "spanish-qwerty",
+    "fra_fr": "french-azerty-1",
+    "por_pt": "portuguese-qwerty",
+    "swe_se": "swedish-qwerty"
+};
+
+for (var language in $.keyboard.language) {
+    console.log(language);
+}
+
 $('#help').click(function (e) {
     $('#help-dialog').dialog('open');
 });
@@ -36,6 +49,47 @@ $('#save-button').click(function (e) {
         }
     });
 });
+
+$.get('/dialang-content/iso_lang_mappings.json', function (mappings) {
+    dialang.isoLangMappings = mappings;
+});
+
+dialang.setupKeyboardButton = function () {
+
+    $('#keyboard-button').click(function (e) {
+
+        if (dialang.keyboardOn) {
+            $('input:text').each(function (index) {
+                $(this).keyboard().getkeyboard().destroy();
+            });
+            dialang.keyboardOn = false;
+        } else {
+            var twoLetterCode = dialang.isoLangMappings[dialang.session.al] || 'en';
+            var kbOptions = {
+                autoAccept: true,
+                language: twoLetterCode
+            };
+
+            var layout = dialang.keyboardMappings[dialang.session.tl];
+            if (layout) {
+                kbOptions.layout = layout;
+                $('input:text').keyboard(kbOptions);
+                $('.ui-keyboard-input').bind('change', function (e, keyboard, el){
+                    if ('gaptext' === dialang.pass.currentBasketType) {
+                        dialang.gapCompletionTest($('#radios > span > input'));
+                    } else if ('shortanswer' === dialang.pass.currentBasketType) {
+                        dialang.gapCompletionTest($('#radios > input'));
+                    }
+                });
+
+            } else {
+                $('input:text').keyboard(kbOptions);
+            }
+            dialang.keyboardOn = true;
+        }
+        return true;
+    });
+};
 
 dialang.skipVSPT = function () {
 
@@ -105,6 +159,45 @@ dialang.launchMultiItemReviewDialog = function (basket, initialIndex, selectCall
     },'text');
 };
 
+dialang.gapCompletionTest = function (inputs) {
+
+    var complete = true;
+    inputs.each(function (index, el) {
+
+        if (el.value.length <= 0) {
+            complete = false;
+        }
+    });
+
+    dialang.responseComplete(complete);
+
+    return false;
+};
+
+dialang.attachGapCompletionTest = function () {
+
+    var inputs = null;
+
+    if ('gaptext' === dialang.pass.currentBasketType) {
+        inputs = $('#radios > span > input');
+    } else if ('shortanswer' === dialang.pass.currentBasketType) {
+        inputs = $('#radios > input');
+    } else if ('gapdrop' === dialang.pass.currentBasketType) {
+        inputs = $('#radios > span > select');
+        inputs.change(function (e) {
+            return dialang.gapCompletionTest(inputs);
+        });
+    }
+
+    if ('shortanswer' === dialang.pass.currentBasketType
+        || 'gaptext' === dialang.pass.currentBasketType) {
+
+        inputs.keyup(function (e) {
+            return dialang.gapCompletionTest(inputs);
+        });
+    }
+};
+
 dialang.switchState = function (state) {
 
     if ('als' == state && dialang.flags.hideALS) {
@@ -135,12 +228,12 @@ dialang.switchState = function (state) {
 }; 
 // TEST MODE ONLY !!!!!!!
 /*
-dialang.state = 'test';
+dialang.state = 'testintro';
 dialang.session.al = 'eng_gb';
-dialang.session.tl = 'spa_es';
-dialang.session.itemLevel = 'A2';
-dialang.session.testDone = 'true';
-dialang.session.skill = 'reading';
+dialang.session.tl = 'dan_da';
+//dialang.session.itemLevel = 'A2';
+//dialang.session.testDone = 'true';
+dialang.session.skill = 'writing';
 */
 // TEST MODE ONLY !!!!!!!
 
