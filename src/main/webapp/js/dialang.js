@@ -259,7 +259,6 @@ $.get('/dialang-content/save/' + dialang.session.al + '.html', function (saveDia
         modal: true,
         width: 'auto',
         height: 300,
-        width: 'auto',
         autoOpen: false,
         resizable: false
     });
