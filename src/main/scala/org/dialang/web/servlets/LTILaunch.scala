@@ -44,7 +44,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         }
     }
 
-	post("/") {
+  post("/") {
 
     logger.debug("LTILaunch.post")
 
@@ -54,6 +54,14 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
     try {
       validate(params, message)
+
+      params.get(BasicLTIConstants.ROLES) match {
+        case Some(roles: String) => {
+          if (roles.contains("Instructor") || roles.contains("Teacher")) {
+            true
+          }
+        }
+      }
 
       // We're validated, store the user id and consumer key in the session
       val dialangSession = getDialangSession
@@ -75,7 +83,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         logger.debug(dialangSession.tes.toString)
       }
 
-      dialangSession.tes = getTestExecutionScript(params, dialangSession)
+      dialangSession.tes = getOrBuildTestExecutionScript(params, dialangSession)
 
       if (dialangSession.tes.al == "") {
         // Still no admin language, launch the als screen.
@@ -147,7 +155,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     }
 	}
 
-  private def getTestExecutionScript(params: Map[String, String], dialangSession: DialangSession): TES = {
+  private def getOrBuildTestExecutionScript(params: Map[String, String], dialangSession: DialangSession): TES = {
 
     val tesUrl = params.getOrElse(TESURLKey, "")
 
