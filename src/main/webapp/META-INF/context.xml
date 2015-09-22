@@ -21,4 +21,8 @@
          maxActive="20"
          maxIdle="10"
          validationQuery="select 1" />
+    <!--Manager className="de.javakaffee.web.msm.MemcachedBackupSessionManager"
+        memcachedNodes="n1:127.0.0.1:11211"
+        requestUriIgnorePattern=".*\.(ico|png|gif|jpg|css|js)$"
+    /-->
  </Context>

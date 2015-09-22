@@ -29,16 +29,16 @@ dialang.setupKeyboardButton();
 $.get('/dialang-content/testintro/' + dialang.session.al + '.html', function (data) {
 
     $('#content').html(data);
-    if(!dialang.flags.disallowInstantFeedback) {
+    if (!dialang.flags.disallowInstantFeedback) {
         $('#feedback-button').click(function (e) {
 
-            if(dialang.session.instantFeedbackOn) {
+            if (dialang.session.instantFeedbackOn) {
                 dialang.session.instantFeedbackOn = false;
-                $(this).attr('title', instantFeedbackOnTooltip)
+                $(this).attr('title', dialang.currentToolbarTooltips.instantfeedbackontooltip)
                     .find('img').attr('src',"/images/instantFeedbackOff.gif");
             } else {
                 dialang.session.instantFeedbackOn = true;
-                $(this).attr('title', instantFeedbackOffTooltip)
+                $(this).attr('title', dialang.currentToolbarTooltips.instantfeedbackofftooltip)
                     .find('img').attr('src',"/images/instantFeedbackOn.gif");
             }
             return false;

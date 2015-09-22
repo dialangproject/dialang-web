@@ -26,10 +26,6 @@ dialang.keyboardMappings = {
     "swe_se": "swedish-qwerty"
 };
 
-for (var language in $.keyboard.language) {
-    console.log(language);
-}
-
 $('#help').click(function (e) {
     $('#help-dialog').dialog('open');
 });
@@ -210,6 +206,8 @@ dialang.switchState = function (state) {
 
     if ('test' !== state) {
         $.get('/dialang-content/' + state + '/' + dialang.session.al + '-toolbarTooltips.json', function (tips) {
+
+            dialang.currentToolbarTooltips = tips;
 
             $('#skipback').attr('title', tips.skipback);
             $('#back').attr('title', tips.back);

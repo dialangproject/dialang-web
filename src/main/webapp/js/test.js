@@ -59,29 +59,30 @@ if (!dialang.session.reviewMode) {
         return false;
     });
 
+    if (dialang.flags.disallowInstantFeedback) {
+        $('#instantfeedback').hide();
+    }
+
     if (!dialang.nextBasketTooltip || !dialang.quitTestTooltip || !dialang.instantFeedbackOnTooltip || !dialang.instantFeedbackOffTooltip) {
         $.get('/dialang-content/baskets/' + dialang.session.al + '-toolbarTooltips.json', function (tips) {
 
             dialang.nextBasketTooltip = tips.next;
             dialang.quitTestTooltip = tips.skipforward;
-            dialang.instantFeedbackOnTooltip = tips.instantFeedbackOnTooltip;
-            dialang.instantFeedbackOffTooltip = tips.instantFeedbackOffTooltip;
+            dialang.instantFeedbackOnTooltip = tips.instantfeedbackontooltip;
+            dialang.instantFeedbackOffTooltip = tips.instantfeedbackofftooltip;
             $('#next').attr('title', dialang.nextBasketTooltip);
             $('#skipforward').attr('title', dialang.quitTestTooltip);
+
+            if (dialang.session.instantFeedbackOn) {
+                $('#instantfeedback').show().attr('title', dialang.instantFeedbackOffTooltip).find('img').attr('src', '/images/instantFeedbackOn.gif');
+            } else {
+                $('#instantfeedback').show().attr('title', dialang.instantFeedbackOnTooltip).find('img').attr('src', '/images/instantFeedbackOff.gif');
+            }
         });
     }
 
-    if (!dialang.flags.disallowInstantFeedback) {
-        if (dialang.session.instantFeedbackOn) {
-            $('#instantfeedback').show().attr('title', dialang.instantFeedbackOffTooltip).find('img').attr('src', '/images/instantFeedbackOn.gif');
-        } else {
-            $('#instantfeedback').show().attr('title', dialang.instantFeedbackOnTooltip).find('img').attr('src', '/images/instantFeedbackOff.gif');
-        }
-    } else {
-        $('#instantfeedback').hide();
-    }
-
     $('#instantfeedback').off('click').click(function (e) {
+
         if (dialang.session.instantFeedbackOn) {
             dialang.session.instantFeedbackOn = false;
             $(this).attr('title', dialang.instantFeedbackOnTooltip)
