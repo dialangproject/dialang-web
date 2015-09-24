@@ -3,7 +3,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 war.eachFile {
 
     if (name == 'context.xml') {
-        filter(ReplaceTokens, tokens: ['db.user': 'dialangadmin', 'db.password': 'dialangadmin', 'db.host': 'localhost'])
+        filter(ReplaceTokens, tokens: ['db.user': 'dialangadmin', 'db.password': 'dialangadmin', 'db.host': 'localhost', 'memcached.host': '127.0.0.1', 'memcached.port': '11211'])
     } else if (name == 'web.xml') {
         filter(ReplaceTokens, tokens: ['lti.launch.url': ''])
     }
