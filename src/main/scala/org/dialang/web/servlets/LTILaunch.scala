@@ -58,88 +58,14 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       params.get(BasicLTIConstants.ROLES) match {
         case Some(roles: String) => {
           if (roles.contains("Instructor") || roles.contains("Teacher")) {
-            true
-          }
-        }
-      }
-
-      // We're validated, store the user id and consumer key in the session
-      val dialangSession = getDialangSession
-
-      // Each LTI launch is a new session, so clear it.
-      dialangSession.clear()
-
-      dialangSession.started = ((new Date).getTime) / 1000L
-
-      // validate checks that these are present
-      dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
-      dialangSession.consumerKey = params.get("oauth_consumer_key").get
-
-      if (logger.isDebugEnabled) {
-        logger.debug("userId:" + dialangSession.userId)
-      }
-      
-      if (logger.isDebugEnabled) {
-        logger.debug(dialangSession.tes.toString)
-      }
-
-      dialangSession.tes = getOrBuildTestExecutionScript(params, dialangSession)
-
-      if (dialangSession.tes.al == "") {
-        // Still no admin language, launch the als screen.
-        saveDialangSession(dialangSession)
-        contentType = "text/html"
-        redirect("getals")
-      } else {
-        // An admin language has been specified
-        if (ValidityChecks.adminLanguageExists(dialangSession.tes.al)) {
-          if (dialangSession.tes.tl == "" || dialangSession.tes.skill == "") {
-            // ... but the test language and skill have not
-            saveDialangSession(dialangSession)
-            renderPostALSView(dialangSession.tes, "legend")
+            val al = getLTILaunchLocale(params)
+            contentType = "text/html"
+            mustache("shell","state" -> "instructormenu", "al" -> getLTILaunchLocale(params))
           } else {
-            if (ValidityChecks.testLanguageExists(dialangSession.tes.tl) && ValidityChecks.skillExists(dialangSession.tes.skill)) {
-              dialangSession.sessionId = UUID.randomUUID.toString
-              dialangSession.passId = UUID.randomUUID.toString
-              dialangSession.ipAddress = request.remoteAddress
-              saveDialangSession(dialangSession)
-
-              // An admin languge, test language and skill have been specified as
-              // launch parameters, so we can create a data capture session.
-              // Usually, this happens after the TLS screen, in SetTLS.scala.
-              dataCapture.createSessionAndPass(dialangSession)
-
-              val initialState = {
-                  if (!dialangSession.tes.hideVSPT) "vsptintro"
-                  else if (!dialangSession.tes.hideSA) "saintro"
-                  else if (!dialangSession.tes.hideTest) "endoftest"
-                  else "testintro"
-                }
-
-              contentType = "text/html"
-              mustache("shell","state" -> initialState,
-                                  "al" -> dialangSession.tes.al,
-                                  "tl" -> dialangSession.tes.tl,
-                                  "skill" -> dialangSession.tes.skill,
-                                  "hideALS" -> true,
-                                  "hideTLS" -> true,
-                                  "hideVSPT" -> dialangSession.tes.hideVSPT,
-                                  "hideVSPTResult" -> dialangSession.tes.hideVSPTResult,
-                                  "hideSA" -> dialangSession.tes.hideSA,
-                                  "hideTest" -> dialangSession.tes.hideTest,
-                                  "hideFeedbackMenu" -> dialangSession.tes.hideFeedbackMenu,
-                                  "disallowInstantFeedback" -> dialangSession.tes.disallowInstantFeedback)
-            } else {
-              logger.warn("Invalid test language '" + dialangSession.tes.tl + "' supplied. Rendering the TLS view ...")
-              saveDialangSession(dialangSession)
-              renderPostALSView(dialangSession.tes, "tls")
-            }
+            launchNonInstructor(params)
           }
-        } else {
-          logger.warn("Invalid admin language '" + dialangSession.tes.al + "' supplied. Rendering the ALS view ...")
-          contentType = "text/html"
-          redirect("getals")
         }
+        case _ => launchNonInstructor(params)
       }
     } catch {
       case e: Exception => {
@@ -153,7 +79,89 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         </html>
       }
     }
-	}
+  }
+
+  private def launchNonInstructor(params: Map[String, String]) = {
+
+    // We're validated, store the user id and consumer key in the session
+    val dialangSession = getDialangSession
+
+    // Each LTI launch is a new session, so clear it.
+    dialangSession.clear()
+
+    dialangSession.started = ((new Date).getTime) / 1000L
+
+    // validate checks that these are present
+    dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
+    dialangSession.consumerKey = params.get("oauth_consumer_key").get
+
+    if (logger.isDebugEnabled) {
+      logger.debug("userId:" + dialangSession.userId)
+    }
+    
+    if (logger.isDebugEnabled) {
+      logger.debug(dialangSession.tes.toString)
+    }
+
+    dialangSession.tes = getOrBuildTestExecutionScript(params, dialangSession)
+
+    if (dialangSession.tes.al == "") {
+      // Still no admin language, launch the als screen.
+      saveDialangSession(dialangSession)
+      contentType = "text/html"
+      redirect("getals")
+    } else {
+      // An admin language has been specified
+      if (ValidityChecks.adminLanguageExists(dialangSession.tes.al)) {
+        if (dialangSession.tes.tl == "" || dialangSession.tes.skill == "") {
+          // ... but the test language and skill have not
+          saveDialangSession(dialangSession)
+          renderPostALSView(dialangSession.tes, "legend")
+        } else {
+          if (ValidityChecks.testLanguageExists(dialangSession.tes.tl) && ValidityChecks.skillExists(dialangSession.tes.skill)) {
+            dialangSession.sessionId = UUID.randomUUID.toString
+            dialangSession.passId = UUID.randomUUID.toString
+            dialangSession.ipAddress = request.remoteAddress
+            saveDialangSession(dialangSession)
+
+            // An admin languge, test language and skill have been specified as
+            // launch parameters, so we can create a data capture session.
+            // Usually, this happens after the TLS screen, in SetTLS.scala.
+            dataCapture.createSessionAndPass(dialangSession)
+
+            val initialState = {
+                if (!dialangSession.tes.hideVSPT) "vsptintro"
+                else if (!dialangSession.tes.hideSA) "saintro"
+                else if (!dialangSession.tes.hideTest) "endoftest"
+                else "testintro"
+              }
+
+            contentType = "text/html"
+            mustache("shell","state" -> initialState,
+                                "al" -> dialangSession.tes.al,
+                                "tl" -> dialangSession.tes.tl,
+                                "skill" -> dialangSession.tes.skill,
+                                "hideALS" -> true,
+                                "hideTLS" -> true,
+                                "hideVSPT" -> dialangSession.tes.hideVSPT,
+                                "hideVSPTResult" -> dialangSession.tes.hideVSPTResult,
+                                "hideSA" -> dialangSession.tes.hideSA,
+                                "hideTest" -> dialangSession.tes.hideTest,
+                                "hideFeedbackMenu" -> dialangSession.tes.hideFeedbackMenu,
+                                "disallowInstantFeedback" -> dialangSession.tes.disallowInstantFeedback)
+          } else {
+            logger.warn("Invalid test language '" + dialangSession.tes.tl + "' supplied. Rendering the TLS view ...")
+            saveDialangSession(dialangSession)
+            renderPostALSView(dialangSession.tes, "tls")
+          }
+        }
+      } else {
+        logger.warn("Invalid admin language '" + dialangSession.tes.al + "' supplied. Rendering the ALS view ...")
+        contentType = "text/html"
+        redirect("getals")
+      }
+    }
+  }
 
   private def getOrBuildTestExecutionScript(params: Map[String, String], dialangSession: DialangSession): TES = {
 
@@ -184,10 +192,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       // parameters, try and get the LTI launch locale.
       val al = params.get(AdminLanguageKey) match {
           case Some(s: String) => s
-          case _ => params.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE) match {
-            case Some(s1: String) => db.ltiLocaleLookup.getOrElse(s1, "")
-            case _ => ""
-          }
+          case _ => getLTILaunchLocale(params)
         }
       val tl = params.getOrElse(TestLanguageKey, "")
       val skill = params.getOrElse(TestSkillKey, "")
@@ -296,5 +301,13 @@ class LTILaunch extends DialangServlet with ScalateSupport {
                         "hideTest" -> tes.hideTest,
                         "hideFeedbackMenu" -> tes.hideFeedbackMenu,
                         "disallowInstantFeedback" -> tes.disallowInstantFeedback)
+  }
+
+  private def getLTILaunchLocale(params: Map[String, String]) = {
+
+    params.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE) match {
+      case Some(s: String) => db.ltiLocaleLookup.getOrElse(s, "")
+      case _ => ""
+    }
   }
 }
