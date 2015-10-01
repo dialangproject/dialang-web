@@ -4,7 +4,7 @@ import net.oauth._
 import net.oauth.server.OAuthServlet
 import net.oauth.signature.OAuthSignatureMethod
 
-import org.dialang.web.model.{DialangSession, TES}
+import org.dialang.web.model.{DialangSession, InstructorSession, TES}
 import org.dialang.web.util.{HashUtils, ValidityChecks}
 
 import scala.collection.JavaConversions._
@@ -59,6 +59,9 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         case Some(roles: String) => {
           if (roles.contains("Instructor") || roles.contains("Teacher")) {
             val al = getLTILaunchLocale(params)
+            val oauthConsumerKey = params.get(OAuth.OAUTH_CONSUMER_KEY).get
+            val instructorSession = new InstructorSession(oauthConsumerKey, al)
+            saveInstructorSession(instructorSession)
             contentType = "text/html"
             mustache("shell","state" -> "instructormenu", "al" -> getLTILaunchLocale(params))
           } else {
@@ -93,7 +96,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
     // validate checks that these are present
     dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
-    dialangSession.consumerKey = params.get("oauth_consumer_key").get
+    dialangSession.consumerKey = params.get(OAuth.OAUTH_CONSUMER_KEY).get
 
     if (logger.isDebugEnabled) {
       logger.debug("userId:" + dialangSession.userId)
@@ -243,7 +246,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         }
       }
 
-    val oauth_consumer_key = payload.get("oauth_consumer_key") match {
+    val oauth_consumer_key = payload.get(OAuth.OAUTH_CONSUMER_KEY) match {
         case Some(s: String) => s
         case None => {
           throw new Exception("launch.invalid. Missing oauth_consumer_key.")

@@ -5,8 +5,12 @@ import java.util.Date
 import javax.naming.InitialContext
 import javax.sql.DataSource
 
+import net.oauth.OAuth
+
 import org.dialang.common.model.ImmutableItem
 import org.dialang.web.model.DialangSession
+
+import scala.collection.mutable.ListBuffer
 
 import org.slf4j.LoggerFactory
 
@@ -637,5 +641,122 @@ class DataCaptureImpl(dsUrl: String) {
         } catch { case _ : SQLException => }
       }
     }
+  }
+
+  def getScores(consumerKey: String, fromDate: String, toDate: String) = {
+
+    lazy val conn = ds.getConnection
+
+    val vsptQuery = "SELECT level FROM vsp_test_scores WHERE pass_id = ?"
+
+    lazy val vsptST = conn.prepareStatement(vsptQuery)
+
+    val saQuery = "SELECT level FROM sa_scores WHERE pass_id = ?"
+
+    lazy val saST = conn.prepareStatement(saQuery)
+
+    val testQuery = "SELECT level FROM test_results WHERE pass_id = ?"
+
+    lazy val testST = conn.prepareStatement(testQuery)
+
+    var passesQuery = 
+      """SELECT s.user_id,p.*,s.ip_address FROM sessions as s, passes as p
+            WHERE s.id = p.session_id
+              AND s.consumer_key = ?"""
+
+    if (fromDate != "") {
+      passesQuery += "AND p.started > ?"
+    }
+
+    if (toDate != "") {
+      passesQuery += "AND p.started < ?"
+    }
+
+    lazy val passesST = conn.prepareStatement(passesQuery)
+
+    val list = new ListBuffer[Tuple5[String, String, String, String, String]]
+
+    try {
+      passesST.setString(1, consumerKey)
+      if (fromDate != "") {
+        passesST.setDouble(2, fromDate.toDouble)
+      }
+      if (toDate != "") {
+        passesST.setDouble(3, toDate.toDouble)
+      }
+      val passesRS = passesST.executeQuery
+
+      while (passesRS.next) {
+        val userId = passesRS.getString("user_id")
+        logger.debug("userId: " + userId)
+
+        val passId = passesRS.getString("id")
+        logger.debug("passId: " + passId)
+
+        val vsptLevel = {
+            vsptST.setString(1, passId)
+            val vsptRS = vsptST.executeQuery
+            if (vsptRS.next) {
+              vsptRS.getString("level")
+            } else {
+              ""
+            }
+          }
+
+        logger.debug("vsptLevel: " + vsptLevel)
+
+        val saLevel = {
+            saST.setString(1, passId)
+            val saRS = saST.executeQuery
+            if (saRS.next) {
+              saRS.getString("level")
+            } else {
+              ""
+            }
+          }
+
+        logger.debug("saLevel: " + saLevel)
+
+        val testLevel = {
+            testST.setString(1, passId)
+            val testRS = testST.executeQuery
+            if (testRS.next) {
+              testRS.getString("level")
+            } else {
+              ""
+            }
+          }
+
+        logger.debug("testLevel: " + testLevel)
+
+        /*
+        list += Map("passId" -> passId,
+                      "userId" -> userId,
+                      "vsptLevel" -> vsptLevel,
+                      "saLevel" -> saLevel,
+                      "testLevel" -> testLevel)
+        */
+
+        list += ((passId, userId, vsptLevel, saLevel, testLevel))
+      }
+      passesRS.close()
+    } catch {
+      case _: Throwable => {
+        logger.error("Caught exception whilst deleting token.")
+      }
+    } finally {
+      if (passesST != null) {
+        try {
+          passesST.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if (conn != null) {
+        try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+    list.toList
   }
 }

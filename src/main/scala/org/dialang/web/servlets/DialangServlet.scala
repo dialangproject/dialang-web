@@ -1,6 +1,6 @@
 package org.dialang.web.servlets
 
-import org.dialang.web.model.DialangSession
+import org.dialang.web.model.{DialangSession, InstructorSession}
 import org.dialang.web.datacapture.DataCapture
 import org.dialang.web.util.HashUtils
 
@@ -22,7 +22,16 @@ class DialangServlet extends ScalatraServlet {
 
   protected val db = DBFactory.get()
 
+  private val instructorSessionKey = "dialangInstructorSession"
+
   private val dialangSessionKey = "dialangSession"
+
+  protected def getInstructorSession = session.get(instructorSessionKey)
+
+  protected def saveInstructorSession(instructorSession: InstructorSession) {
+
+    session += (instructorSessionKey -> instructorSession)
+  }
 
   /**
    * Gets the existing, or creates a new, DialangSession

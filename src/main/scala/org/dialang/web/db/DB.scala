@@ -361,6 +361,7 @@ class DB(datasourceUrl: String) extends DialangLogger {
     }
 
   private val itemGradesCache: Map[String, Map[String, Map[Int, ItemGrades]]] = {
+
       debug("Caching item grades ...")
 
       lazy val conn = ds.getConnection

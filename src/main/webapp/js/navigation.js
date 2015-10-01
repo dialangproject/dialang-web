@@ -89,6 +89,12 @@ dialang.navigation.nextRules = {
 
 dialang.navigation.backRules = {
 
+    allusersreportmenu: function () {
+        return dialang.switchState('instructormenu');
+    },
+    singleuserreportmenu: function () {
+        return dialang.switchState('instructormenu');
+    },
     legend: function () {
         return dialang.switchState('als');
     },
