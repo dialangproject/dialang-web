@@ -4,6 +4,9 @@ import org.dialang.web.model.InstructorSession
 
 import org.scalatra.scalate.ScalateSupport
 
+import java.util.{Date, Locale, TimeZone}
+import java.text.DateFormat
+
 import scala.collection.JavaConversions._
 
 import org.slf4j.LoggerFactory
@@ -17,6 +20,7 @@ class GetLTIStudentReport extends DialangServlet with ScalateSupport {
   get("/") {
 
     getInstructorSession match {
+
       case Some(session: InstructorSession) => {
         val fromDate = params("fromDate")
         val toDate = params("toDate")
@@ -27,23 +31,28 @@ class GetLTIStudentReport extends DialangServlet with ScalateSupport {
           logger.debug("toDate: " + toDate);
         }
 
-        //val list: List[Tuple5[String, String, String, String, String]] = dataCapture.getScores(session.consumerKey, fromDate, toDate)
-        //val list: List[Tuple5[String, String, String, String, String]] = dataCapture.getScores(session.consumerKey, fromDate, toDate)
         val list = dataCapture.getScores(session.consumerKey, fromDate, toDate)
 
         val csv = new StringBuilder
-        csv.append("pass_id,user_id,vspt_level,sa_level,test_level\n")
+        csv.append("user_id,vspt_level,sa_level,test_level,started\n")
 
-        list.forEach(t => {
+        list.foreach(t => {
+
+          val formatter = DateFormat.getInstance
+          formatter.setTimeZone(TimeZone.getTimeZone("UTC"))
+          val startedDate = formatter.format(new Date(t._5.asInstanceOf[Long]))
 
           csv.append(t._1).append(",")
             .append(t._2) .append(",")
             .append(t._3) .append(",")
             .append(t._4) .append(",")
-            .append(t._5) .append("\n")
+            .append(startedDate) .append("\n")
         })
+        contentType = "text/csv"
+        csv
       }
       case None => {
+
         logger.error("No instructor session. Halting ...")
         halt(403)
       }

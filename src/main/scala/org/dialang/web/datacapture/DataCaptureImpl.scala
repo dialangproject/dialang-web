@@ -674,7 +674,7 @@ class DataCaptureImpl(dsUrl: String) {
 
     lazy val passesST = conn.prepareStatement(passesQuery)
 
-    val list = new ListBuffer[Tuple5[String, String, String, String, String]]
+    val list = new ListBuffer[Tuple5[String, String, String, String, Double]]
 
     try {
       passesST.setString(1, consumerKey)
@@ -692,6 +692,9 @@ class DataCaptureImpl(dsUrl: String) {
 
         val passId = passesRS.getString("id")
         logger.debug("passId: " + passId)
+
+        val started = passesRS.getDouble("started") * 1000
+        logger.debug("started: " + started)
 
         val vsptLevel = {
             vsptST.setString(1, passId)
@@ -729,15 +732,7 @@ class DataCaptureImpl(dsUrl: String) {
 
         logger.debug("testLevel: " + testLevel)
 
-        /*
-        list += Map("passId" -> passId,
-                      "userId" -> userId,
-                      "vsptLevel" -> vsptLevel,
-                      "saLevel" -> saLevel,
-                      "testLevel" -> testLevel)
-        */
-
-        list += ((passId, userId, vsptLevel, saLevel, testLevel))
+        list += ((userId, vsptLevel, saLevel, testLevel, started))
       }
       passesRS.close()
     } catch {
