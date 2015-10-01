@@ -110,6 +110,7 @@ class ScoringMethods {
                   scoredItem.correct = true
                   scoredItem.score = item.weight
                 } else {
+                  // Score will remain 0
                   scoredItem.correct = false
                 }
                 Some(scoredItem)
@@ -163,27 +164,23 @@ class ScoringMethods {
       }
   }
 
-  def getItemGrade(tl: String, skill: String, bookletId: Int, results: List[ImmutableItem]): Tuple2[Int, String] = {
+  def getItemGrade(tl: String, skill: String, bookletId: Int, scoredItems: List[ImmutableItem]): Tuple2[Int, String] = {
 
-    if (logger.isDebugEnabled) logger.debug("NUM ITEMS: " + results.length)
+    if (logger.isDebugEnabled) logger.debug("NUM ITEMS: " + scoredItems.length)
 
-    // results contains the set of results for the entire test - ie the
-    // results for each item type.
+    val (rawScore, totalWeight) = scoredItems.foldLeft((0,0))( (t, item) => (t._1 + item.score, t._2 + item.weight) )
 
-    val (rawScore, weight) = results.foldLeft((0,0))( (t, item) => (t._1 + item.score, t._2 + item.weight) )
+    if (logger.isDebugEnabled) {
+      logger.debug("RAW SCORE: " + rawScore)
+      logger.debug("TOTAL WEIGHT: " + totalWeight)
+    }
 
     val itemGrades = db.getItemGrades(tl, skill, bookletId)
 
-    // normalize:
-    val normalisedRawScore = ((rawScore.toFloat) * (itemGrades.max / weight.toFloat)).toInt
-
-    if (logger.isDebugEnabled) logger.debug("NORMALISED RAW SCORE: " + normalisedRawScore)
-    if (logger.isDebugEnabled) logger.debug("WEIGHT: " + weight)
-
-    val itemGrade = itemGrades.get(normalisedRawScore) match {
+    val itemGrade = itemGrades.get(rawScore) match {
         case Some(ig) => ig
         case None => {
-          logger.error("No item grade for normalised raw score " + normalisedRawScore + ".")
+          logger.error("No item grade for raw score " + rawScore + ".")
           new ItemGrade(0,0,0)
         }
       }
