@@ -33,9 +33,21 @@ class ScoringMethods {
 	 */
   def calculateBookletId(session: DialangSession): Int = {
 
-    if (!session.vsptSubmitted && !session.saSubmitted) {
+    if (session.tes.testDifficulty != "") {
+      session.tes.testDifficulty match {
+        case "easy" => {
+          db.preestAssign.getEasyBookletId(session.tes.tl, session.tes.skill)
+        }
+        case "medium" => {
+          db.preestAssign.getMediumBookletId(session.tes.tl, session.tes.skill)
+        }
+        case "hard" => {
+          db.preestAssign.getHardBookletId(session.tes.tl, session.tes.skill)
+        }
+      }
+    } else if (!session.vsptSubmitted && !session.saSubmitted) {
       // No sa or vspt, request the default assignment.
-      db.preestAssign.getMiddleBookletId(session.tes.tl, session.tes.skill)
+      db.preestAssign.getMediumBookletId(session.tes.tl, session.tes.skill)
     } else {
       // if either test is done, then we need to get the grade 
       // associated with that test:
@@ -52,14 +64,12 @@ class ScoringMethods {
       db.preestWeights.get(session.tes.tl, session.tes.skill, session.vsptSubmitted, session.saSubmitted) match {
         case Some(m: Map[String, Float]) => {
           val pe =  (saPPE * m.get("sa").get) + (vsptZScore * m.get("vspt").get) + m.get("coe").get
-
           // finaly look up the assignment for the resulting values:
           db.preestAssign.getBookletId(session.tes.tl, session.tes.skill, pe)
         }
         case _ => {
-          if (logger.isInfoEnabled) logger.info("No weight returned. The middle booklet will be returned.") {
-            db.preestAssign.getMiddleBookletId(session.tes.tl,session.tes.skill)
-          }
+          if (logger.isInfoEnabled) logger.info("No weight returned. The medium booklet will be returned.")
+          db.preestAssign.getMediumBookletId(session.tes.tl,session.tes.skill)
         }
       }
     }

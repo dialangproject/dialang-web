@@ -6,11 +6,22 @@ import org.slf4j.LoggerFactory;
 /**
  * We're representing records (mappings of booket id onto personal estimation pe), by Tuple2 instances.
  */
-class PreestAssign(assign: Map[String,Vector[(Float,Int)]]) {
+class PreestAssign(assign: Map[String, Vector[(Float, Int)]]) {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  def getMiddleBookletId(tl: String,skill: String):Int = {
+  def getEasyBookletId(tl: String, skill: String): Int = {
+
+    // Get the first element. They've been sorted already.
+    val bookletId = assign.get(tl + "#" + skill).get.head._2
+
+    if(logger.isDebugEnabled) logger.debug("Booklet ID: " + bookletId)
+
+    bookletId
+  }
+
+  def getMediumBookletId(tl: String, skill: String): Int = {
+
     val list = assign.get(tl + "#" + skill).get
 
     // Get the middle element.
@@ -19,7 +30,17 @@ class PreestAssign(assign: Map[String,Vector[(Float,Int)]]) {
     bookletId
   }
 
-  def getBookletId(tl: String,skill: String,pe: Float):Int = {
+  def getHardBookletId(tl: String, skill: String): Int = {
+
+    // Get the last element. They've been sorted already.
+    val bookletId = assign.get(tl + "#" + skill).get.last._2
+
+    if(logger.isDebugEnabled) logger.debug("Booklet ID: " + bookletId)
+
+    bookletId
+  }
+
+  def getBookletId(tl: String, skill: String, pe: Float): Int = {
 
     if(logger.isDebugEnabled) logger.debug("PE: " + pe)
 

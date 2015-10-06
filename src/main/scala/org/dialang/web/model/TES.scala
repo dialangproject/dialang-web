@@ -13,5 +13,5 @@ case class TES(id: String,
                 disallowInstantFeedback: Boolean,
                 testCompleteUrl: String) {
 
-  def this() = this("", "", "", "", false, false, false, false, "medium", false, false, "")
+  def this() = this("", "", "", "", false, false, false, false, "", false, false, "")
 }
