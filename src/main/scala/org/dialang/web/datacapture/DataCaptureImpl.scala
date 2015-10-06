@@ -686,7 +686,7 @@ class DataCaptureImpl(dsUrl: String) {
 
     lazy val passesST = conn.prepareStatement(passesQuery)
 
-    val list = new ListBuffer[Tuple5[String, String, String, String, Double]]
+    val list = new ListBuffer[Tuple7[String, String, String, String, String, String, Double]]
 
     try {
       passesST.setString(1, consumerKey)
@@ -701,17 +701,15 @@ class DataCaptureImpl(dsUrl: String) {
         val pos = if (flag == 1) 2 else if (flag == 3) 3 else 4
         passesST.setString(pos, userId)
       }
+
       val passesRS = passesST.executeQuery
 
       while (passesRS.next) {
         val userId = passesRS.getString("user_id")
-        logger.debug("userId: " + userId)
-
         val passId = passesRS.getString("id")
-        logger.debug("passId: " + passId)
-
+        val al = passesRS.getString("al")
+        val tl = passesRS.getString("tl")
         val started = passesRS.getDouble("started")
-        logger.debug("started: " + started)
 
         val vsptLevel = {
             vsptST.setString(1, passId)
@@ -723,8 +721,6 @@ class DataCaptureImpl(dsUrl: String) {
             }
           }
 
-        logger.debug("vsptLevel: " + vsptLevel)
-
         val saLevel = {
             saST.setString(1, passId)
             val saRS = saST.executeQuery
@@ -734,8 +730,6 @@ class DataCaptureImpl(dsUrl: String) {
               ""
             }
           }
-
-        logger.debug("saLevel: " + saLevel)
 
         val testLevel = {
             testST.setString(1, passId)
@@ -747,9 +741,18 @@ class DataCaptureImpl(dsUrl: String) {
             }
           }
 
-        logger.debug("testLevel: " + testLevel)
+        if (logger.isDebugEnabled) {
+          logger.debug("userId: " + userId)
+          logger.debug("passId: " + passId)
+          logger.debug("al: " + al)
+          logger.debug("tl: " + tl)
+          logger.debug("started: " + started)
+          logger.debug("vsptLevel: " + vsptLevel)
+          logger.debug("saLevel: " + saLevel)
+          logger.debug("testLevel: " + testLevel)
+        }
 
-        list += ((userId, vsptLevel, saLevel, testLevel, started))
+        list += ((userId, al, tl, vsptLevel, saLevel, testLevel, started))
       }
       passesRS.close()
     } catch {

@@ -39,9 +39,9 @@ class DialangSession extends Serializable with DialangLogger {
   def started = _started
 
   /**
-   * Resets all state except adminLanguage
+   * Resets all state except sessionId and adminLanguage
    */
-  def clear() {
+  def clearPass() {
 
     debug("Resetting all state except the adminLanguage and sessionId ...")
 
@@ -66,6 +66,12 @@ class DialangSession extends Serializable with DialangLogger {
     nextBasketId = 0
     scoredItemList = List[ImmutableItem]()
     scoredBasketList = List[Basket]()
+  }
+
+  def clearSession() {
+
+    clearPass()
+    sessionId = ""
   }
 
   def toCase(): DialangSessionCase = {

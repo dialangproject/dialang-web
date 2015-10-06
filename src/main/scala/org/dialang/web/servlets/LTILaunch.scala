@@ -90,7 +90,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     val dialangSession = getDialangSession
 
     // Each LTI launch is a new session, so clear it.
-    dialangSession.clear()
+    dialangSession.clearSession()
 
     dialangSession.started = new Date
 
