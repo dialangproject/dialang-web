@@ -33,7 +33,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
   private val HideVSPTResultKey = "custom_hide_vspt_result"
   private val HideSAKey = "custom_hide_sa"
   private val HideTestKey = "custom_hide_test"
-  private val TestDifficultyKey = "custom__test_difficulty"
+  private val TestDifficultyKey = "custom_test_difficulty"
   private val HideFeedbackMenuKey = "custom_hide_feedback_menu"
   private val TESURLKey = "custom_tes_url"
 

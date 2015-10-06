@@ -14,10 +14,4 @@ case class TES(id: String,
                 testCompleteUrl: String) {
 
   def this() = this("", "", "", "", false, false, false, false, "medium", false, false, "")
-  /*
-  def toMap = {
-    Map(
-      "id" -> 
-  }
-  */
 }

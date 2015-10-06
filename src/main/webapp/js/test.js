@@ -73,10 +73,12 @@ if (!dialang.session.reviewMode) {
             $('#next').attr('title', dialang.nextBasketTooltip);
             $('#skipforward').attr('title', dialang.quitTestTooltip);
 
-            if (dialang.session.instantFeedbackOn) {
-                $('#instantfeedback').show().attr('title', dialang.instantFeedbackOffTooltip).find('img').attr('src', '/images/instantFeedbackOn.gif');
-            } else {
-                $('#instantfeedback').show().attr('title', dialang.instantFeedbackOnTooltip).find('img').attr('src', '/images/instantFeedbackOff.gif');
+            if (!dialang.flags.disallowInstantFeedback) {
+                if (dialang.session.instantFeedbackOn) {
+                    $('#instantfeedback').show().attr('title', dialang.instantFeedbackOffTooltip).find('img').attr('src', '/images/instantFeedbackOn.gif');
+                } else {
+                    $('#instantfeedback').show().attr('title', dialang.instantFeedbackOnTooltip).find('img').attr('src', '/images/instantFeedbackOff.gif');
+                }
             }
         });
     }
