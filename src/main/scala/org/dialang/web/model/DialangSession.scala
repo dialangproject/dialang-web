@@ -2,6 +2,7 @@ package org.dialang.web.model
 
 import org.dialang.web.util.DialangLogger
 import org.dialang.common.model.ImmutableItem
+import java.util.Date
 
 class DialangSession extends Serializable with DialangLogger {
 
@@ -9,7 +10,6 @@ class DialangSession extends Serializable with DialangLogger {
   var consumerKey = ""
   var sessionId = ""
   var ipAddress = ""
-  var started = 0L
   var passId = ""
   var vsptSubmitted = false
   var saSubmitted = false
@@ -33,10 +33,15 @@ class DialangSession extends Serializable with DialangLogger {
   /* Test Execution Script */
   var tes = new TES
 
+  private var _started = 0L
+  def started_=(startedDate: Date) { _started = startedDate.getTime / 1000L }
+  def started_=(startedTimestamp: Long) { _started = startedTimestamp }
+  def started = _started
+
   /**
-   * Resets all state except adminLanguage
+   * Resets all state except sessionId and adminLanguage
    */
-  def clear() {
+  def clearPass() {
 
     debug("Resetting all state except the adminLanguage and sessionId ...")
 
@@ -61,6 +66,12 @@ class DialangSession extends Serializable with DialangLogger {
     nextBasketId = 0
     scoredItemList = List[ImmutableItem]()
     scoredBasketList = List[Basket]()
+  }
+
+  def clearSession() {
+
+    clearPass()
+    sessionId = ""
   }
 
   def toCase(): DialangSessionCase = {

@@ -161,4 +161,6 @@ class DataCapture(dsUrl: String) {
   }
 
   def deleteToken(token: String): Boolean = dataCapture.deleteToken(token)
+
+  def getScores(consumerKey: String, fromDate: String, toDate: String, userId: String) = dataCapture.getScores(consumerKey, fromDate, toDate, userId)
 }

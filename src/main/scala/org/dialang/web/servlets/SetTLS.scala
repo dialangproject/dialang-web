@@ -44,7 +44,7 @@ class SetTLS extends DialangServlet {
         }
 
       // Zero all state except for the admin language and sessionId
-      dialangSession.clear()
+      dialangSession.clearPass()
 
       // The session id persists across tests (passes)
       val (sessionId, isNewSession) = dialangSession.sessionId match {
@@ -67,7 +67,7 @@ class SetTLS extends DialangServlet {
       dialangSession.tes.tl = tl
       dialangSession.tes.skill = skill.toLowerCase
       dialangSession.ipAddress = request.remoteAddress
-      dialangSession.started = ((new Date).getTime) / 1000L
+      dialangSession.started = new Date
 
       saveDialangSession(dialangSession)
 

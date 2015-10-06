@@ -5,8 +5,12 @@ import java.util.Date
 import javax.naming.InitialContext
 import javax.sql.DataSource
 
+import net.oauth.OAuth
+
 import org.dialang.common.model.ImmutableItem
 import org.dialang.web.model.DialangSession
+
+import scala.collection.mutable.ListBuffer
 
 import org.slf4j.LoggerFactory
 
@@ -637,5 +641,137 @@ class DataCaptureImpl(dsUrl: String) {
         } catch { case _ : SQLException => }
       }
     }
+  }
+
+  def getScores(consumerKey: String, fromDate: String, toDate: String, userId: String) = {
+
+    lazy val conn = ds.getConnection
+
+    val vsptQuery = "SELECT level FROM vsp_test_scores WHERE pass_id = ?"
+
+    lazy val vsptST = conn.prepareStatement(vsptQuery)
+
+    val saQuery = "SELECT level FROM sa_scores WHERE pass_id = ?"
+
+    lazy val saST = conn.prepareStatement(saQuery)
+
+    val testQuery = "SELECT level FROM test_results WHERE pass_id = ?"
+
+    lazy val testST = conn.prepareStatement(testQuery)
+
+    var passesQuery = 
+      """SELECT s.user_id,p.*,s.ip_address FROM sessions as s, passes as p
+            WHERE s.id = p.session_id
+              AND s.consumer_key = ?"""
+
+    var flag = 0
+    if (fromDate != "") {
+      flag = flag + 4
+      passesQuery += " AND p.started > ?"
+    }
+
+    if (toDate != "") {
+      flag = flag + 2
+      passesQuery += " AND p.started < ?"
+    }
+
+    if (userId != "") {
+      flag = flag + 1
+      passesQuery += " AND s.user_id = ?"
+    }
+
+    if (logger.isDebugEnabled) {
+      logger.debug("passesQuery: " + passesQuery)
+    }
+
+    lazy val passesST = conn.prepareStatement(passesQuery)
+
+    val list = new ListBuffer[Tuple7[String, String, String, String, String, String, Double]]
+
+    try {
+      passesST.setString(1, consumerKey)
+      if (fromDate != "") {
+        passesST.setDouble(2, fromDate.toDouble/1000L)
+      }
+      if (toDate != "") {
+        val pos = if (flag == 2) 2 else 3
+        passesST.setDouble(pos, toDate.toDouble/1000L)
+      }
+      if (userId != "") {
+        val pos = if (flag == 1) 2 else if (flag == 3) 3 else 4
+        passesST.setString(pos, userId)
+      }
+
+      val passesRS = passesST.executeQuery
+
+      while (passesRS.next) {
+        val userId = passesRS.getString("user_id")
+        val passId = passesRS.getString("id")
+        val al = passesRS.getString("al")
+        val tl = passesRS.getString("tl")
+        val started = passesRS.getDouble("started")
+
+        val vsptLevel = {
+            vsptST.setString(1, passId)
+            val vsptRS = vsptST.executeQuery
+            if (vsptRS.next) {
+              vsptRS.getString("level")
+            } else {
+              ""
+            }
+          }
+
+        val saLevel = {
+            saST.setString(1, passId)
+            val saRS = saST.executeQuery
+            if (saRS.next) {
+              saRS.getString("level")
+            } else {
+              ""
+            }
+          }
+
+        val testLevel = {
+            testST.setString(1, passId)
+            val testRS = testST.executeQuery
+            if (testRS.next) {
+              testRS.getString("level")
+            } else {
+              ""
+            }
+          }
+
+        if (logger.isDebugEnabled) {
+          logger.debug("userId: " + userId)
+          logger.debug("passId: " + passId)
+          logger.debug("al: " + al)
+          logger.debug("tl: " + tl)
+          logger.debug("started: " + started)
+          logger.debug("vsptLevel: " + vsptLevel)
+          logger.debug("saLevel: " + saLevel)
+          logger.debug("testLevel: " + testLevel)
+        }
+
+        list += ((userId, al, tl, vsptLevel, saLevel, testLevel, started))
+      }
+      passesRS.close()
+    } catch {
+      case _: Throwable => {
+        logger.error("Caught exception whilst deleting token.")
+      }
+    } finally {
+      if (passesST != null) {
+        try {
+          passesST.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if (conn != null) {
+        try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+    list.toList
   }
 }
