@@ -67,7 +67,7 @@ class SetTLS extends DialangServlet {
       dialangSession.tes.tl = tl
       dialangSession.tes.skill = skill.toLowerCase
       dialangSession.ipAddress = request.remoteAddress
-      dialangSession.started = ((new Date).getTime) / 1000L
+      dialangSession.started = new Date
 
       saveDialangSession(dialangSession)
 

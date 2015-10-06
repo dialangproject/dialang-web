@@ -643,7 +643,7 @@ class DataCaptureImpl(dsUrl: String) {
     }
   }
 
-  def getScores(consumerKey: String, fromDate: String, toDate: String) = {
+  def getScores(consumerKey: String, fromDate: String, toDate: String, userId: String) = {
 
     lazy val conn = ds.getConnection
 
@@ -664,12 +664,24 @@ class DataCaptureImpl(dsUrl: String) {
             WHERE s.id = p.session_id
               AND s.consumer_key = ?"""
 
+    var flag = 0
     if (fromDate != "") {
-      passesQuery += "AND p.started > ?"
+      flag = flag + 4
+      passesQuery += " AND p.started > ?"
     }
 
     if (toDate != "") {
-      passesQuery += "AND p.started < ?"
+      flag = flag + 2
+      passesQuery += " AND p.started < ?"
+    }
+
+    if (userId != "") {
+      flag = flag + 1
+      passesQuery += " AND s.user_id = ?"
+    }
+
+    if (logger.isDebugEnabled) {
+      logger.debug("passesQuery: " + passesQuery)
     }
 
     lazy val passesST = conn.prepareStatement(passesQuery)
@@ -679,10 +691,15 @@ class DataCaptureImpl(dsUrl: String) {
     try {
       passesST.setString(1, consumerKey)
       if (fromDate != "") {
-        passesST.setDouble(2, fromDate.toDouble)
+        passesST.setDouble(2, fromDate.toDouble/1000L)
       }
       if (toDate != "") {
-        passesST.setDouble(3, toDate.toDouble)
+        val pos = if (flag == 2) 2 else 3
+        passesST.setDouble(pos, toDate.toDouble/1000L)
+      }
+      if (userId != "") {
+        val pos = if (flag == 1) 2 else if (flag == 3) 3 else 4
+        passesST.setString(pos, userId)
       }
       val passesRS = passesST.executeQuery
 
@@ -693,7 +710,7 @@ class DataCaptureImpl(dsUrl: String) {
         val passId = passesRS.getString("id")
         logger.debug("passId: " + passId)
 
-        val started = passesRS.getDouble("started") * 1000
+        val started = passesRS.getDouble("started")
         logger.debug("started: " + started)
 
         val vsptLevel = {

@@ -665,3 +665,30 @@ button[disabled] {
     white-space: nowrap;
     margin-top: 10px;
 }
+
+.dialang-date-label {
+    text-align: left;
+    padding-right: 7px;
+}
+
+.dialang-table {
+    display: table;
+    margin: 0 auto;
+    padding-bottom: 7px;
+    border-spacing: 5px;
+}
+
+.dialang-table-row {
+    display: table-row;
+}
+.dialang-table-cell {
+    display: table-cell;
+}
+
+#dialang-downloadreport-button {
+    margin-bottom: 7px;
+}
+
+#dialang-take-a-test-button {
+    margin-bottom: 7px;
+}

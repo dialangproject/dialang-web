@@ -92,7 +92,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     // Each LTI launch is a new session, so clear it.
     dialangSession.clear()
 
-    dialangSession.started = ((new Date).getTime) / 1000L
+    dialangSession.started = new Date
 
     // validate checks that these are present
     dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get

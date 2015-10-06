@@ -1,9 +1,9 @@
 $('#help').prop('disabled', true);
 $('#back').prop('disabled', false).click(function (e) {
-    return dialang.navigation.backRules.allusersreportmenu();
+    return dialang.navigation.backRules.userreport();
 });
 
-$.get('/dialang-content/allusersreportmenu/' + dialang.session.al + '.html', function (data) {
+$.get('/dialang-content/userreport/' + dialang.session.al + '.html', function (data) {
     $('#content').html(data);
     $(document).ready(function () {
 
@@ -19,7 +19,17 @@ $.get('/dialang-content/allusersreportmenu/' + dialang.session.al + '.html', fun
 
             var fromDate = altFromDateField.val();
             var toDate = altToDateField.val();
-            document.location = '/getltistudentreport?fromDate=' + fromDate + '&toDate=' + toDate;
+            var userId = $('#dialang-user-id').val();
+            document.location = '/getltistudentreport?fromDate=' + fromDate + '&toDate=' + toDate + '&userId=' + userId;
+        });
+
+        $('#dialang-clear-button').click(function (e) {
+
+            fromDateField.val('');
+            altFromDateField.val('');
+            toDateField.val('');
+            altToDateField.val('');
+            $('#dialang-user-id').val('');
         });
     });
 });

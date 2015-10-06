@@ -4,12 +4,8 @@ $.get('/dialang-content/instructormenu/' + dialang.session.al + '.html', functio
     $('#content').html(data);
     $(document).ready(function () {
 
-        $('#dialang-all-users-report-button').click(function (e) {
-            dialang.switchState('allusersreportmenu');
-        });
-
-        $('#dialang-single-user-report-button').click(function (e) {
-            dialang.switchState('singleuserreportmenu');
+        $('#dialang-user-report-button').click(function (e) {
+            dialang.switchState('userreport');
         });
 
         $('#dialang-take-a-test-button').click(function (e) {
