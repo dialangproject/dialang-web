@@ -33,9 +33,10 @@ class VSPTV10ScoringSpec extends FlatSpec with Matchers {
 
   "getVersion10ZScore(H=50,X=50,F=25,Y=25)" should " result in a score of 1.0" in {
 
-    // All of the real words hit and 25 false alarms.
+    // All of the real words hit and 25 false alarms. This would happen if the taker just
+    // clicked green for all the words
     val zScore = VSPTScoringAlgorithms.getVersion10ZScore(50,50,25,25)
-    zScore should equal (1.0D)
+    zScore should equal (-1.0D)
   }
 
   "getVersion10ZScore(H=25,X=50,F=25,Y=25)" should " result in a score of -1.0" in {

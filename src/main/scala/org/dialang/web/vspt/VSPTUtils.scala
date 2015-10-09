@@ -32,24 +32,27 @@ class VSPTUtils(db:DB = DBFactory.get()) {
     val noResponses = Array(0,0)
 
     db.getVSPTWords(tl) match {
-        case Some(list) => {
-          list.foreach(word => {
 
-            val wordType = if(word.valid) REAL else FAKE
+      case Some(list) => {
+        list.foreach(word => {
 
-            if(responses.contains(word.id)) {
-              if(responses(word.id)) {
-                yesResponses(wordType) += 1
-              } else {
-                noResponses(wordType) += 1
-              }
+          val wordType = if (word.valid) REAL else FAKE
+
+          if (responses.contains(word.id)) {
+            if (responses(word.id)) {
+              yesResponses(wordType) += 1
+            } else {
+              noResponses(wordType) += 1
             }
-          })
-        }
-        case None => {
-          logger.error("No VSPT word list defined for test language '" + tl + "'.")
-        }
+          } else {
+            logger.error("The responses did not contain the word with id '" + word.id + "'. This is incorrect.")
+          }
+        })
       }
+      case None => {
+        logger.error("No VSPT word list defined for test language '" + tl + "'.")
+      }
+    }
 
     val realWordsAnswered = yesResponses(REAL) + noResponses(REAL)
     if(logger.isDebugEnabled) logger.debug("realWordsAnswered: " + realWordsAnswered)
