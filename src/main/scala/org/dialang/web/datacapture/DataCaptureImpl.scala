@@ -7,8 +7,7 @@ import javax.sql.DataSource
 
 import net.oauth.OAuth
 
-import org.dialang.common.model.ImmutableItem
-import org.dialang.web.model.DialangSession
+import org.dialang.common.model.{DialangSession, ImmutableItem}
 
 import scala.collection.mutable.ListBuffer
 

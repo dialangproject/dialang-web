@@ -4,9 +4,8 @@ import java.sql.{Connection, Statement, PreparedStatement, ResultSet, SQLExcepti
 import javax.naming.InitialContext
 import javax.sql.DataSource
 
-import org.dialang.web.db.DB
-import org.dialang.common.model.{Answer, ImmutableAnswer, ImmutableItem, ScoredItem}
-import org.dialang.web.model.{Basket, DialangSession}
+import org.dialang.db.DB
+import org.dialang.common.model.{Answer, Basket, DialangSession, ImmutableAnswer, ImmutableItem, ScoredItem}
 
 import scala.collection.mutable.{HashMap, ListBuffer}
 

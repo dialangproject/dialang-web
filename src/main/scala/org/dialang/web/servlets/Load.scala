@@ -6,7 +6,7 @@ import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.json._
 
 import org.dialang.web.datacapture.Loader
-import org.dialang.web.model.DialangSession
+import org.dialang.common.model.DialangSession
 
 import org.slf4j.LoggerFactory
 

@@ -1,6 +1,6 @@
 package org.dialang.web.util
 
-import org.dialang.web.db.DBFactory
+import org.dialang.db.DBFactory
 
 object ValidityChecks {
 

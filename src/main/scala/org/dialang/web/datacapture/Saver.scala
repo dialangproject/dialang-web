@@ -5,7 +5,7 @@ import javax.naming.InitialContext
 import javax.sql.DataSource
 import java.util.UUID
 
-import org.dialang.web.model.DialangSession
+import org.dialang.common.model.DialangSession
 
 import org.slf4j.LoggerFactory
 

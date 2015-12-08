@@ -1,8 +1,8 @@
 package org.dialang.tests
 
-import org.dialang.web.db.DBFactory
-import org.dialang.web.model.VSPTWord
-import org.dialang.web.vspt.{VSPTUtils,VSPTScoringAlgorithms}
+import org.dialang.db.DBFactory
+import org.dialang.common.model.VSPTWord
+import org.dialang.web.vspt.{VSPTUtils, VSPTScoringAlgorithms}
 
 import java.sql.SQLException
 

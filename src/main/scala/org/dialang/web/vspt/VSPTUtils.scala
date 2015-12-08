@@ -1,6 +1,6 @@
 package org.dialang.web.vspt
 
-import org.dialang.web.db.{DB,DBFactory}
+import org.dialang.db.{DB, DBFactory}
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

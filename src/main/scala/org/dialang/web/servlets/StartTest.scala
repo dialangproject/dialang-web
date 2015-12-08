@@ -1,8 +1,8 @@
 package org.dialang.web.servlets
 
-import org.dialang.web.db.DBFactory
-import org.dialang.web.model.DialangSession
-import org.dialang.web.scoring.ScoringMethods
+import org.dialang.db.DBFactory
+import org.dialang.common.model.DialangSession
+import org.dialang.scoring.ScoringMethods
 
 import org.slf4j.LoggerFactory;
 

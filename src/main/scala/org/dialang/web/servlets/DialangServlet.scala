@@ -1,6 +1,7 @@
 package org.dialang.web.servlets
 
-import org.dialang.web.model.{DialangSession, InstructorSession}
+import org.dialang.common.model.DialangSession
+import org.dialang.web.model.InstructorSession
 import org.dialang.web.datacapture.DataCapture
 import org.dialang.web.util.HashUtils
 
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory
 
 import scalaj.http.{Http, HttpOptions}
 
-import org.dialang.web.db.DBFactory
+import org.dialang.db.DBFactory
 
 class DialangServlet extends ScalatraServlet {
 

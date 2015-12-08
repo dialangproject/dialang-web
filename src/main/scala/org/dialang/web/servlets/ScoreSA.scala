@@ -3,8 +3,8 @@ package org.dialang.web.servlets
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 
-import org.dialang.web.model.DialangSession
-import org.dialang.web.scoring.ScoringMethods
+import org.dialang.common.model.DialangSession
+import org.dialang.scoring.ScoringMethods
 
 import org.slf4j.LoggerFactory;
 

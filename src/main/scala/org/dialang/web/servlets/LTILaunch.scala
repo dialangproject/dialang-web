@@ -4,7 +4,8 @@ import net.oauth._
 import net.oauth.server.OAuthServlet
 import net.oauth.signature.OAuthSignatureMethod
 
-import org.dialang.web.model.{DialangSession, InstructorSession, TES}
+import org.dialang.common.model.{DialangSession, TES}
+import org.dialang.web.model.InstructorSession
 import org.dialang.web.util.{HashUtils, ValidityChecks}
 
 import scala.collection.JavaConversions._

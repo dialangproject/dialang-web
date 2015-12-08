@@ -1,6 +1,6 @@
 package org.dialang.tests
 
-import org.dialang.web.model.DialangSession
+import org.dialang.common.model.DialangSession
 
 import java.util.{Date,UUID}
 

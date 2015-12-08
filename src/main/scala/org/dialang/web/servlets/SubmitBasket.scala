@@ -1,9 +1,8 @@
 package org.dialang.web.servlets
 
-import org.dialang.web.db.DBFactory
-import org.dialang.web.model.{DialangSession,Basket}
-import org.dialang.web.scoring.ScoringMethods
-import org.dialang.common.model.{Answer,ImmutableItem,ScoredItem}
+import org.dialang.db.DBFactory
+import org.dialang.scoring.ScoringMethods
+import org.dialang.common.model.{Answer, Basket, DialangSession, ImmutableItem, ScoredItem}
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap

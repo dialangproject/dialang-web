@@ -3,7 +3,7 @@ package org.dialang.web.servlets
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 
-import org.dialang.web.db.DBFactory
+import org.dialang.db.DBFactory
 import org.dialang.web.vspt.VSPTUtils
 
 import org.slf4j.LoggerFactory;

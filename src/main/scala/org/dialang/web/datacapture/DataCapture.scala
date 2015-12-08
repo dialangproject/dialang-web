@@ -1,7 +1,6 @@
 package org.dialang.web.datacapture
 
-import org.dialang.web.model.DialangSession
-import org.dialang.common.model.ImmutableItem
+import org.dialang.common.model.{DialangSession, ImmutableItem}
 
 class DataCapture(dsUrl: String) {
 
