@@ -18,8 +18,8 @@ import org.json4s.native.JsonMethods._
 
 import org.scalatra.scalate.ScalateSupport
 
-import java.io.InputStreamReader
-import java.util.{Date, UUID}
+import java.io.{FileInputStream, InputStreamReader}
+import java.util.{Date, Properties, UUID}
 import javax.servlet.{ServletConfig,ServletContext}
 
 class LTILaunch extends DialangServlet with ScalateSupport {
@@ -45,6 +45,27 @@ class LTILaunch extends DialangServlet with ScalateSupport {
         }
     }
 
+  private lazy val configProperties = {
+      val props = new Properties
+      config.getInitParameter("configFile") match {
+          case null => props
+          case "" => props
+          case s: String => {
+            logger.debug("HERE1");
+            val props = new Properties
+            try {
+              props.load(new FileInputStream(s))
+              logger.debug("HERE2");
+            } catch {
+              case e: Exception => {
+                logger.error("Failed to load the config properties from " + s, e)
+              }
+            }
+            props
+          }
+        }
+    }
+
   post("/") {
 
     logger.debug("LTILaunch.post")
@@ -58,13 +79,20 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
       params.get(BasicLTIConstants.ROLES) match {
         case Some(roles: String) => {
-          if (roles.contains("Instructor") || roles.contains("Teacher")) {
+          val instructorRoles = {
+              configProperties.getProperty("instructorRoles", "") match {
+                case "" => List("Instructor", "Teacher")
+                case s: String => s.split(",").toList
+              }
+            }
+
+          if (roles.split(",").toList.intersect(instructorRoles).length > 0) {
             val al = getLTILaunchLocale(params)
             val oauthConsumerKey = params.get(OAuth.OAUTH_CONSUMER_KEY).get
             val instructorSession = new InstructorSession(oauthConsumerKey, al)
             saveInstructorSession(instructorSession)
             contentType = "text/html"
-            mustache("shell","state" -> "instructormenu", "al" -> getLTILaunchLocale(params))
+            mustache("shell", "state" -> "instructormenu", "al" -> getLTILaunchLocale(params))
           } else {
             launchNonInstructor(params)
           }

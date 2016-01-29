@@ -30,6 +30,10 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
         <servlet-name>LTILaunch</servlet-name>
         <servlet-class>org.dialang.web.servlets.LTILaunch</servlet-class>
         <init-param>
+          <param-name>configFile</param-name>
+          <param-value>/etc/dialang/dialang.conf</param-value>
+        </init-param>
+        <init-param>
           <param-name>launchUrl</param-name>
           <param-value>@lti.launch.url@</param-value>
         </init-param>
