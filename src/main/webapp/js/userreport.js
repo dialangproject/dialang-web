@@ -4,6 +4,7 @@ $('#back').prop('disabled', false).click(function (e) {
 });
 
 $.get('/dialang-content/userreport/' + dialang.session.al + '.html', function (data) {
+
     $('#content').html(data);
     $(document).ready(function () {
 
@@ -19,7 +20,9 @@ $.get('/dialang-content/userreport/' + dialang.session.al + '.html', function (d
 
             var fromDate = altFromDateField.val();
             var toDate = altToDateField.val();
-            var userId = $('#dialang-user-id').val();
+            var entered = $('#dialang-user-id').val();
+            var matches = entered.match(/\(User ID:(\w*)\)/);
+            var userId = (matches && matches.length == 2) ? matches[1] : entered;
             document.location = '/getltistudentreport?fromDate=' + fromDate + '&toDate=' + toDate + '&userId=' + userId;
         });
 
@@ -31,5 +34,7 @@ $.get('/dialang-content/userreport/' + dialang.session.al + '.html', function (d
             altToDateField.val('');
             $('#dialang-user-id').val('');
         });
+
+        $.get('/getltiusernames', function (data) { $('#dialang-user-id').autocomplete({ source: data }); } );
     });
 });

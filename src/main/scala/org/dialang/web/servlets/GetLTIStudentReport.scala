@@ -55,7 +55,7 @@ class GetLTIStudentReport extends DialangServlet with ScalateSupport {
         contentType = "text/csv"
         csv
       }
-      case None => {
+      case _ => {
 
         logger.error("No instructor session. Halting ...")
         halt(403)

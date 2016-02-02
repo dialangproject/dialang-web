@@ -73,8 +73,8 @@ class DialangServlet extends ScalatraServlet {
 
         def run() {
 
-          Http.post(url).option(HttpOptions.allowUnsafeSSL)
-            .params("id" -> id, "hash" -> hash).asString
+          Http(url).option(HttpOptions.allowUnsafeSSL)
+            .postForm(Seq("id" -> id, "hash" -> hash)).asString
         }
       }).start()
     }

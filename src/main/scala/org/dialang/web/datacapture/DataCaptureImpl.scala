@@ -26,11 +26,11 @@ class DataCaptureImpl(dsUrl: String) {
   val ctx = new InitialContext
   val ds = ctx.lookup(dsUrl).asInstanceOf[DataSource]
 
-  def createSessionAndPass(dialangSession:DialangSession) {
+  def createSessionAndPass(dialangSession: DialangSession) {
 
     lazy val conn = ds.getConnection
     lazy val sessionST
-      = conn.prepareStatement("INSERT INTO sessions (id,user_id,consumer_key,ip_address,started) VALUES(?,?,?,?,?)")
+      = conn.prepareStatement("INSERT INTO sessions (id,user_id,first_name, last_name, consumer_key,ip_address,started) VALUES(?,?,?,?,?,?,?)")
     lazy val passST
       = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill,started) VALUES(?,?,?,?,?,?)")
 
@@ -40,9 +40,11 @@ class DataCaptureImpl(dsUrl: String) {
 
       sessionST.setString(1, dialangSession.sessionId)
       sessionST.setString(2, dialangSession.userId)
-      sessionST.setString(3, dialangSession.consumerKey)
-      sessionST.setString(4, dialangSession.ipAddress)
-      sessionST.setLong(5, dialangSession.started)
+      sessionST.setString(3, dialangSession.firstName)
+      sessionST.setString(4, dialangSession.lastName)
+      sessionST.setString(5, dialangSession.consumerKey)
+      sessionST.setString(6, dialangSession.ipAddress)
+      sessionST.setLong(7, dialangSession.started)
       if (sessionST.executeUpdate != 1) {
         logger.error("Failed to insert session.")
       }
@@ -772,5 +774,40 @@ class DataCaptureImpl(dsUrl: String) {
       }
     }
     list.toList
+  }
+
+  def getLTIUserNames(consumerKey: String) = {
+
+    lazy val conn = ds.getConnection
+
+    lazy val st = conn.prepareStatement("SELECT first_name, last_name, user_id FROM sessions WHERE consumer_key = ?")
+
+    val listBuffer = new ListBuffer[Tuple3[String, String, String]]()
+
+    try {
+      st.setString(1, consumerKey)
+      val rs = st.executeQuery
+      while (rs.next) {
+        listBuffer += ((rs.getString("first_name"), rs.getString("last_name"), rs.getString("user_id")))
+      }
+      rs.close()
+    } catch {
+      case e: Exception => {
+        logger.error("Failed to get LTI user names", e)
+      }
+    } finally {
+      if (st != null) {
+        try {
+          st.close()
+        } catch { case _ : SQLException => }
+      }
+
+      if (conn != null) {
+        try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
+    listBuffer.toList
   }
 }
