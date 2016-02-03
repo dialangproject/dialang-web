@@ -187,7 +187,7 @@ object DB extends DialangLogger {
     var ps: PreparedStatement = null
 
     try {
-      ps = conn.prepareStatement("SELECT * FROM sa_ppe WHERE pass_id = ?")
+      ps = conn.prepareStatement("SELECT * FROM sa_scores WHERE pass_id = ?")
 
       ps.setString(1, passId)
       val rs = ps.executeQuery
