@@ -40,7 +40,7 @@ class GetLTIStudentReport extends DialangServlet with ScalateSupport {
         val formatter = DateFormat.getInstance
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"))
 
-        dataCapture.getScores(session.consumerKey, fromDate, toDate, userId).foreach(t => {
+        dataCapture.getScores(session.consumerKey, fromDate, toDate, userId, session.resourceLinkId).foreach(t => {
 
           val startedDate = formatter.format(new Date(t._9.asInstanceOf[Long]*1000L)) + " UTC"
 

@@ -30,9 +30,11 @@ class DataCaptureImpl(dsUrl: String) {
 
     lazy val conn = ds.getConnection
     lazy val sessionST
-      = conn.prepareStatement("INSERT INTO sessions (id,user_id,first_name, last_name, consumer_key,ip_address,started) VALUES(?,?,?,?,?,?,?)")
+      = conn.prepareStatement("INSERT INTO sessions (id,user_id,first_name, last_name, consumer_key,resource_link_id,resource_link_title,ip_address,started) VALUES(?,?,?,?,?,?,?,?,?)")
     lazy val passST
       = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill,started) VALUES(?,?,?,?,?,?)")
+    lazy val updateResourceLinkTitleST
+      = conn.prepareStatement("UPDATE sessions SET resource_link_title = ? WHERE resource_link_id = ?")
 
     try {
 
@@ -43,10 +45,18 @@ class DataCaptureImpl(dsUrl: String) {
       sessionST.setString(3, dialangSession.firstName)
       sessionST.setString(4, dialangSession.lastName)
       sessionST.setString(5, dialangSession.consumerKey)
-      sessionST.setString(6, dialangSession.ipAddress)
-      sessionST.setLong(7, dialangSession.started)
+      sessionST.setString(6, dialangSession.resourceLinkId)
+      sessionST.setString(7, dialangSession.resourceLinkTitle)
+      sessionST.setString(8, dialangSession.ipAddress)
+      sessionST.setLong(9, dialangSession.started)
       if (sessionST.executeUpdate != 1) {
         logger.error("Failed to insert session.")
+      }
+
+      updateResourceLinkTitleST.setString(1, dialangSession.resourceLinkTitle)
+      updateResourceLinkTitleST.setString(2, dialangSession.resourceLinkId)
+      if (updateResourceLinkTitleST.executeUpdate != 1) {
+        logger.error("Failed to update resource link title.")
       }
 
       passST.setString(1, dialangSession.passId)
@@ -644,7 +654,7 @@ class DataCaptureImpl(dsUrl: String) {
     }
   }
 
-  def getScores(consumerKey: String, fromDate: String, toDate: String, userId: String) = {
+  def getScores(consumerKey: String, fromDate: String, toDate: String, userId: String, resourceLinkId: String) = {
 
     lazy val conn = ds.getConnection
 
@@ -663,7 +673,8 @@ class DataCaptureImpl(dsUrl: String) {
     var passesQuery = 
       """SELECT s.user_id,s.first_name,s.last_name,p.*,s.ip_address FROM sessions as s, passes as p
             WHERE s.id = p.session_id
-              AND s.consumer_key = ?"""
+              AND s.consumer_key = ?
+              AND s.resource_link_id = ?"""
 
     var flag = 0
     if (fromDate != "") {
@@ -691,15 +702,16 @@ class DataCaptureImpl(dsUrl: String) {
 
     try {
       passesST.setString(1, consumerKey)
+      passesST.setString(2, resourceLinkId)
       if (fromDate != "") {
-        passesST.setDouble(2, fromDate.toDouble/1000L)
+        passesST.setDouble(3, fromDate.toDouble/1000L)
       }
       if (toDate != "") {
-        val pos = if (flag == 2) 2 else 3
+        val pos = if (flag == 2) 3 else 4
         passesST.setDouble(pos, toDate.toDouble/1000L)
       }
       if (userId != "") {
-        val pos = if (flag == 1) 2 else if (flag == 3) 3 else 4
+        val pos = if (flag == 1) 3 else if (flag == 3) 4 else 5
         passesST.setString(pos, userId)
       }
 

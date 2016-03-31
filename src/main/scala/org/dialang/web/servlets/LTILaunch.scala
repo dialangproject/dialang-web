@@ -82,9 +82,10 @@ class LTILaunch extends DialangServlet with ScalateSupport {
             }
 
           if (roles.split(",").toList.intersect(instructorRoles).length > 0) {
-            val al = getLTILaunchLocale(params)
             val oauthConsumerKey = params.get(OAuth.OAUTH_CONSUMER_KEY).get
-            val instructorSession = new InstructorSession(oauthConsumerKey, al)
+            val al = getLTILaunchLocale(params)
+            val resourceLinkId = params.get(BasicLTIConstants.RESOURCE_LINK_ID).get
+            val instructorSession = new InstructorSession(oauthConsumerKey, resourceLinkId, al)
             saveInstructorSession(instructorSession)
             contentType = "text/html"
             mustache("shell", "state" -> "instructormenu", "al" -> getLTILaunchLocale(params))
@@ -123,16 +124,20 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     dialangSession.firstName = params.getOrElse(BasicLTIConstants.LIS_PERSON_NAME_GIVEN, "")
     dialangSession.lastName = params.getOrElse(BasicLTIConstants.LIS_PERSON_NAME_FAMILY, "")
     dialangSession.consumerKey = params.get(OAuth.OAUTH_CONSUMER_KEY).get
+    dialangSession.resourceLinkId = params.get(BasicLTIConstants.RESOURCE_LINK_ID).get
+    dialangSession.resourceLinkTitle = params.getOrElse(BasicLTIConstants.RESOURCE_LINK_TITLE, "")
+
+    dialangSession.tes = getOrBuildTestExecutionScript(params, dialangSession)
 
     if (logger.isDebugEnabled) {
       logger.debug("userId:" + dialangSession.userId)
-    }
-    
-    if (logger.isDebugEnabled) {
+      logger.debug("firstName:" + dialangSession.firstName)
+      logger.debug("lastName:" + dialangSession.lastName)
+      logger.debug("consumerKey:" + dialangSession.consumerKey)
+      logger.debug("resourceLinkId:" + dialangSession.resourceLinkId)
+      logger.debug("resourceLinkTitle:" + dialangSession.resourceLinkTitle)
       logger.debug(dialangSession.tes.toString)
     }
-
-    dialangSession.tes = getOrBuildTestExecutionScript(params, dialangSession)
 
     if (dialangSession.tes.al == "") {
       // Still no admin language, launch the als screen.
