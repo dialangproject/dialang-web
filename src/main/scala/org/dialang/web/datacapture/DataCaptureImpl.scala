@@ -661,7 +661,7 @@ class DataCaptureImpl(dsUrl: String) {
     lazy val testST = conn.prepareStatement(testQuery)
 
     var passesQuery = 
-      """SELECT s.user_id,p.*,s.ip_address FROM sessions as s, passes as p
+      """SELECT s.user_id,s.first_name,s.last_name,p.*,s.ip_address FROM sessions as s, passes as p
             WHERE s.id = p.session_id
               AND s.consumer_key = ?"""
 
@@ -687,7 +687,7 @@ class DataCaptureImpl(dsUrl: String) {
 
     lazy val passesST = conn.prepareStatement(passesQuery)
 
-    val list = new ListBuffer[Tuple7[String, String, String, String, String, String, Double]]
+    val list = new ListBuffer[Tuple9[String, String, String, String, String, String, String, String, Double]]
 
     try {
       passesST.setString(1, consumerKey)
@@ -707,6 +707,8 @@ class DataCaptureImpl(dsUrl: String) {
 
       while (passesRS.next) {
         val userId = passesRS.getString("user_id")
+        val firstName = passesRS.getString("first_name")
+        val lastName = passesRS.getString("last_name")
         val passId = passesRS.getString("id")
         val al = passesRS.getString("al")
         val tl = passesRS.getString("tl")
@@ -744,6 +746,8 @@ class DataCaptureImpl(dsUrl: String) {
 
         if (logger.isDebugEnabled) {
           logger.debug("userId: " + userId)
+          logger.debug("firstName: " + firstName)
+          logger.debug("lastName: " + lastName)
           logger.debug("passId: " + passId)
           logger.debug("al: " + al)
           logger.debug("tl: " + tl)
@@ -753,7 +757,7 @@ class DataCaptureImpl(dsUrl: String) {
           logger.debug("testLevel: " + testLevel)
         }
 
-        list += ((userId, al, tl, vsptLevel, saLevel, testLevel, started))
+        list += ((userId, firstName, lastName, al, tl, vsptLevel, saLevel, testLevel, started))
       }
       passesRS.close()
     } catch {

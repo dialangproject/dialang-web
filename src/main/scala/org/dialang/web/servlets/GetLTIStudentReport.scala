@@ -22,6 +22,7 @@ class GetLTIStudentReport extends DialangServlet with ScalateSupport {
     getInstructorSession match {
 
       case Some(session: InstructorSession) => {
+
         val fromDate = params("fromDate")
         val toDate = params("toDate")
         val userId = params("userId")
@@ -33,16 +34,15 @@ class GetLTIStudentReport extends DialangServlet with ScalateSupport {
           logger.debug("userId: " + userId);
         }
 
-        val list = dataCapture.getScores(session.consumerKey, fromDate, toDate, userId)
-
         val csv = new StringBuilder
-        csv.append("user_id,al,tl,vspt_level,sa_level,test_level,started\n")
+        csv.append("user_id,first_name,last_name,al,tl,vspt_level,sa_level,test_level,started\n")
 
-        list.foreach(t => {
+        val formatter = DateFormat.getInstance
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"))
 
-          val formatter = DateFormat.getInstance
-          formatter.setTimeZone(TimeZone.getTimeZone("UTC"))
-          val startedDate = formatter.format(new Date(t._7.asInstanceOf[Long]*1000L)) + " UTC"
+        dataCapture.getScores(session.consumerKey, fromDate, toDate, userId).foreach(t => {
+
+          val startedDate = formatter.format(new Date(t._9.asInstanceOf[Long]*1000L)) + " UTC"
 
           csv.append(t._1).append(",")
             .append(t._2) .append(",")
@@ -50,6 +50,8 @@ class GetLTIStudentReport extends DialangServlet with ScalateSupport {
             .append(t._4) .append(",")
             .append(t._5) .append(",")
             .append(t._6) .append(",")
+            .append(t._7) .append(",")
+            .append(t._8) .append(",")
             .append(startedDate) .append("\n")
         })
         contentType = "text/csv"
