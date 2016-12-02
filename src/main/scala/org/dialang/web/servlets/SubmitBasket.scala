@@ -101,7 +101,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
               logger.error("No item returned from scoring")
             }
         }
-      }
+      } // end mcq
 
       case Some("tabbedpane") => {
         val itemsToLog = new ListBuffer[ImmutableItem]()
@@ -309,14 +309,26 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
       dataCapture.logTestResult(dialangSession)
       dataCapture.logTestFinish(dialangSession.passId)
 
-      notifyTestCompletion(dialangSession)
+      if (dialangSession.resultUrl != "") {
+        val url = {
+            val parts = dialangSession.resultUrl.split("\\?")
+            val params = new StringBuilder(if (parts.length == 2) "?" + parts(1) + "&" else "?")
+            params.append("itemGrade=" + itemGrade)
+            if (dialangSession.saLevel != "") params.append("&saLevel=" + dialangSession.saLevel)
+            if (dialangSession.vsptLevel != "") params.append("&vsptLevel=" + dialangSession.vsptLevel)
+            parts(0) + params.toString
+          }
+        if (logger.isDebugEnabled) logger.debug("Redirect URL: " + url)
+        returnMap += (("redirect" -> url))
+        contentType = formats("json")
+        returnMap.toMap
+      } else {
+        // We set testDone to true so the client js knows to enable the sa feedback and advice buttons
+        returnMap += (("itemLevel" -> itemLevel),("testDone" -> "true"))
 
-      // We set testDone to true so the client js knows to enable the sa feedback and advice buttons
-      returnMap += (("itemLevel" -> itemLevel),("testDone" -> "true"))
-
-      contentType = formats("json")
-      returnMap.toMap
-
+        contentType = formats("json")
+        returnMap.toMap
+      }
     } else {
       dataCapture.logBasket(dialangSession.passId, currentBasketId, dialangSession.currentBasketNumber)
 

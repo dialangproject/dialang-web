@@ -168,67 +168,71 @@ if (!dialang.session.reviewMode) {
             timeout: dialang.uploadTimeout,
             success: function (nextBasketData, textStatus, jqXHR, jqFormElement) {
 
-                $('#save-button').prop('disabled', false);
-
-                var scoredBasket = nextBasketData.scoredBasket;
-
-                dialang.utils.configureScoredBasket(scoredBasket);
-
-                if (nextBasketData.testDone) {
-                    dialang.session.testDone = true;
-                    dialang.session.itemLevel = nextBasketData.itemLevel;
-                    if (!dialang.session.instantFeedbackOn) {
-                        dialang.switchState('endoftest');
-                    }
+                if (nextBasketData.redirect) {
+                    window.location = nextBasketData.redirect;
                 } else {
-                    dialang.pass.currentBasketId = nextBasketData.nextBasketId;
-                    if (!dialang.session.instantFeedbackOn) {
-                        dialang.switchState('test');
-                    }
-                }
+                    $('#save-button').prop('disabled', false);
 
-                if (dialang.session.instantFeedbackOn) {
-                    if (scoredBasket.basketType === 'mcq') {
-                        // MCQ baskets only ever have one item.
-                        var mcqItem = scoredBasket.items[0];
-                        $('#mcq-review-dialog').dialog('open');
-                        $('.ui-dialog-titlebar-close span').removeClass('ui-icon-closethick').addClass('ui-icon-nextButton');
-                        if (!mcqItem.correct) {
-                            $('.review-smiley > img').attr('src','/images/frowney.gif');
-                        } else {
-                            $('.review-smiley > img').attr('src','/images/smiley.gif');
+                    var scoredBasket = nextBasketData.scoredBasket;
+
+                    dialang.utils.configureScoredBasket(scoredBasket);
+
+                    if (nextBasketData.testDone) {
+                        dialang.session.testDone = true;
+                        dialang.session.itemLevel = nextBasketData.itemLevel;
+                        if (!dialang.session.instantFeedbackOn) {
+                            dialang.switchState('endoftest');
                         }
-                        $('.review-given-answer p').html(mcqItem.responseText);
-                        mcqItem.answers.forEach(function (answer) {
-
-                            if (answer.correct) {
-                                $('.review-correct-answer p').html(answer.text);
-                            }
-                        });
-                    } else if (scoredBasket.basketType === 'tabbedpane' ) {
-
-                        dialang.launchMultiItemReviewDialog(scoredBasket,1,function (clickedItemId) {
-
-                            // Get the index of the clicked review tab
-                            var index = $('#tabbedpane-tabs a[href="#tabs-' + clickedItemId + '"]').parent().index();
-                            $("#tabbedpane-tabs").tabs('option','active',index);
-                        });
-                    } else if (scoredBasket.basketType === 'gapdrop') {
-
-                        dialang.launchMultiItemReviewDialog(scoredBasket, 1, function (clickedItemId) {
-
-                            $('select').removeClass("outlined");
-                            $('select[name="'+ clickedItemId + '-response"]').addClass("outlined"); 
-                        });
-                    } else if (scoredBasket.basketType === 'shortanswer' || scoredBasket.basketType === 'gaptext') {
-
-                        dialang.launchMultiItemReviewDialog(scoredBasket, 1, function (clickedItemId) {
-
-                            $('input[type="text"]').removeClass("outlined");
-                            $('input[name="'+ clickedItemId + '-response"]').addClass("outlined"); 
-                        });
+                    } else {
+                        dialang.pass.currentBasketId = nextBasketData.nextBasketId;
+                        if (!dialang.session.instantFeedbackOn) {
+                            dialang.switchState('test');
+                        }
                     }
-                } // if (dialang.session.instantFeedbackOn)
+
+                    if (dialang.session.instantFeedbackOn) {
+                        if (scoredBasket.basketType === 'mcq') {
+                            // MCQ baskets only ever have one item.
+                            var mcqItem = scoredBasket.items[0];
+                            $('#mcq-review-dialog').dialog('open');
+                            $('.ui-dialog-titlebar-close span').removeClass('ui-icon-closethick').addClass('ui-icon-nextButton');
+                            if (!mcqItem.correct) {
+                                $('.review-smiley > img').attr('src','/images/frowney.gif');
+                            } else {
+                                $('.review-smiley > img').attr('src','/images/smiley.gif');
+                            }
+                            $('.review-given-answer p').html(mcqItem.responseText);
+                            mcqItem.answers.forEach(function (answer) {
+
+                                if (answer.correct) {
+                                    $('.review-correct-answer p').html(answer.text);
+                                }
+                            });
+                        } else if (scoredBasket.basketType === 'tabbedpane' ) {
+
+                            dialang.launchMultiItemReviewDialog(scoredBasket,1,function (clickedItemId) {
+
+                                // Get the index of the clicked review tab
+                                var index = $('#tabbedpane-tabs a[href="#tabs-' + clickedItemId + '"]').parent().index();
+                                $("#tabbedpane-tabs").tabs('option','active',index);
+                            });
+                        } else if (scoredBasket.basketType === 'gapdrop') {
+
+                            dialang.launchMultiItemReviewDialog(scoredBasket, 1, function (clickedItemId) {
+
+                                $('select').removeClass("outlined");
+                                $('select[name="'+ clickedItemId + '-response"]').addClass("outlined"); 
+                            });
+                        } else if (scoredBasket.basketType === 'shortanswer' || scoredBasket.basketType === 'gaptext') {
+
+                            dialang.launchMultiItemReviewDialog(scoredBasket, 1, function (clickedItemId) {
+
+                                $('input[type="text"]').removeClass("outlined");
+                                $('input[name="'+ clickedItemId + '-response"]').addClass("outlined"); 
+                            });
+                        }
+                    } // if (dialang.session.instantFeedbackOn)
+                } // if (nextBasketData.redirect)
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Failed to submit basket. Reason: ' + textStatus);

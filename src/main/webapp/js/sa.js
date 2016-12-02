@@ -51,11 +51,15 @@ $.get('/dialang-content/sa/' + dialang.session.al + '/' + dialang.session.skill 
             timeout: dialang.uploadTimeout,
             success: function (scores, textStatus, jqXHR, jqFormElement) {
 
-                dialang.session.saLevel = scores.saLevel;
-                dialang.session.saDone = true;
-                $('#save-button').prop('disabled', false);
-                $('#confirm-send-dialog').dialog('destroy');
-                dialang.navigation.nextRules.sa();
+                if (scores.redirect) {
+                    window.location = scores.redirect;
+                } else {
+                    dialang.session.saLevel = scores.saLevel;
+                    dialang.session.saDone = true;
+                    $('#save-button').prop('disabled', false);
+                    $('#confirm-send-dialog').dialog('destroy');
+                    dialang.navigation.nextRules.sa();
+                }
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Failed to submit sa. Reason: ' + textStatus);

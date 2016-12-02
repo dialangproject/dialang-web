@@ -32,6 +32,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
   private val HideTestKey = "custom_hide_test"
   private val TestDifficultyKey = "custom_test_difficulty"
   private val HideFeedbackMenuKey = "custom_hide_feedback_menu"
+  private val ResultUrl = "custom_result_url"
 
   private lazy val launchUrl = {
       config.getInitParameter("launchUrl") match {
@@ -127,6 +128,8 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     dialangSession.resourceLinkId = params.get(BasicLTIConstants.RESOURCE_LINK_ID).get
     dialangSession.resourceLinkTitle = params.getOrElse(BasicLTIConstants.RESOURCE_LINK_TITLE, "")
 
+    dialangSession.resultUrl = params.getOrElse(ResultUrl, "")
+
     dialangSession.tes = getOrBuildTestExecutionScript(params, dialangSession)
 
     if (logger.isDebugEnabled) {
@@ -135,6 +138,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       logger.debug("lastName:" + dialangSession.lastName)
       logger.debug("consumerKey:" + dialangSession.consumerKey)
       logger.debug("resourceLinkId:" + dialangSession.resourceLinkId)
+      logger.debug("resultUrl:" + dialangSession.resultUrl)
       logger.debug("resourceLinkTitle:" + dialangSession.resourceLinkTitle)
       logger.debug(dialangSession.tes.toString)
     }

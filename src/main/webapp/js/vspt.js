@@ -69,15 +69,19 @@ $.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl +
             timeout: dialang.uploadTimeout,
             success: function (scores, textStatus, jqXHR, jqFormElement) {
 
-                dialang.session.vsptMearaScore = scores.vsptMearaScore;
-                dialang.session.vsptLevel = scores.vsptLevel;
-                $('#confirm-send-dialog').dialog('destroy');
+                if (scores.redirect) {
+                    window.location = scores.redirect;
+                } else {
+                    dialang.session.vsptMearaScore = scores.vsptMearaScore;
+                    dialang.session.vsptLevel = scores.vsptLevel;
+                    $('#confirm-send-dialog').dialog('destroy');
 
-                dialang.session.vsptDone[dialang.session.tl] = true;
+                    dialang.session.vsptDone[dialang.session.tl] = true;
 
-                $('#save-button').prop('disabled', false);
+                    $('#save-button').prop('disabled', false);
 
-                dialang.navigation.nextRules.vspt();
+                    dialang.navigation.nextRules.vspt();
+                }
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Failed to submit vspt. Reason: ' + textStatus);
