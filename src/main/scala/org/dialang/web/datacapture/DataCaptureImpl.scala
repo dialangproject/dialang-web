@@ -53,11 +53,13 @@ class DataCaptureImpl(dsUrl: String) {
         logger.error("Failed to insert session.")
       }
 
+      /*
       updateResourceLinkTitleST.setString(1, dialangSession.resourceLinkTitle)
       updateResourceLinkTitleST.setString(2, dialangSession.resourceLinkId)
       if (updateResourceLinkTitleST.executeUpdate != 1) {
         logger.error("Failed to update resource link title.")
       }
+      */
 
       passST.setString(1, dialangSession.passId)
       passST.setString(2, dialangSession.sessionId)
