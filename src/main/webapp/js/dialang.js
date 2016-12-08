@@ -222,6 +222,10 @@ dialang.switchState = function (state) {
 
     $.getScript('/js/' + state + '.js');
 
+    // Google Analytics
+    ga('set', 'page', '/' + state + '.html');
+    ga('send', 'pageview');
+
     return false;
 }; 
 // TEST MODE ONLY !!!!!!!
