@@ -320,8 +320,8 @@ class LTILaunch extends DialangServlet with ScalateSupport {
   private def getLTILaunchLocale(params: Map[String, String]) = {
 
     params.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE) match {
-      case Some(s: String) => db.ltiLocaleLookup.getOrElse(s, "")
-      case _ => ""
+      case Some(s: String) => db.ltiLocaleLookup.getOrElse(s, "eng_gb")
+      case _ => "eng_gb"
     }
   }
 }
