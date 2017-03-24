@@ -112,5 +112,8 @@ dialang.navigation.backRules = {
         if (dialang.session.feedbackMode) {
             return dialang.switchState('feedbackmenu');
         }
+    },
+    questionnaire: function () {
+        return dialang.switchState('feedbackmenu');
     }
 };

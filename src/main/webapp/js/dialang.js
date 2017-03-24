@@ -4,17 +4,11 @@ $.ajaxSetup({ cache: false });
 
 dialang.uploadTimeout = 30000; // 30 seconds
 
-if (typeof dialang === 'undefined') {
-    alert("No dialang object defined. Returning prematurely from dialang.js ...");
-}
+// Patch console. Not all browsers support it.
+console = console || { log: function (m) { alert(m); } };
 
-if (typeof console === "undefined") {
-    console = {
-        debug: function () {},
-        error: function (message) {
-            alert(message);
-        }
-    };
+if (typeof dialang === 'undefined') {
+    console.log("No dialang object defined. Returning prematurely from dialang.js ...");
 }
 
 dialang.keyboardMappings = {
@@ -40,8 +34,7 @@ $('#save-button').click(function (e) {
             $('#dialang-token').html(data.token);
         },
         error: function (jqXHR, textStatus, errorThrown) {
-
-            alert('Error!');
+            console.log('Failed to save. errorThrown: ' + errorThrown);
         }
     });
 });

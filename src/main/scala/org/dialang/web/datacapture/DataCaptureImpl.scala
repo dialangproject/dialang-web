@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 
 class DataCaptureImpl(dsUrl: String) {
 
-  private val logger = LoggerFactory.getLogger(classOf[DataCaptureImpl])
+  private val log = LoggerFactory.getLogger(classOf[DataCaptureImpl])
 
   private val itemResponseSql =
     """INSERT INTO item_responses (pass_id,basket_id,item_id,answer_id,score,correct,pass_order)
@@ -50,14 +50,14 @@ class DataCaptureImpl(dsUrl: String) {
       sessionST.setString(8, dialangSession.ipAddress)
       sessionST.setLong(9, dialangSession.started)
       if (sessionST.executeUpdate != 1) {
-        logger.error("Failed to insert session.")
+        log.error("Failed to insert session.")
       }
 
       /*
       updateResourceLinkTitleST.setString(1, dialangSession.resourceLinkTitle)
       updateResourceLinkTitleST.setString(2, dialangSession.resourceLinkId)
       if (updateResourceLinkTitleST.executeUpdate != 1) {
-        logger.error("Failed to update resource link title.")
+        log.error("Failed to update resource link title.")
       }
       */
 
@@ -68,13 +68,13 @@ class DataCaptureImpl(dsUrl: String) {
       passST.setString(5, dialangSession.tes.skill)
       passST.setLong(6, dialangSession.started)
       if (passST.executeUpdate != 1) {
-        logger.error("Failed to log pass creation.")
+        log.error("Failed to log pass creation.")
       }
 
       conn.commit()
     } catch {
       case e: Exception => {
-        logger.error("Caught exception whilst creating session and pass.", e)
+        log.error("Caught exception whilst creating session and pass.", e)
         conn.rollback()
       }
     } finally {
@@ -187,11 +187,11 @@ class DataCaptureImpl(dsUrl: String) {
       st.setString(5,dialangSession.tes.skill)
       st.setLong(6,dialangSession.started)
       if (st.executeUpdate != 1) {
-        logger.error("Failed to log pass creation.")
+        log.error("Failed to log pass creation.")
       }
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst create pass", e)
+        log.error("Caught exception whilst create pass", e)
       }
     } finally {
 
@@ -224,14 +224,14 @@ class DataCaptureImpl(dsUrl: String) {
         st.setString(2,t._1)
         st.setBoolean(3,t._2)
         if (st.executeUpdate != 1) {
-          logger.error("Failed to log vspt word response.")
+          log.error("Failed to log vspt word response.")
         }
       })
 
       conn.commit
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst logging VSPT responses", e)
+        log.error("Caught exception whilst logging VSPT responses", e)
       }
     } finally {
       if (st != null) {
@@ -262,11 +262,11 @@ class DataCaptureImpl(dsUrl: String) {
       st.setInt(3,dialangSession.vsptMearaScore)
       st.setString(4,dialangSession.vsptLevel)
       if (st.executeUpdate != 1) {
-        logger.error("Failed to log vspt scores.")
+        log.error("Failed to log vspt scores.")
       }
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst logging VSPT scores", e)
+        log.error("Caught exception whilst logging VSPT scores", e)
       }
     } finally {
 
@@ -300,14 +300,14 @@ class DataCaptureImpl(dsUrl: String) {
         st.setString(2,t._1)
         st.setBoolean(3,t._2)
         if (st.executeUpdate != 1) {
-          logger.error("Failed to log sa response.")
+          log.error("Failed to log sa response.")
         }
       })
 
       conn.commit
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst logging SA responses", e)
+        log.error("Caught exception whilst logging SA responses", e)
       }
     } finally {
 
@@ -337,11 +337,11 @@ class DataCaptureImpl(dsUrl: String) {
       st.setDouble(2, dialangSession.saPPE)
       st.setString(3, dialangSession.saLevel)
       if (st.executeUpdate != 1) {
-        logger.error("Failed to log SA scores.")
+        log.error("Failed to log SA scores.")
       }
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst logging SA scores", e)
+        log.error("Caught exception whilst logging SA scores", e)
       }
     } finally {
       if (st != null) {
@@ -368,17 +368,17 @@ class DataCaptureImpl(dsUrl: String) {
       st.setString(1, passId)
       st.setLong(2, ((new Date()).getTime()) / 1000L)
       if (st.executeUpdate != 1) {
-        logger.error("Failed to log test start time.")
+        log.error("Failed to log test start time.")
       }
       bookletST.setString(1, passId)
       bookletST.setInt(2, bookletId)
       bookletST.setInt(3, bookletLength)
       if (bookletST.executeUpdate != 1) {
-        logger.error("Failed to log booklet.")
+        log.error("Failed to log booklet.")
       }
     } catch {
       case e: Exception => {
-        logger.error("Caught exception whilst logging test start time", e)
+        log.error("Caught exception whilst logging test start time", e)
       }
     } finally {
 
@@ -398,8 +398,8 @@ class DataCaptureImpl(dsUrl: String) {
 
   def logBasket(passId: String, basketId: Int, basketNumber: Int) {
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("logBasket(" + passId + "," + basketId + "," + basketNumber + ")")
+    if (log.isDebugEnabled()) {
+      log.debug("logBasket(" + passId + "," + basketId + "," + basketNumber + ")")
     }
 
     lazy val conn = ds.getConnection
@@ -410,11 +410,11 @@ class DataCaptureImpl(dsUrl: String) {
       st.setInt(2, basketId)
       st.setInt(3,basketNumber)
       if (st.executeUpdate != 1) {
-        logger.error("Failed to log basket.")
+        log.error("Failed to log basket.")
       }
     } catch {
       case e: Exception => {
-        logger.error("Caught exception whilst logging basket.", e)
+        log.error("Caught exception whilst logging basket.", e)
       }
     } finally {
       if (st != null) {
@@ -433,8 +433,8 @@ class DataCaptureImpl(dsUrl: String) {
 
   def logSingleIdResponse(passId: String, item: ImmutableItem) {
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("PASS ID: " + passId + ". BASKET ID: " + item.basketId
+    if (log.isDebugEnabled()) {
+      log.debug("PASS ID: " + passId + ". BASKET ID: " + item.basketId
                     + ". ITEM ID: " + item.id + ". ANSWER ID: " + item.responseId)
     }
 
@@ -450,11 +450,11 @@ class DataCaptureImpl(dsUrl: String) {
       st.setBoolean(6, item.correct)
       st.setInt(7, item.positionInTest)
       if (st.executeUpdate != 1) {
-        logger.error("Failed to log single id response.")
+        log.error("Failed to log single id response.")
       }
     } catch {
       case e: Exception => {
-        logger.error("Caught exception whilst logging single id response.", e)
+        log.error("Caught exception whilst logging single id response.", e)
       }
     } finally {
 
@@ -489,12 +489,12 @@ class DataCaptureImpl(dsUrl: String) {
         st.setBoolean(6, item.correct)
         st.setInt(7, item.positionInTest)
         if (st.executeUpdate != 1) {
-          logger.error("Failed to log textual response.")
+          log.error("Failed to log textual response.")
         }
       })
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst logging multiple textual response.", e)
+        log.error("Caught exception whilst logging multiple textual response.", e)
       }
     } finally {
 
@@ -514,8 +514,8 @@ class DataCaptureImpl(dsUrl: String) {
 
   def logMultipleIdResponses(passId: String, items: List[ImmutableItem]) {
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("PASS ID: " + passId + ". BASKET ID: " + items.last.basketId)
+    if (log.isDebugEnabled()) {
+      log.debug("PASS ID: " + passId + ". BASKET ID: " + items.last.basketId)
     }
 
     lazy val conn = ds.getConnection
@@ -533,12 +533,12 @@ class DataCaptureImpl(dsUrl: String) {
         st.setBoolean(6, item.correct)
         st.setInt(7, item.positionInTest)
         if (st.executeUpdate != 1) {
-          logger.error("Failed to log id response.")
+          log.error("Failed to log id response.")
         }
       })
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst logging multiple id response.", e)
+        log.error("Caught exception whilst logging multiple id response.", e)
       }
     } finally {
 
@@ -568,11 +568,11 @@ class DataCaptureImpl(dsUrl: String) {
       st.setInt(2,dialangSession.itemGrade)
       st.setString(3,dialangSession.itemLevel)
       if (st.executeUpdate != 1) {
-        logger.error("Failed to log test result.")
+        log.error("Failed to log test result.")
       }
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst logging test result.", e)
+        log.error("Caught exception whilst logging test result.", e)
       }
     } finally {
 
@@ -600,11 +600,11 @@ class DataCaptureImpl(dsUrl: String) {
       st.setLong(1,((new Date()).getTime()) / 1000L)
       st.setString(2,passId)
       if (st.executeUpdate != 1) {
-        logger.error("Failed to log test finish time.")
+        log.error("Failed to log test finish time.")
       }
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst logging test finish time.", e)
+        log.error("Caught exception whilst logging test finish time.", e)
       }
     } finally {
 
@@ -630,14 +630,14 @@ class DataCaptureImpl(dsUrl: String) {
     try {
       st.setString(1, token)
       if (st.executeUpdate != 1) {
-        logger.error("Failed to delete token.")
+        log.error("Failed to delete token.")
         false
       } else {
         true
       }
     } catch {
       case e:Exception => {
-        logger.error("Caught exception whilst deleting token.", e)
+        log.error("Caught exception whilst deleting token.", e)
         false
       }
     } finally {
@@ -694,8 +694,8 @@ class DataCaptureImpl(dsUrl: String) {
       passesQuery += " AND s.user_id = ?"
     }
 
-    if (logger.isDebugEnabled) {
-      logger.debug("passesQuery: " + passesQuery)
+    if (log.isDebugEnabled) {
+      log.debug("passesQuery: " + passesQuery)
     }
 
     lazy val passesST = conn.prepareStatement(passesQuery)
@@ -758,17 +758,17 @@ class DataCaptureImpl(dsUrl: String) {
             }
           }
 
-        if (logger.isDebugEnabled) {
-          logger.debug("userId: " + userId)
-          logger.debug("firstName: " + firstName)
-          logger.debug("lastName: " + lastName)
-          logger.debug("passId: " + passId)
-          logger.debug("al: " + al)
-          logger.debug("tl: " + tl)
-          logger.debug("started: " + started)
-          logger.debug("vsptLevel: " + vsptLevel)
-          logger.debug("saLevel: " + saLevel)
-          logger.debug("testLevel: " + testLevel)
+        if (log.isDebugEnabled) {
+          log.debug("userId: " + userId)
+          log.debug("firstName: " + firstName)
+          log.debug("lastName: " + lastName)
+          log.debug("passId: " + passId)
+          log.debug("al: " + al)
+          log.debug("tl: " + tl)
+          log.debug("started: " + started)
+          log.debug("vsptLevel: " + vsptLevel)
+          log.debug("saLevel: " + saLevel)
+          log.debug("testLevel: " + testLevel)
         }
 
         list += ((userId, firstName, lastName, al, tl, vsptLevel, saLevel, testLevel, started))
@@ -776,7 +776,7 @@ class DataCaptureImpl(dsUrl: String) {
       passesRS.close()
     } catch {
       case _: Throwable => {
-        logger.error("Caught exception whilst deleting token.")
+        log.error("Caught exception whilst deleting token.")
       }
     } finally {
       if (passesST != null) {
@@ -811,7 +811,7 @@ class DataCaptureImpl(dsUrl: String) {
       rs.close()
     } catch {
       case e: Exception => {
-        logger.error("Failed to get LTI user names", e)
+        log.error("Failed to get LTI user names", e)
       }
     } finally {
       if (st != null) {
@@ -827,5 +827,62 @@ class DataCaptureImpl(dsUrl: String) {
       }
     }
     listBuffer.toList
+  }
+
+  def storeQuestionnaire(sessionId: String, data: Map[String, String]) = {
+
+    val ageGroup = data.getOrElse("agegroup", "")
+    val gender = data.getOrElse("gender", "")
+    val otherGender = data.getOrElse("othergender", "")
+    val firstLanguage = data.getOrElse("firstlanguage", "")
+    val nationality = data.getOrElse("nationality", "")
+    val institution = data.getOrElse("institution", "")
+    val reason = data.getOrElse("reason", "")
+    val accuracy = data.getOrElse("accuracy", "")
+    val comments = data.getOrElse("comments", "")
+
+    log.debug("ageGroup: {}", ageGroup)
+    log.debug("gender: {}", gender)
+    log.debug("otherGender: {}", otherGender)
+    log.debug("firstLanguage: {}", firstLanguage)
+    log.debug("nationality: {}", nationality)
+    log.debug("institution: {}", institution)
+    log.debug("reason: {}", reason)
+    log.debug("accuracy: {}", accuracy)
+    log.debug("comments: {}", comments)
+
+    lazy val conn = ds.getConnection
+    lazy val questionnaireST
+      = conn.prepareStatement("INSERT INTO questionnaire VALUES(?,?,?,?,?,?,?,?,?,?)")
+
+    try {
+      questionnaireST.setString(1, sessionId)
+      questionnaireST.setInt(2, ageGroup.toInt)
+      questionnaireST.setString(3, gender)
+      questionnaireST.setString(4, otherGender)
+      questionnaireST.setString(5, firstLanguage)
+      questionnaireST.setString(6, nationality)
+      questionnaireST.setString(7, institution)
+      questionnaireST.setInt(8, reason.toInt)
+      questionnaireST.setInt(9, accuracy.toInt)
+      questionnaireST.setString(10, comments)
+      questionnaireST.executeUpdate
+    } catch {
+      case e: Exception => {
+        log.error("Caught exception whilst storing questionnaire.", e)
+      }
+    } finally {
+      if (questionnaireST != null) {
+        try {
+          questionnaireST .close()
+        } catch { case _ : SQLException => }
+      }
+
+      if (conn != null) {
+        try {
+          conn.close()
+        } catch { case _ : SQLException => }
+      }
+    }
   }
 }

@@ -1,17 +1,23 @@
 dialang.session.feedbackMode = true;
 
+if (dialang.questionnaireShown) {
+    if (!dialang.flags.hideTLS) {
+        $('#skipforward').prop('disabled', false).click(function () {
+
+            $('#confirm-restart-dialog').dialog('open');
+            return false;
+        });
+    }
+} else {
+    $('#next').prop('disabled', false).click(function () {
+        dialang.switchState('questionnaire');
+    });
+}
+
 // This is used to indicate whether explfb has been reached from
 // the feedbackmenu or from the sa feedback page. It gets used in
 // aboutsa.js
 dialang.session.saFeedbackMode = false;
-
-if (!dialang.flags.hideTLS) {
-  $('#skipforward').prop('disabled', false).click(function () {
-
-      $('#confirm-restart-dialog').dialog('open');
-      return false;
-  });
-}
 
 $.get('/dialang-content/feedbackmenu/' + dialang.session.al + '.html', function (data) {
 

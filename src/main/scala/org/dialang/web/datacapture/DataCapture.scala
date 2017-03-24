@@ -164,4 +164,14 @@ class DataCapture(dsUrl: String) {
   def getScores(consumerKey: String, fromDate: String, toDate: String, userId: String, resourceLinkId: String) = dataCapture.getScores(consumerKey, fromDate, toDate, userId, resourceLinkId)
 
   def getLTIUserNames(consumerKey: String) = dataCapture.getLTIUserNames(consumerKey)
+
+  def storeQuestionnaire(sessionId: String, data: Map[String, String]) {
+
+    new Thread(
+      new Runnable {
+        def run {
+          dataCapture.storeQuestionnaire(sessionId, data)
+        }
+      }, "storeQuestionnaire").start
+  }
 }

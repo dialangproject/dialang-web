@@ -692,3 +692,27 @@ button[disabled] {
 #dialang-take-a-test-button {
     margin-bottom: 7px;
 }
+
+#questionnaire-form {
+    margin: 20px;
+}
+
+#questionnaire-table {
+    display: table;
+}
+
+.questionnaire-table-row {
+    display: table-row;
+    margin-bottom: 5px;
+}
+
+.questionnaire-table-cell {
+    display: table-cell;
+    text-align: left;
+}
+
+#questionnaire-information {
+    font-style: italic;
+    text-align: left;
+    padding: 20px;
+}
