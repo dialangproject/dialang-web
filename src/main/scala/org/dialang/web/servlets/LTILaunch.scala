@@ -160,6 +160,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
             dialangSession.sessionId = UUID.randomUUID.toString
             dialangSession.passId = UUID.randomUUID.toString
             dialangSession.ipAddress = request.remoteAddress
+            dialangSession.browserLocale = request.locale.toString
             saveDialangSession(dialangSession)
 
             // An admin languge, test language and skill have been specified as

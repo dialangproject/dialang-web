@@ -26,7 +26,6 @@ class SetTLS extends DialangServlet {
       contentType = "text/html"
       redirect("/dialang-content/als.html")
     } else {
-
       val tl = params.get("tl") match {
           case Some(s:String) => s
           case None => {
@@ -67,6 +66,7 @@ class SetTLS extends DialangServlet {
       dialangSession.tes.tl = tl
       dialangSession.tes.skill = skill.toLowerCase
       dialangSession.ipAddress = request.remoteAddress
+      dialangSession.browserLocale = request.locale.toString
       dialangSession.started = new Date
 
       saveDialangSession(dialangSession)

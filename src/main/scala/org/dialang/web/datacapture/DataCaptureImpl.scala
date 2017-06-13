@@ -30,7 +30,7 @@ class DataCaptureImpl(dsUrl: String) {
 
     lazy val conn = ds.getConnection
     lazy val sessionST
-      = conn.prepareStatement("INSERT INTO sessions (id,user_id,first_name, last_name, consumer_key,resource_link_id,resource_link_title,ip_address,started) VALUES(?,?,?,?,?,?,?,?,?)")
+      = conn.prepareStatement("INSERT INTO sessions (id,user_id,first_name, last_name, consumer_key,resource_link_id,resource_link_title,ip_address,browser_locale,started) VALUES(?,?,?,?,?,?,?,?,?,?)")
     lazy val passST
       = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill,started) VALUES(?,?,?,?,?,?)")
     lazy val updateResourceLinkTitleST
@@ -48,7 +48,8 @@ class DataCaptureImpl(dsUrl: String) {
       sessionST.setString(6, dialangSession.resourceLinkId)
       sessionST.setString(7, dialangSession.resourceLinkTitle)
       sessionST.setString(8, dialangSession.ipAddress)
-      sessionST.setLong(9, dialangSession.started)
+      sessionST.setString(9, dialangSession.browserLocale)
+      sessionST.setLong(10, dialangSession.started)
       if (sessionST.executeUpdate != 1) {
         log.error("Failed to insert session.")
       }
