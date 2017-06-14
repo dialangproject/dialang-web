@@ -5,7 +5,7 @@ $.ajaxSetup({ cache: false });
 dialang.uploadTimeout = 30000; // 30 seconds
 
 // Patch console. Not all browsers support it.
-console = console || { log: function (m) { alert(m); } };
+window.console = window.console || { log: function (m) { alert(m); } };
 
 if (typeof dialang === 'undefined') {
     console.log("No dialang object defined. Returning prematurely from dialang.js ...");
