@@ -716,3 +716,10 @@ button[disabled] {
     text-align: left;
     padding: 20px;
 }
+
+.lu-logo img {
+	max-height: 64px;
+	max-width: 100%;
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+}
