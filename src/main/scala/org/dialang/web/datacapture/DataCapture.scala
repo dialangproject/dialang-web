@@ -1,5 +1,6 @@
 package org.dialang.web.datacapture
 
+import java.sql.Connection
 import org.dialang.common.model.{DialangSession, ImmutableItem}
 
 class DataCapture(dsUrl: String) {
@@ -22,7 +23,8 @@ class DataCapture(dsUrl: String) {
   /**
    * Sends the pass details to datacapture over reliable transport
    */
-  def createPass(dialangSession:DialangSession) {
+  def createPass(dialangSession:DialangSession, suppliedConn: Connection = null) {
+
     new Thread(
       new Runnable {
         def run {

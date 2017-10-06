@@ -31,8 +31,6 @@ class DataCaptureImpl(dsUrl: String) {
     lazy val conn = ds.getConnection
     lazy val sessionST
       = conn.prepareStatement("INSERT INTO sessions (id,user_id,first_name, last_name, consumer_key,resource_link_id,resource_link_title,ip_address,browser_locale,started) VALUES(?,?,?,?,?,?,?,?,?,?)")
-    lazy val passST
-      = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill,started) VALUES(?,?,?,?,?,?)")
     lazy val updateResourceLinkTitleST
       = conn.prepareStatement("UPDATE sessions SET resource_link_title = ? WHERE resource_link_id = ?")
 
@@ -62,15 +60,7 @@ class DataCaptureImpl(dsUrl: String) {
       }
       */
 
-      passST.setString(1, dialangSession.passId)
-      passST.setString(2, dialangSession.sessionId)
-      passST.setString(3, dialangSession.tes.al)
-      passST.setString(4, dialangSession.tes.tl)
-      passST.setString(5, dialangSession.tes.skill)
-      passST.setLong(6, dialangSession.started)
-      if (passST.executeUpdate != 1) {
-        log.error("Failed to log pass creation.")
-      }
+      createPass(dialangSession, conn)
 
       conn.commit()
     } catch {
@@ -83,12 +73,6 @@ class DataCaptureImpl(dsUrl: String) {
       if (sessionST != null) {
         try {
           sessionST.close()
-        } catch { case _ : SQLException => }
-      }
-
-      if (passST != null) {
-        try {
-          passST.close()
         } catch { case _ : SQLException => }
       }
 
@@ -175,10 +159,11 @@ class DataCaptureImpl(dsUrl: String) {
     }
   }
 
-  def createPass(dialangSession: DialangSession) {
+  def createPass(dialangSession: DialangSession, suppliedConn: Connection = null) {
 
-    lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill,started) VALUES(?,?,?,?,?,?)")
+
+    lazy val conn = { if (suppliedConn != null) suppliedConn else ds.getConnection }
 
     try {
       st.setString(1,dialangSession.passId)
@@ -192,7 +177,7 @@ class DataCaptureImpl(dsUrl: String) {
       }
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst create pass", e)
+        log.error("Caught exception whilst creating pass", e)
       }
     } finally {
 
@@ -202,7 +187,8 @@ class DataCaptureImpl(dsUrl: String) {
         } catch { case _ : SQLException => }
       }
 
-      if (conn != null) {
+      // If we created a connection locally, close it.
+      if (suppliedConn == null && conn != null) {
         try {
           conn.close()
         } catch { case _ : SQLException => }
