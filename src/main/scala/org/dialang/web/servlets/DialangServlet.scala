@@ -6,13 +6,11 @@ import org.dialang.web.datacapture.DataCapture
 
 import org.scalatra.ScalatraServlet
 
-import org.slf4j.LoggerFactory
-
 import org.dialang.db.DBFactory
 
-class DialangServlet extends ScalatraServlet {
+import grizzled.slf4j.Logging
 
-  private val logger = LoggerFactory.getLogger(getClass)
+class DialangServlet extends ScalatraServlet with Logging {
 
   protected lazy val dataCapture = new DataCapture("java:comp/env/jdbc/dialangdatacapture")
 

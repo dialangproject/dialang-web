@@ -8,15 +8,11 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ListBuffer
 
-import org.slf4j.LoggerFactory
-
 import org.json4s.{DefaultFormats, Formats}
 
 import org.scalatra.json._
 
 class SubmitBasket extends DialangServlet with JacksonJsonSupport {
-
-  private val logger = LoggerFactory.getLogger(classOf[SubmitBasket])
 
   protected implicit val jsonFormats: Formats = DefaultFormats
  
@@ -39,11 +35,9 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
         }
       } 
 
-    if (logger.isDebugEnabled) {
-      logger.debug("currentBasketId = " + currentBasketId)
-      logger.debug("currentBasketNumber = " + dialangSession.currentBasketNumber)
-      logger.debug("Current item list length: " + dialangSession.scoredItemList.length)
-    }
+    logger.debug("currentBasketId = " + currentBasketId)
+    logger.debug("currentBasketNumber = " + dialangSession.currentBasketNumber)
+    logger.debug("Current item list length: " + dialangSession.scoredItemList.length)
 
     val returnMap = new HashMap[String, Any]()
 
@@ -82,7 +76,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
               item.positionInBasket = 1
               item.responseId = answerId
               item.positionInTest = numScoredItems + 1
-              if (logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
+              logger.debug("Item position in test: " + item.positionInTest)
               item.answers = db.getAnswers(itemId) match {
                   case Some(l:List[Answer]) => l
                   case None => {
@@ -122,8 +116,8 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
 
             item.basketId = currentBasketId
             item.positionInTest = numScoredItems + item.positionInBasket
-            if(logger.isDebugEnabled) logger.debug("Item position in basket: " + item.positionInBasket)
-            if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
+            logger.debug("Item position in basket: " + item.positionInBasket)
+            logger.debug("Item position in test: " + item.positionInTest)
             logger.debug(item.basketId.toString)
             item.answers = db.getAnswers(item.id) match {
                 case Some(l:List[Answer]) => l
@@ -151,7 +145,6 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
         val basketItems = new ListBuffer[ImmutableItem]()
         val itemsToLog = new ListBuffer[ImmutableItem]()
         responses.foreach(t => {
-          logger.error(t._1 + " -> " + t._2)
           val itemOption = scoringMethods.getScoredTextResponseItem(t._1,t._2)
           if(itemOption.isDefined) {
             val item = itemOption.get
@@ -165,7 +158,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
                 }
               }
             item.positionInTest = numScoredItems + item.positionInBasket
-            if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
+            logger.debug("Item position in test: " + item.positionInTest)
             item.answers = db.getAnswers(item.id) match {
                 case Some(l:List[Answer]) => l
                 case None => {
@@ -195,7 +188,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
         responses.foreach(t => {
 
           val itemOption = scoringMethods.getScoredTextResponseItem(t._1,t._2)
-          if(itemOption.isDefined) {
+          if (itemOption.isDefined) {
             val item: ScoredItem = itemOption.get
             item.basketId = currentBasketId
             item.responseText = t._2
@@ -207,7 +200,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
                 }
               }
             item.positionInTest = numScoredItems + item.positionInBasket
-            if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
+            logger.debug("Item position in test: " + item.positionInTest)
             item.answers = db.getAnswers(item.id) match {
                 case Some(l:List[Answer]) => l
                 case None => {
@@ -250,7 +243,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
               }
 
             item.positionInTest = numScoredItems + item.positionInBasket
-            if(logger.isDebugEnabled) logger.debug("Item position in test: " + item.positionInTest)
+            logger.debug("Item position in test: " + item.positionInTest)
             item.answers = db.getAnswers(item.id) match {
                 case Some(l: List[Answer]) => l
                 case None => {
@@ -287,7 +280,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
     dialangSession.scoredBasketList = basketList.toList
 
     val nextBasketNumber = dialangSession.currentBasketNumber + 1
-    if (logger.isDebugEnabled) logger.debug("nextBasketNumber:" + nextBasketNumber)
+    logger.debug("nextBasketNumber: " + nextBasketNumber)
 
     val basketIds:List[Int] = db.getBasketIdsForBooklet(dialangSession.bookletId)
 
@@ -299,7 +292,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
                                         dialangSession.bookletId,
                                         itemList.toList)
 
-      if (logger.isDebugEnabled) logger.debug("ITEM GRADE:" + itemGrade)
+      logger.debug("ITEM GRADE: " + itemGrade)
 
       dialangSession.itemGrade = itemGrade
       dialangSession.itemLevel = itemLevel
@@ -318,7 +311,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
             if (dialangSession.vsptLevel != "") params.append("&vsptLevel=" + dialangSession.vsptLevel)
             parts(0) + params.toString
           }
-        if (logger.isDebugEnabled) logger.debug("Redirect URL: " + url)
+        logger.debug("Redirect URL: " + url)
         returnMap += (("redirect" -> url))
         contentType = formats("json")
         returnMap.toMap

@@ -5,11 +5,8 @@ import scala.collection.JavaConversions._
 import org.dialang.web.datacapture.Saver
 import org.dialang.common.model.DialangSession
 
-import org.slf4j.LoggerFactory;
-
 class Save extends DialangServlet {
 
-  private val logger = LoggerFactory.getLogger(getClass)
   private lazy val saver = new Saver("java:comp/env/jdbc/dialangdatacapture")
 
   get("/") {

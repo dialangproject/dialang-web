@@ -9,11 +9,7 @@ import scala.collection.mutable.ListBuffer
 
 import org.scalatra.NoContent
 
-import org.slf4j.LoggerFactory
-
 class SubmitQuestionnaire extends DialangServlet {
-
-  private val log = LoggerFactory.getLogger(classOf[SubmitQuestionnaire])
 
   post("/") {
 

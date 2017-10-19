@@ -3,8 +3,6 @@ package org.dialang.dr.servlets
 import org.scalatra.ScalatraServlet
 import org.scalatra._
 
-import org.slf4j.LoggerFactory
-
 import org.dialang.dr.db.DB
 import org.dialang.dr.model.Session
 
@@ -13,9 +11,9 @@ import javax.crypto.spec.SecretKeySpec
 import java.security.NoSuchAlgorithmException
 import org.apache.commons.codec.binary.Base64
 
-class Results extends ScalatraServlet {
+import grizzled.slf4j.Logging
 
-  private val logger = LoggerFactory.getLogger(getClass)
+class Results extends ScalatraServlet with Logging {
 
   private val db = DB
 

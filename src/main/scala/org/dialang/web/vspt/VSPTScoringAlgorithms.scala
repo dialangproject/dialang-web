@@ -1,11 +1,6 @@
 package org.dialang.web.vspt
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 object VSPTScoringAlgorithms {
-
-  private val logger = LoggerFactory.getLogger(getClass)
 
   def getVersion6ZScore(hits: Int, realWordsAnswered: Int,falseAlarms: Int, fakeWordsAnswered: Int):Double = {
 
@@ -50,16 +45,7 @@ object VSPTScoringAlgorithms {
     } else {
       try {
         val rhs = (( 4 * h * (1 - f) ) - (2 * (h - f) * (1 + h - f))) / ((4 * h * (1 - f)) - ((h - f) * (1 + h - f)))
-        /*if (rhs.isNaN) {
-          if (logger.isDebugEnabled) {
-            logger.debug("RHS is NaN. Returning -1 ...")
-          }
-          // This can arise if the denominator is zero. We're assuming that divide by zero gives
-          // zero, so the result is - 1.
-          -1
-        } else {*/
           1 - rhs
-        //}
       } catch {
         case e:Exception => {
           0

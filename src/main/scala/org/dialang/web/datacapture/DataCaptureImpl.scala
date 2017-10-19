@@ -11,11 +11,9 @@ import org.dialang.common.model.{DialangSession, ImmutableItem}
 
 import scala.collection.mutable.ListBuffer
 
-import org.slf4j.LoggerFactory
+import grizzled.slf4j.Logging
 
-class DataCaptureImpl(dsUrl: String) {
-
-  private val log = LoggerFactory.getLogger(classOf[DataCaptureImpl])
+class DataCaptureImpl(dsUrl: String) extends Logging {
 
   private val itemResponseSql =
     """INSERT INTO item_responses (pass_id,basket_id,item_id,answer_id,score,correct,pass_order)
@@ -49,14 +47,14 @@ class DataCaptureImpl(dsUrl: String) {
       sessionST.setString(9, dialangSession.browserLocale)
       sessionST.setLong(10, dialangSession.started)
       if (sessionST.executeUpdate != 1) {
-        log.error("Failed to insert session.")
+        logger.error("Failed to insert session.")
       }
 
       /*
       updateResourceLinkTitleST.setString(1, dialangSession.resourceLinkTitle)
       updateResourceLinkTitleST.setString(2, dialangSession.resourceLinkId)
       if (updateResourceLinkTitleST.executeUpdate != 1) {
-        log.error("Failed to update resource link title.")
+        logger.error("Failed to update resource link title.")
       }
       */
 
@@ -65,7 +63,7 @@ class DataCaptureImpl(dsUrl: String) {
       conn.commit()
     } catch {
       case e: Exception => {
-        log.error("Caught exception whilst creating session and pass.", e)
+        logger.error("Caught exception whilst creating session and pass.", e)
         conn.rollback()
       }
     } finally {
@@ -73,14 +71,14 @@ class DataCaptureImpl(dsUrl: String) {
       if (sessionST != null) {
         try {
           sessionST.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.setAutoCommit(true)
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -112,13 +110,13 @@ class DataCaptureImpl(dsUrl: String) {
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -148,13 +146,13 @@ class DataCaptureImpl(dsUrl: String) {
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -173,25 +171,25 @@ class DataCaptureImpl(dsUrl: String) {
       st.setString(5,dialangSession.tes.skill)
       st.setLong(6,dialangSession.started)
       if (st.executeUpdate != 1) {
-        log.error("Failed to log pass creation.")
+        logger.error("Failed to log pass creation.")
       }
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst creating pass", e)
+        logger.error("Caught exception whilst creating pass", e)
       }
     } finally {
 
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       // If we created a connection locally, close it.
       if (suppliedConn == null && conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -211,27 +209,27 @@ class DataCaptureImpl(dsUrl: String) {
         st.setString(2,t._1)
         st.setBoolean(3,t._2)
         if (st.executeUpdate != 1) {
-          log.error("Failed to log vspt word response.")
+          logger.error("Failed to log vspt word response.")
         }
       })
 
       conn.commit
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst logging VSPT responses", e)
+        logger.error("Caught exception whilst logging VSPT responses", e)
       }
     } finally {
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.setAutoCommit(true)
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -249,24 +247,24 @@ class DataCaptureImpl(dsUrl: String) {
       st.setInt(3,dialangSession.vsptMearaScore)
       st.setString(4,dialangSession.vsptLevel)
       if (st.executeUpdate != 1) {
-        log.error("Failed to log vspt scores.")
+        logger.error("Failed to log vspt scores.")
       }
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst logging VSPT scores", e)
+        logger.error("Caught exception whilst logging VSPT scores", e)
       }
     } finally {
 
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
 
     }
@@ -287,28 +285,28 @@ class DataCaptureImpl(dsUrl: String) {
         st.setString(2,t._1)
         st.setBoolean(3,t._2)
         if (st.executeUpdate != 1) {
-          log.error("Failed to log sa response.")
+          logger.error("Failed to log sa response.")
         }
       })
 
       conn.commit
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst logging SA responses", e)
+        logger.error("Caught exception whilst logging SA responses", e)
       }
     } finally {
 
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.setAutoCommit(true)
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -324,23 +322,23 @@ class DataCaptureImpl(dsUrl: String) {
       st.setDouble(2, dialangSession.saPPE)
       st.setString(3, dialangSession.saLevel)
       if (st.executeUpdate != 1) {
-        log.error("Failed to log SA scores.")
+        logger.error("Failed to log SA scores.")
       }
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst logging SA scores", e)
+        logger.error("Caught exception whilst logging SA scores", e)
       }
     } finally {
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -355,39 +353,37 @@ class DataCaptureImpl(dsUrl: String) {
       st.setString(1, passId)
       st.setLong(2, ((new Date()).getTime()) / 1000L)
       if (st.executeUpdate != 1) {
-        log.error("Failed to log test start time.")
+        logger.error("Failed to log test start time.")
       }
       bookletST.setString(1, passId)
       bookletST.setInt(2, bookletId)
       bookletST.setInt(3, bookletLength)
       if (bookletST.executeUpdate != 1) {
-        log.error("Failed to log booklet.")
+        logger.error("Failed to log booklet.")
       }
     } catch {
       case e: Exception => {
-        log.error("Caught exception whilst logging test start time", e)
+        logger.error("Caught exception whilst logging test start time", e)
       }
     } finally {
 
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
 
   def logBasket(passId: String, basketId: Int, basketNumber: Int) {
 
-    if (log.isDebugEnabled()) {
-      log.debug("logBasket(" + passId + "," + basketId + "," + basketNumber + ")")
-    }
+    logger.debug("logBasket(" + passId + "," + basketId + "," + basketNumber+ ")")
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement(basketSql)
@@ -397,33 +393,30 @@ class DataCaptureImpl(dsUrl: String) {
       st.setInt(2, basketId)
       st.setInt(3,basketNumber)
       if (st.executeUpdate != 1) {
-        log.error("Failed to log basket.")
+        logger.error("Failed to log basket.")
       }
     } catch {
       case e: Exception => {
-        log.error("Caught exception whilst logging basket.", e)
+        logger.error("Caught exception whilst logging basket.", e)
       }
     } finally {
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
 
   def logSingleIdResponse(passId: String, item: ImmutableItem) {
 
-    if (log.isDebugEnabled()) {
-      log.debug("PASS ID: " + passId + ". BASKET ID: " + item.basketId
-                    + ". ITEM ID: " + item.id + ". ANSWER ID: " + item.responseId)
-    }
+    logger.debug("PASS ID: " + passId + ". BASKET ID: " + item.basketId + ". ITEM ID: " + item.id + ". ANSWER ID: " + item.responseId)
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement(itemResponseSql)
@@ -437,24 +430,24 @@ class DataCaptureImpl(dsUrl: String) {
       st.setBoolean(6, item.correct)
       st.setInt(7, item.positionInTest)
       if (st.executeUpdate != 1) {
-        log.error("Failed to log single id response.")
+        logger.error("Failed to log single id response.")
       }
     } catch {
       case e: Exception => {
-        log.error("Caught exception whilst logging single id response.", e)
+        logger.error("Caught exception whilst logging single id response.", e)
       }
     } finally {
 
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -476,34 +469,32 @@ class DataCaptureImpl(dsUrl: String) {
         st.setBoolean(6, item.correct)
         st.setInt(7, item.positionInTest)
         if (st.executeUpdate != 1) {
-          log.error("Failed to log textual response.")
+          logger.error("Failed to log textual response.")
         }
       })
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst logging multiple textual response.", e)
+        logger.error("Caught exception whilst logging multiple textual response.", e)
       }
     } finally {
 
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
 
   def logMultipleIdResponses(passId: String, items: List[ImmutableItem]) {
 
-    if (log.isDebugEnabled()) {
-      log.debug("PASS ID: " + passId + ". BASKET ID: " + items.last.basketId)
-    }
+    logger.debug("PASS ID: " + passId + ". BASKET ID: " + items.last.basketId)
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement(itemResponseSql)
@@ -520,25 +511,25 @@ class DataCaptureImpl(dsUrl: String) {
         st.setBoolean(6, item.correct)
         st.setInt(7, item.positionInTest)
         if (st.executeUpdate != 1) {
-          log.error("Failed to log id response.")
+          logger.error("Failed to log id response.")
         }
       })
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst logging multiple id response.", e)
+        logger.error("Caught exception whilst logging multiple id response.", e)
       }
     } finally {
 
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -555,24 +546,24 @@ class DataCaptureImpl(dsUrl: String) {
       st.setInt(2,dialangSession.itemGrade)
       st.setString(3,dialangSession.itemLevel)
       if (st.executeUpdate != 1) {
-        log.error("Failed to log test result.")
+        logger.error("Failed to log test result.")
       }
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst logging test result.", e)
+        logger.error("Caught exception whilst logging test result.", e)
       }
     } finally {
 
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -587,24 +578,24 @@ class DataCaptureImpl(dsUrl: String) {
       st.setLong(1,((new Date()).getTime()) / 1000L)
       st.setString(2,passId)
       if (st.executeUpdate != 1) {
-        log.error("Failed to log test finish time.")
+        logger.error("Failed to log test finish time.")
       }
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst logging test finish time.", e)
+        logger.error("Caught exception whilst logging test finish time.", e)
       }
     } finally {
 
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -617,14 +608,14 @@ class DataCaptureImpl(dsUrl: String) {
     try {
       st.setString(1, token)
       if (st.executeUpdate != 1) {
-        log.error("Failed to delete token.")
+        logger.error("Failed to delete token.")
         false
       } else {
         true
       }
     } catch {
       case e:Exception => {
-        log.error("Caught exception whilst deleting token.", e)
+        logger.error("Caught exception whilst deleting token.", e)
         false
       }
     } finally {
@@ -632,13 +623,13 @@ class DataCaptureImpl(dsUrl: String) {
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
@@ -681,9 +672,7 @@ class DataCaptureImpl(dsUrl: String) {
       passesQuery += " AND s.user_id = ?"
     }
 
-    if (log.isDebugEnabled) {
-      log.debug("passesQuery: " + passesQuery)
-    }
+    logger.debug("passesQuery: " + passesQuery)
 
     lazy val passesST = conn.prepareStatement(passesQuery)
 
@@ -745,25 +734,23 @@ class DataCaptureImpl(dsUrl: String) {
             }
           }
 
-        if (log.isDebugEnabled) {
-          log.debug("userId: " + userId)
-          log.debug("firstName: " + firstName)
-          log.debug("lastName: " + lastName)
-          log.debug("passId: " + passId)
-          log.debug("al: " + al)
-          log.debug("tl: " + tl)
-          log.debug("started: " + started)
-          log.debug("vsptLevel: " + vsptLevel)
-          log.debug("saLevel: " + saLevel)
-          log.debug("testLevel: " + testLevel)
-        }
+        logger.debug("userId: " + userId)
+        logger.debug("firstName: " + firstName)
+        logger.debug("lastName: " + lastName)
+        logger.debug("passId: " + passId)
+        logger.debug("al: " + al)
+        logger.debug("tl: " + tl)
+        logger.debug("started: " + started)
+        logger.debug("vsptLevel: " + vsptLevel)
+        logger.debug("saLevel: " + saLevel)
+        logger.debug("testLevel: " + testLevel)
 
         list += ((userId, firstName, lastName, al, tl, vsptLevel, saLevel, testLevel, started))
       }
       passesRS.close()
     } catch {
       case _: Throwable => {
-        log.error("Caught exception whilst deleting token.")
+        logger.error("Caught exception whilst deleting token.")
       }
     } finally {
       if (passesST != null) {
@@ -775,7 +762,7 @@ class DataCaptureImpl(dsUrl: String) {
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
     list.toList
@@ -798,19 +785,19 @@ class DataCaptureImpl(dsUrl: String) {
       rs.close()
     } catch {
       case e: Exception => {
-        log.error("Failed to get LTI user names", e)
+        logger.error("Failed to get LTI user names", e)
       }
     } finally {
       if (st != null) {
         try {
           st.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
     listBuffer.toList
@@ -828,47 +815,47 @@ class DataCaptureImpl(dsUrl: String) {
     val accuracy = data.getOrElse("accuracy", "")
     val comments = data.getOrElse("comments", "")
 
-    log.debug("ageGroup: {}", ageGroup)
-    log.debug("gender: {}", gender)
-    log.debug("otherGender: {}", otherGender)
-    log.debug("firstLanguage: {}", firstLanguage)
-    log.debug("nationality: {}", nationality)
-    log.debug("institution: {}", institution)
-    log.debug("reason: {}", reason)
-    log.debug("accuracy: {}", accuracy)
-    log.debug("comments: {}", comments)
+    logger.debug("ageGroup: " + ageGroup)
+    logger.debug("gender: " + gender)
+    logger.debug("otherGender: " + otherGender)
+    logger.debug("firstLanguage: " + firstLanguage)
+    logger.debug("nationality: " + nationality)
+    logger.debug("institution: " + institution)
+    logger.debug("reason: " + reason)
+    logger.debug("accuracy: " + accuracy)
+    logger.debug("comments: " + comments)
 
     lazy val conn = ds.getConnection
-    lazy val questionnaireST
+    lazy val st
       = conn.prepareStatement("INSERT INTO questionnaire VALUES(?,?,?,?,?,?,?,?,?,?)")
 
     try {
-      questionnaireST.setString(1, sessionId)
-      questionnaireST.setInt(2, ageGroup.toInt)
-      questionnaireST.setString(3, gender)
-      questionnaireST.setString(4, otherGender)
-      questionnaireST.setString(5, firstLanguage)
-      questionnaireST.setString(6, nationality)
-      questionnaireST.setString(7, institution)
-      questionnaireST.setInt(8, reason.toInt)
-      questionnaireST.setInt(9, accuracy.toInt)
-      questionnaireST.setString(10, comments)
-      questionnaireST.executeUpdate
+      st.setString(1, sessionId)
+      st.setInt(2, ageGroup.toInt)
+      st.setString(3, gender)
+      st.setString(4, otherGender)
+      st.setString(5, firstLanguage)
+      st.setString(6, nationality)
+      st.setString(7, institution)
+      st.setInt(8, reason.toInt)
+      st.setInt(9, accuracy.toInt)
+      st.setString(10, comments)
+      st.executeUpdate
     } catch {
       case e: Exception => {
-        log.error("Caught exception whilst storing questionnaire.", e)
+        logger.error("Caught exception whilst storing questionnaire.", e)
       }
     } finally {
-      if (questionnaireST != null) {
+      if (st != null) {
         try {
-          questionnaireST .close()
-        } catch { case _ : SQLException => }
+          st .close()
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }

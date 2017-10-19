@@ -7,7 +7,7 @@
          password="@db.password@"
          driverClassName="org.postgresql.Driver"
          url="jdbc:postgresql://@db.host@:5432/DIALANG"
-         maxActive="20"
+         maxTotal="20"
          maxIdle="10"
          validationQuery="select 1" />
     <Resource
@@ -18,11 +18,11 @@
          password="@db.password@"
          driverClassName="org.postgresql.Driver"
          url="jdbc:postgresql://@db.host@:5432/DIALANGDATACAPTURE"
-         maxActive="20"
+         maxTotal="50"
          maxIdle="10"
          validationQuery="select 1" />
-    <Manager className="de.javakaffee.web.msm.MemcachedBackupSessionManager"
+    <!--Manager className="de.javakaffee.web.msm.MemcachedBackupSessionManager"
         memcachedNodes="n1:@memcached.host@:@memcached.port@"
         requestUriIgnorePattern=".*\.(ico|png|gif|jpg|css|js)$"
-    />
+    /-->
  </Context>

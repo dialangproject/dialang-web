@@ -10,11 +10,7 @@ import org.json4s.{DefaultFormats, Formats}
 
 import org.scalatra.json._
 
-import org.slf4j.LoggerFactory;
-
 class ScoreSA extends DialangServlet with JacksonJsonSupport {
-
-  private val logger = LoggerFactory.getLogger(getClass)
 
   private val scoringMethods = new ScoringMethods
 
@@ -67,7 +63,7 @@ class ScoreSA extends DialangServlet with JacksonJsonSupport {
           if (dialangSession.vsptLevel != "") params.append("&vsptLevel=" + dialangSession.vsptLevel)
           parts(0) + params.toString
         }
-      if (logger.isDebugEnabled) logger.debug("Redirect URL: " + url)
+      logger.debug("Redirect URL: " + url)
       contentType = formats("json")
       "{ \"redirect\":\"" + url + "\"}"
     } else {

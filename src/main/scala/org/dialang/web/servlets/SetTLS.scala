@@ -4,11 +4,7 @@ import java.util.{Date,UUID}
 
 import org.dialang.common.model.ImmutableItem
 
-import org.slf4j.LoggerFactory
-
 class SetTLS extends DialangServlet {
-
-  private val logger = LoggerFactory.getLogger(getClass)
 
   post("/") {
 
@@ -55,12 +51,10 @@ class SetTLS extends DialangServlet {
       // new one for each test.
       dialangSession.passId = UUID.randomUUID.toString
 
-      if (logger.isDebugEnabled) {
-        logger.debug("TL: " + tl)
-        logger.debug("SKILL: " + skill)
-        logger.debug("SESSION ID: " + sessionId)
-        logger.debug("PASS ID: " + dialangSession.passId)
-      }
+      logger.debug("TL: " + tl)
+      logger.debug("SKILL: " + skill)
+      logger.debug("SESSION ID: " + sessionId)
+      logger.debug("PASS ID: " + dialangSession.passId)
 
       dialangSession.sessionId = sessionId
       dialangSession.tes.tl = tl

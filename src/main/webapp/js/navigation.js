@@ -5,11 +5,12 @@ dialang.navigation = {};
 dialang.navigation.nextRules = {
 
     legend: function () {
-        return dialang.switchState('loadsaved');
-    },
-    loadsaved: function () {
+        //return dialang.switchState('loadsaved');
         return dialang.switchState('flowchart');
     },
+    /*loadsaved: function () {
+        return dialang.switchState('flowchart');
+    },*/
     flowchart: function () {
 
         if (!dialang.flags.hideTLS) {
@@ -95,11 +96,12 @@ dialang.navigation.backRules = {
     legend: function () {
         return dialang.switchState('als');
     },
-    loadsaved: function () {
+    /*loadsaved: function () {
         return dialang.switchState('legend');
-    },
+    },*/
     flowchart: function () {
-        return dialang.switchState('loadsaved');
+        //return dialang.switchState('loadsaved');
+        return dialang.switchState('legend');
     },
     tls: function () {
         return dialang.switchState('flowchart');

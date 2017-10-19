@@ -8,7 +8,7 @@ trait DialangLogger {
  private val logger = LoggerFactory.getLogger(getClass)
 
  def debug(message:String) {
-  if(logger.isDebugEnabled) logger.debug(message)
+  logger.debug(message)
  }
 
  def error(message:String) {
@@ -18,7 +18,4 @@ trait DialangLogger {
  def error(message:String,t:Throwable) {
   logger.error(message,t)
  }
-
- def isDebugEnabled = logger.isDebugEnabled
-
 }

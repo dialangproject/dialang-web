@@ -1,6 +1,6 @@
 package org.dialang.dr.db
 
-import java.sql.{ResultSet,DriverManager,Connection,Statement,PreparedStatement,SQLException}
+import java.sql.{ResultSet, DriverManager, Connection, Statement, PreparedStatement, SQLException}
 
 import scala.collection.mutable.ListBuffer
 
@@ -9,9 +9,10 @@ import javax.sql.DataSource
 
 import org.dialang.dr.model._
 
-import org.dialang.dr.util.DialangLogger
+//import org.dialang.dr.util.DialangLogger
+import grizzled.slf4j.Logging
 
-object DB extends DialangLogger {
+object DB extends Logging {
 
   private val dialangDS = (new InitialContext).lookup("java:comp/env/jdbc/dialang").asInstanceOf[DataSource];
   private val dialangDCDS = (new InitialContext).lookup("java:comp/env/jdbc/dialangdatacapture").asInstanceOf[DataSource];
@@ -37,7 +38,7 @@ object DB extends DialangLogger {
       }
     } catch {
       case t: Throwable => {
-        error("Caught exception whilst getting LTI secret for '" + consumerKey + "'. Returning None ...",t)
+        logger.error("Caught exception whilst getting LTI secret for '" + consumerKey + "'. Returning None ...",t)
         None
       }
     } finally {
@@ -91,7 +92,7 @@ object DB extends DialangLogger {
       Some(sessions.toList)
     } catch {
       case t: Throwable => {
-          error("Error while retrieving sessions for user_id  '" + userId + "' and consumer_key '" + consumerKey + "'",t)
+          logger.error("Error while retrieving sessions for user_id  '" + userId + "' and consumer_key '" + consumerKey + "'",t)
           None
       }
     } finally {
@@ -137,7 +138,7 @@ object DB extends DialangLogger {
      Some(passes.toList)
     } catch {
       case t: Throwable => {
-          error("Error while retrieving passes for session id  '" + sessionId + "'",t)
+          logger.error("Error while retrieving passes for session id  '" + sessionId + "'",t)
           None
       }
     } finally {
@@ -170,7 +171,7 @@ object DB extends DialangLogger {
       }
     } catch {
       case t: Throwable => {
-          error("Error while retrieving vspt response data for pass id  '" + passId + "'",t)
+          logger.error("Error while retrieving vspt response data for pass id  '" + passId + "'",t)
           None
       }
     } finally {
@@ -201,7 +202,7 @@ object DB extends DialangLogger {
       }
     } catch {
       case t: Throwable => {
-          error("Error while retrieving sa response data for pass id  '" + passId + "'",t)
+          logger.error("Error while retrieving sa response data for pass id  '" + passId + "'",t)
           None
       }
     } finally {
@@ -235,7 +236,7 @@ object DB extends DialangLogger {
       }
     } catch {
       case t: Throwable => {
-          error("Error while retrieving item response data for pass id  '" + passId + "'",t)
+          logger.error("Error while retrieving item response data for pass id  '" + passId + "'",t)
           None
       }
     } finally {

@@ -4,12 +4,8 @@ import org.dialang.db.DBFactory
 import org.dialang.common.model.DialangSession
 import org.dialang.scoring.ScoringMethods
 
-import org.slf4j.LoggerFactory;
-
 class StartTest extends DialangServlet {
 
-  private val logger = LoggerFactory.getLogger(getClass)
-  
   private val scoringMethods = new ScoringMethods
 
   get("/") {
@@ -32,11 +28,9 @@ class StartTest extends DialangServlet {
 
     val firstBasketId = db.getBasketIdsForBooklet(bookletId).head
 
-    if (logger.isDebugEnabled) {
-      logger.debug("BOOKLET ID: " + bookletId)
-      logger.debug("BOOKLET LENGTH: " + bookletLength)
-      logger.debug("First Basket Id: " + firstBasketId)
-    }
+    logger.debug("BOOKLET ID: " + bookletId)
+    logger.debug("BOOKLET LENGTH: " + bookletLength)
+    logger.debug("First Basket Id: " + firstBasketId)
 
     dialangSession.bookletId = bookletId
     dialangSession.bookletLength = bookletLength

@@ -10,8 +10,6 @@ import org.dialang.web.util.{HashUtils, ValidityChecks}
 
 import scala.collection.JavaConversions._
 
-import org.slf4j.LoggerFactory
-
 import org.scalatra.scalate.ScalateSupport
 
 import java.io.{FileInputStream, InputStreamReader}
@@ -19,8 +17,6 @@ import java.util.{Date, Properties, UUID}
 import javax.servlet.{ServletConfig,ServletContext}
 
 class LTILaunch extends DialangServlet with ScalateSupport {
-
-  private val logger = LoggerFactory.getLogger(classOf[LTILaunch])
 
   private val AdminLanguageKey = "custom_admin_language"
   private val TestLanguageKey = "custom_test_language"
@@ -47,11 +43,9 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           case null => props
           case "" => props
           case s: String => {
-            logger.debug("HERE1");
             val props = new Properties
             try {
               props.load(new FileInputStream(s))
-              logger.debug("HERE2");
             } catch {
               case e: Exception => {
                 logger.error("Failed to load the config properties from " + s, e)
@@ -66,7 +60,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
     logger.debug("LTILaunch.post")
 
-    if (logger.isDebugEnabled) logger.debug("launchUrl:" + launchUrl);
+    logger.debug("launchUrl: " + launchUrl)
 
     val message: OAuthMessage = OAuthServlet.getMessage(request, launchUrl)
 
@@ -132,16 +126,14 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
     dialangSession.tes = getOrBuildTestExecutionScript(params, dialangSession)
 
-    if (logger.isDebugEnabled) {
-      logger.debug("userId:" + dialangSession.userId)
-      logger.debug("firstName:" + dialangSession.firstName)
-      logger.debug("lastName:" + dialangSession.lastName)
-      logger.debug("consumerKey:" + dialangSession.consumerKey)
-      logger.debug("resourceLinkId:" + dialangSession.resourceLinkId)
-      logger.debug("resultUrl:" + dialangSession.resultUrl)
-      logger.debug("resourceLinkTitle:" + dialangSession.resourceLinkTitle)
-      logger.debug(dialangSession.tes.toString)
-    }
+    logger.debug("userId: " + dialangSession.userId)
+    logger.debug("firstName: " + dialangSession.firstName)
+    logger.debug("lastName: " + dialangSession.lastName)
+    logger.debug("consumerKey: " + dialangSession.consumerKey)
+    logger.debug("resourceLinkId: " + dialangSession.resourceLinkId)
+    logger.debug("resultUrl: " + dialangSession.resultUrl)
+    logger.debug("resourceLinkTitle: " + dialangSession.resourceLinkTitle)
+    logger.debug(dialangSession.tes.toString)
 
     if (dialangSession.tes.al == "") {
       // Still no admin language, launch the als screen.
@@ -302,9 +294,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
   private def renderPostALSView(tes: TES, state: String) = {
 
-    if (logger.isDebugEnabled) {
-      logger.debug("Showing '" + state + "' view ...")
-    }
+    logger.debug("Showing '" + state + "' view ...")
 
     contentType = "text/html"
     mustache("shell", "state" -> state,

@@ -8,11 +8,8 @@ import org.scalatra.json._
 import org.dialang.web.datacapture.Loader
 import org.dialang.common.model.DialangSession
 
-import org.slf4j.LoggerFactory
-
 class Load extends DialangServlet with JacksonJsonSupport {
 
-  private val logger = LoggerFactory.getLogger(getClass)
   private lazy val loader = new Loader("java:comp/env/jdbc/dialang", "java:comp/env/jdbc/dialangdatacapture")
 
   protected implicit val jsonFormats: Formats = DefaultFormats

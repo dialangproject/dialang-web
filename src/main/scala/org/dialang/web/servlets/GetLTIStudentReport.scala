@@ -9,13 +9,9 @@ import java.text.DateFormat
 
 import scala.collection.JavaConversions._
 
-import org.slf4j.LoggerFactory
-
 import net.oauth.OAuth
 
 class GetLTIStudentReport extends DialangServlet with ScalateSupport {
-
-  private val logger = LoggerFactory.getLogger(classOf[GetLTIStudentReport])
 
   get("/") {
 
@@ -27,12 +23,10 @@ class GetLTIStudentReport extends DialangServlet with ScalateSupport {
         val toDate = params("toDate")
         val userId = params("userId")
 
-        if (logger.isDebugEnabled) {
-          logger.debug("al: " + session.al)
-          logger.debug("fromDate: " + fromDate)
-          logger.debug("toDate: " + toDate);
-          logger.debug("userId: " + userId);
-        }
+        logger.debug("al: " + session.al)
+        logger.debug("fromDate: " + fromDate)
+        logger.debug("toDate: " + toDate)
+        logger.debug("userId: " + userId)
 
         val csv = new StringBuilder
         csv.append("user_id,first_name,last_name,al,tl,vspt_level,sa_level,test_level,started\n")

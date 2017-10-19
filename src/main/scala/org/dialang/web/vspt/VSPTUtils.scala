@@ -2,12 +2,9 @@ package org.dialang.web.vspt
 
 import org.dialang.db.{DB, DBFactory}
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import grizzled.slf4j.Logging
 
-class VSPTUtils(db:DB = DBFactory.get()) {
-
-  private val logger = LoggerFactory.getLogger(getClass)
+class VSPTUtils(db:DB = DBFactory.get()) extends Logging {
 
   /**
    * Calculates the feedback score using Paul Meara's algorithm. Returns
@@ -55,18 +52,18 @@ class VSPTUtils(db:DB = DBFactory.get()) {
     }
 
     val realWordsAnswered = yesResponses(REAL) + noResponses(REAL)
-    if(logger.isDebugEnabled) logger.debug("realWordsAnswered: " + realWordsAnswered)
+    logger.debug("realWordsAnswered: " + realWordsAnswered)
 
     val fakeWordsAnswered = yesResponses(FAKE) + noResponses(FAKE)
-    if(logger.isDebugEnabled) logger.debug("fakeWordsAnswered: " + fakeWordsAnswered)
+    logger.debug("fakeWordsAnswered: " + fakeWordsAnswered)
 
     // Hits. The number of yes responses to real words.
     val hits = yesResponses(REAL)
-    if(logger.isDebugEnabled) logger.debug("hits: " + hits);
+    logger.debug("hits: " + hits);
 
     // False alarms. The number of yes responses to fake words.
     val falseAlarms = yesResponses(FAKE)
-    if(logger.isDebugEnabled) logger.debug("falseAlarms: " + falseAlarms)
+    logger.debug("falseAlarms: " + falseAlarms)
 
     if(hits == 0) {
       // No hits whatsoever results in a zero score
@@ -80,9 +77,7 @@ class VSPTUtils(db:DB = DBFactory.get()) {
 
     val (zScore,mearaScore) = getScore(tl,responses)
 
-    if(logger.isDebugEnabled) {
-      logger.debug("zScore: " + zScore + ". mearaScore: " + mearaScore);
-    }
+    logger.debug("zScore: " + zScore + ". mearaScore: " + mearaScore)
 
     val level = db.vsptBands.get(tl) match {
         case Some(band: Vector[(String, Int, Int)]) => {
@@ -100,7 +95,7 @@ class VSPTUtils(db:DB = DBFactory.get()) {
         }
       }
 
-    if(logger.isDebugEnabled) logger.debug("Level: " + level);
+    logger.debug("Level: " + level)
 
     ((zScore,mearaScore,level))
   }

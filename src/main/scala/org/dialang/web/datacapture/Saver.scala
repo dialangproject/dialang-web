@@ -7,11 +7,9 @@ import java.util.UUID
 
 import org.dialang.common.model.DialangSession
 
-import org.slf4j.LoggerFactory
+import grizzled.slf4j.Logging
 
-class Saver(dsUrl: String) {
-
-  private val logger = LoggerFactory.getLogger(classOf[Saver])
+class Saver(dsUrl: String) extends Logging {
 
   val ctx = new InitialContext
   val ds = ctx.lookup(dsUrl).asInstanceOf[DataSource]

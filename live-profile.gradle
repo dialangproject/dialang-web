@@ -3,7 +3,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 war.eachFile {
 
     if (name == 'context.xml') {
-        filter(ReplaceTokens, tokens: ['db.user': 'dialangadmin', 'db.password': 'faic8Ahf', 'db.host': 'dialang-db1.lancaster.ac.uk', 'memcached.host': 'moodle-cache0.lancaster.ac.uk', 'memcached.port': '11213'])
+        //filter(ReplaceTokens, tokens: ['db.user': 'dialangadmin', 'db.password': 'faic8Ahf', 'db.host': 'dialang-db1.lancaster.ac.uk', 'memcached.host': 'moodle-cache0.lancaster.ac.uk', 'memcached.port': '11213'])
+        filter(ReplaceTokens, tokens: ['db.user': 'dialangadmin', 'db.password': 'faic8Ahf', 'db.host': 'dialang-db1.lancaster.ac.uk'])
     } else if (name == 'web.xml') {
         filter(ReplaceTokens, tokens: ['lti.launch.url': 'https://dialangweb.lancaster.ac.uk/lti'])
     }

@@ -9,11 +9,9 @@ import org.dialang.common.model.{Answer, Basket, DialangSession, ImmutableAnswer
 
 import scala.collection.mutable.{HashMap, ListBuffer}
 
-import org.slf4j.LoggerFactory
+import grizzled.slf4j.Logging
 
-class Loader(dUrl: String, dcUrl: String) {
-
-  private val logger = LoggerFactory.getLogger(classOf[Loader])
+class Loader(dUrl: String, dcUrl: String) extends Logging {
 
   val ctx = new InitialContext
   val dDS = ctx.lookup(dUrl).asInstanceOf[DataSource]

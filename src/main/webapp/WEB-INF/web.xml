@@ -4,8 +4,6 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
 <web-app>
 
-    <distributable />
-
     <resource-ref>
         <description>Connection Pool</description>
         <res-ref-name>jdbc/dialang</res-ref-name>
@@ -24,7 +22,7 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
         <servlet-name>cache-loader</servlet-name>
         <servlet-class>org.dialang.web.servlets.CacheLoader</servlet-class>
         <load-on-startup>1</load-on-startup>
-      </servlet>
+    </servlet>
 
     <servlet>
         <servlet-name>LTILaunch</servlet-name>

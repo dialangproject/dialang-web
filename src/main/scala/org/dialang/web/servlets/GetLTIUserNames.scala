@@ -7,11 +7,7 @@ import org.scalatra.json._
 
 import org.dialang.web.model.InstructorSession
 
-import org.slf4j.LoggerFactory
-
 class GetLTIUserNames extends DialangServlet with JacksonJsonSupport {
-
-  private val logger = LoggerFactory.getLogger(getClass)
 
   protected implicit val jsonFormats: Formats = DefaultFormats
 
