@@ -153,6 +153,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
             dialangSession.passId = UUID.randomUUID.toString
             dialangSession.ipAddress = request.remoteAddress
             dialangSession.browserLocale = request.locale.toString
+            dialangSession.browserReferrer = request.header("referer").getOrElse("")
             saveDialangSession(dialangSession)
 
             // An admin languge, test language and skill have been specified as
@@ -196,12 +197,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
   private def getOrBuildTestExecutionScript(params: Map[String, String], dialangSession: DialangSession): TES = {
 
-    // If no admin language has been specified by custom LTI launch
-    // parameters, try and get the LTI launch locale.
-    val al = params.get(AdminLanguageKey) match {
-        case Some(s: String) => s
-        case _ => getLTILaunchLocale(params)
-      }
+    val al = params.getOrElse(AdminLanguageKey, getLTILaunchLocale(params))
     val tl = params.getOrElse(TestLanguageKey, "")
     val skill = params.getOrElse(TestSkillKey, "")
     val hideVSPT = params.get(HideVSPTKey) match {

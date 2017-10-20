@@ -61,6 +61,7 @@ class SetTLS extends DialangServlet {
       dialangSession.tes.skill = skill.toLowerCase
       dialangSession.ipAddress = request.remoteAddress
       dialangSession.browserLocale = request.locale.toString
+      dialangSession.browserReferrer = request.header("referer").getOrElse("")
       dialangSession.started = new Date
 
       saveDialangSession(dialangSession)

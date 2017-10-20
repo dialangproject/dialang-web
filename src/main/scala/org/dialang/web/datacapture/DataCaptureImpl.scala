@@ -26,9 +26,11 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
 
   def createSessionAndPass(dialangSession: DialangSession) {
 
+    if (dialangSession.browserReferrer == null) dialangSession.browserReferrer = ""
+
     lazy val conn = ds.getConnection
     lazy val sessionST
-      = conn.prepareStatement("INSERT INTO sessions (id,user_id,first_name, last_name, consumer_key,resource_link_id,resource_link_title,ip_address,browser_locale,started) VALUES(?,?,?,?,?,?,?,?,?,?)")
+      = conn.prepareStatement("INSERT INTO sessions (id,user_id,first_name, last_name, consumer_key,resource_link_id,resource_link_title,ip_address,browser_locale,referrer,started) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
     lazy val updateResourceLinkTitleST
       = conn.prepareStatement("UPDATE sessions SET resource_link_title = ? WHERE resource_link_id = ?")
 
@@ -45,7 +47,8 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
       sessionST.setString(7, dialangSession.resourceLinkTitle)
       sessionST.setString(8, dialangSession.ipAddress)
       sessionST.setString(9, dialangSession.browserLocale)
-      sessionST.setLong(10, dialangSession.started)
+      sessionST.setString(10, dialangSession.browserReferrer)
+      sessionST.setLong(11, dialangSession.started)
       if (sessionST.executeUpdate != 1) {
         logger.error("Failed to insert session.")
       }
