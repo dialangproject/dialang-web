@@ -10,7 +10,7 @@ class ScalatraBootstrap extends LifeCycle {
     context.mount(new GetALS, "/getals/*")
     context.mount(new LTILaunch, "/lti/*")
     context.mount(new Save, "/save/*")
-    //context.mount(new Load, "/load/*")
+    context.mount(new Load, "/load/*")
     context.mount(new SetALS, "/setals/*")
     context.mount(new SetTLS, "/settls/*")
     context.mount(new SkipVSPT, "/skipvspt/*")

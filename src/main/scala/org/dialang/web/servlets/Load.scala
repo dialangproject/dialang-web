@@ -23,11 +23,11 @@ class Load extends DialangServlet with JacksonJsonSupport {
         case Some(dialangSession: DialangSession) => {
           saveDialangSession(dialangSession)
 
-          if (dataCapture.deleteToken(token)) {
+          //if (dataCapture.deleteToken(token)) {
             dialangSession.toCase
-          } else {
+          /*} else {
             "{\"error\": \"Failed to delete saved session\"}"
-          }
+          }*/
         }
         case None => {
           "{\"error\": \"Invalid token supplied\"}"
