@@ -13,14 +13,14 @@ class Saver(dsUrl: String) extends Logging {
 
   val ctx = new InitialContext
   val ds = ctx.lookup(dsUrl).asInstanceOf[DataSource]
+  val sql = "INSERT INTO tokens (token,pass_id,current_basket,vspt_skipped,sa_skipped) VALUES(?,?,?,?,?)"
 
   def save(dialangSession: DialangSession): Option[String] = {
 
     val token = UUID.randomUUID.toString
 
     lazy val conn = ds.getConnection
-    lazy val tokenST = conn.prepareStatement(
-      "INSERT INTO tokens (token,pass_id,current_basket,vspt_skipped,sa_skipped) VALUES(?,?,?,?,?)")
+    lazy val tokenST = conn.prepareStatement(sql)
 
     try {
       tokenST.setString(1, token)
@@ -42,13 +42,13 @@ class Saver(dsUrl: String) extends Logging {
       if (tokenST != null) {
         try {
           tokenST.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
 
       if (conn != null) {
         try {
           conn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }

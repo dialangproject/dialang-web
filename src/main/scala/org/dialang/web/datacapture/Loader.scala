@@ -1,6 +1,6 @@
 package org.dialang.web.datacapture
 
-import java.sql.{Connection, Statement, PreparedStatement, ResultSet, SQLException}
+import java.sql.{PreparedStatement, ResultSet, SQLException}
 import javax.naming.InitialContext
 import javax.sql.DataSource
 
@@ -30,7 +30,6 @@ class Loader(dUrl: String, dcUrl: String) extends Logging {
     lazy val dBasketItemST = dConn.prepareStatement("SELECT items.*,basket_item.position FROM items, basket_item WHERE id IN (SELECT item_id FROM basket_item WHERE basket_id = ?) AND id = item_id")
     lazy val dcBasketST = dcConn.prepareStatement("SELECT * FROM baskets WHERE pass_id = ? ORDER BY basket_id")
     lazy val dBasketST = dConn.prepareStatement("SELECT * FROM baskets WHERE id = ?")
-    lazy val dcItemsST = dcConn.prepareStatement("SELECT * FROM item_responses WHERE pass_id = ? ORDER BY pass_order")
 
     tokenST.setString(1, token)
     lazy val tokenRS = tokenST.executeQuery
@@ -176,52 +175,60 @@ class Loader(dUrl: String, dcUrl: String) extends Logging {
         None
       }
     } finally {
-      if (passRS != null) {
-        try {
-          passRS.close()
-        } catch { case _ : SQLException => }
-      }
-      if (tokenRS != null) {
-        try {
-          tokenRS.close()
-        } catch { case _ : SQLException => }
-      }
       if (passST != null) {
         try {
           passST.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
       if (vsptST != null) {
         try {
           vsptST.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
       if (saST != null) {
         try {
           saST.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
       if (dBasketST != null) {
         try {
           dBasketST.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
+      }
+      if (dcBasketST != null) {
+        try {
+          dcBasketST.close()
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
+      }
+      if (dBasketItemST != null) {
+        try {
+          dBasketItemST.close()
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
       if (dcItemST != null) {
         try {
           dcItemST.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
       }
-
+      if (bookletST != null) {
+        try {
+          bookletST.close()
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
+      }
+      if (tokenST != null) {
+        try {
+          tokenST.close()
+        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
+      }
       if (dcConn != null) {
         try {
           dcConn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
-
       if (dConn != null) {
         try {
           dConn.close()
-        } catch { case _ : SQLException => }
+        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
       }
     }
   }
