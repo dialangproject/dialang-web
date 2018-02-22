@@ -2,19 +2,21 @@ package org.dialang.web.servlets
 
 import net.oauth._
 import net.oauth.server.OAuthServlet
-import net.oauth.signature.OAuthSignatureMethod
+
+import org.apache.commons.codec.digest.HmacUtils
+import org.apache.commons.codec.digest.HmacAlgorithms._
 
 import org.dialang.common.model.{DialangSession, TES}
 import org.dialang.web.model.InstructorSession
-import org.dialang.web.util.{HashUtils, ValidityChecks}
+import org.dialang.web.util.ValidityChecks
 
 import scala.collection.JavaConversions._
 
+import org.scalatra.{BadRequest, Forbidden}
 import org.scalatra.scalate.ScalateSupport
 
-import java.io.{FileInputStream, InputStreamReader}
+import java.io.FileInputStream
 import java.util.{Date, Properties, UUID}
-import javax.servlet.{ServletConfig,ServletContext}
 
 class LTILaunch extends DialangServlet with ScalateSupport {
 
@@ -55,6 +57,37 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           }
         }
     }
+
+  get("/") {
+
+    val userId = params.get("userId")
+    val consumerKey = params.get("consumerKey")
+    val hash = params.get("hash")
+
+    if (userId.isEmpty || consumerKey.isEmpty || hash.isEmpty) {
+      BadRequest("You must provide a userId, consumerKey and hash")
+    } else {
+      logger.debug("userId: " + userId)
+      logger.debug("consumerKey: " + consumerKey)
+      logger.debug("hash: " + hash)
+
+      val secret = db.getSecret(consumerKey.get)
+
+      if (secret.isEmpty) {
+        BadRequest("consumerKey not recognised")
+      } else {
+        val testHash = new HmacUtils(HMAC_SHA_1, secret.get).hmacHex(consumerKey.get + userId.get);
+        if (testHash != hash.get) {
+          logger.debug("Hashes don't match.")
+          logger.debug("Theirs: " + hash)
+          logger.debug("Ours: " + testHash)
+          Forbidden("Hashes don't match")
+        } else {
+          launchNonInstructor(Map(BasicLTIConstants.USER_ID -> userId.get, OAuth.OAUTH_CONSUMER_KEY -> consumerKey.get))
+        }
+      }
+    }
+  }
 
   post("/") {
 
@@ -114,12 +147,11 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
     dialangSession.started = new Date
 
-    // validate checks that these are present
     dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
     dialangSession.firstName = params.getOrElse(BasicLTIConstants.LIS_PERSON_NAME_GIVEN, "")
     dialangSession.lastName = params.getOrElse(BasicLTIConstants.LIS_PERSON_NAME_FAMILY, "")
     dialangSession.consumerKey = params.get(OAuth.OAUTH_CONSUMER_KEY).get
-    dialangSession.resourceLinkId = params.get(BasicLTIConstants.RESOURCE_LINK_ID).get
+    dialangSession.resourceLinkId = params.getOrElse(BasicLTIConstants.RESOURCE_LINK_ID, "")
     dialangSession.resourceLinkTitle = params.getOrElse(BasicLTIConstants.RESOURCE_LINK_TITLE, "")
 
     dialangSession.resultUrl = params.getOrElse(ResultUrl, "")
