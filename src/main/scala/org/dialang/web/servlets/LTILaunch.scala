@@ -83,7 +83,9 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           logger.debug("Ours: " + testHash)
           Forbidden("Hashes don't match")
         } else {
-          launchNonInstructor(Map(BasicLTIConstants.USER_ID -> userId.get, OAuth.OAUTH_CONSUMER_KEY -> consumerKey.get))
+          val launchParams
+            = Map(BasicLTIConstants.USER_ID -> userId.get, OAuth.OAUTH_CONSUMER_KEY -> consumerKey.get) ++ params.toMap
+          launchNonInstructor(launchParams)
         }
       }
     }
