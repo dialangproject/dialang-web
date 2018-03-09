@@ -22,6 +22,7 @@ class ScalatraBootstrap extends LifeCycle {
     context.mount(new SubmitQuestionnaire, "/submitquestionnaire/*")
     context.mount(new Results, "/data/*")
     context.mount(new GetLTIStudentReport, "/getltistudentreport/*")
+    context.mount(new GetStudentReport, "/getstudentreport/*")
     context.mount(new GetLTIUserNames, "/getltiusernames/*")
   }
 }

@@ -637,7 +637,10 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def getScores(consumerKey: String, fromDate: String, toDate: String, userId: String, resourceLinkId: String) = {
+  def getScores(consumerKey: String, fromDate: String = "", toDate: String = "", userId: String = "", resourceLinkId: String = "") = {
+
+    logger.debug("consumerKey:" + consumerKey + ". fromDate: " + fromDate
+                    + ". toDate: " + toDate + ". userId: " + userId + ". resourceLinkId: " + resourceLinkId)
 
     lazy val conn = ds.getConnection
 
@@ -706,6 +709,8 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
         val al = passesRS.getString("al")
         val tl = passesRS.getString("tl")
         val started = passesRS.getDouble("started")
+
+        logger.debug(userId + "," + firstName + "," + lastName + "," + passId + "," + al + "," + tl)
 
         val vsptLevel = {
             vsptST.setString(1, passId)
