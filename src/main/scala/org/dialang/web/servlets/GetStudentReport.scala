@@ -31,7 +31,12 @@ class GetStudentReport extends DialangServlet {//with ScalateSupport {
       if (secret.isEmpty) {
         BadRequest("consumerKey not recognised")
       } else {
-        val testHash = new HmacUtils(HMAC_SHA_1, secret.get).hmacHex(consumerKey.get);
+        val testHash = {
+            val hmacUtils = new HmacUtils(HMAC_SHA_1, secret.get)
+            if (userId .length > 0) hmacUtils.hmacHex(consumerKey.get + userId)
+            else hmacUtils.hmacHex(consumerKey.get)
+          }
+
         if (testHash != hash.get) {
           logger.debug("Hashes don't match.")
           logger.debug("Theirs: " + hash)
