@@ -9,7 +9,8 @@ $('#back').prop('disabled', false).click(function (e) {
 });
 
 if (!dialang.flags.hideTLS) {
-    $('#next').prop('disabled', false).click(function () {
+    //$('#next').prop('disabled', false).click(function () {
+    $('#next').click(function () {
 
         // Submit the form
         $.post('submitquestionnaire', $('#questionnaire-form').serialize(), function () {
@@ -28,8 +29,12 @@ $.get('/dialang-content/questionnaire/' + dialang.session.al + '.html', function
 
     $(document).ready(function () {
 
+        var next = $('#next');
+
         var otherField = $('#questionnaire-othergender-field');
-        $('.questionnaire-gender-button').click(function (e) { otherField.hide(); });
+        $('.questionnaire-gender-button').click(function (e) { otherField.hide(); next.prop('disabled', false);});
         $('#questionnaire-othergender-button').click(function (e) { otherField.show(); });
+        $('.questionnaire-dropdown').change(function (e) { next.prop('disabled', false); });
+        $('.questionnaire-textinput').keypress(function (e) { next.prop('disabled', false); });
     });
 });

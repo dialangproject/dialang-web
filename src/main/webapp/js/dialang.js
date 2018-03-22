@@ -221,16 +221,16 @@ dialang.switchState = function (state) {
 
     return false;
 }; 
-// TEST MODE ONLY !!!!!!!
 /*
-dialang.state = 'testintro';
+// TEST MODE ONLY !!!!!!!
+dialang.state = 'questionnaire';
 dialang.session.al = 'eng_gb';
 dialang.session.tl = 'dan_da';
 //dialang.session.itemLevel = 'A2';
 //dialang.session.testDone = 'true';
 dialang.session.skill = 'writing';
-*/
 // TEST MODE ONLY !!!!!!!
+*/
 
 dialang.switchState(dialang.state);
 
