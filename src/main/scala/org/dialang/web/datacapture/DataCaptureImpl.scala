@@ -11,6 +11,8 @@ import org.dialang.common.model.{DialangSession, ImmutableItem}
 
 import scala.collection.mutable.ListBuffer
 
+import org.apache.commons.validator.routines.EmailValidator
+
 import grizzled.slf4j.Logging
 
 class DataCaptureImpl(dsUrl: String) extends Logging {
@@ -20,6 +22,8 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
           VALUES(?,?,?,?,?,?,?)"""
 
   private val basketSql = "INSERT INTO baskets (pass_id,basket_id,basket_number) VALUES(?,?,?)"
+
+  private val emailValidator = EmailValidator.getInstance
 
   val ctx = new InitialContext
   val ds = ctx.lookup(dsUrl).asInstanceOf[DataSource]
@@ -822,6 +826,17 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     val reason = data.getOrElse("reason", "")
     val accuracy = data.getOrElse("accuracy", "")
     val comments = data.getOrElse("comments", "")
+    val email = data.get("email") match {
+      case Some(s) => {
+        if (emailValidator.isValid(s)) {
+          s
+        } else {
+          logger.info(s + " is not a valid email. Setting to \"\"")
+          ""
+        }
+      }
+      case None => ""
+    }
 
     logger.debug("ageGroup: " + ageGroup)
     logger.debug("gender: " + gender)
@@ -832,10 +847,11 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     logger.debug("reason: " + reason)
     logger.debug("accuracy: " + accuracy)
     logger.debug("comments: " + comments)
+    logger.debug("email: " + email)
 
     lazy val conn = ds.getConnection
     lazy val st
-      = conn.prepareStatement("INSERT INTO questionnaire VALUES(?,?,?,?,?,?,?,?,?,?)")
+      = conn.prepareStatement("INSERT INTO questionnaire VALUES(?,?,?,?,?,?,?,?,?,?,?)")
 
     try {
       st.setString(1, sessionId)
@@ -848,6 +864,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
       st.setInt(8, reason.toInt)
       st.setInt(9, accuracy.toInt)
       st.setString(10, comments)
+      st.setString(11, email)
       st.executeUpdate
     } catch {
       case e: Exception => {
