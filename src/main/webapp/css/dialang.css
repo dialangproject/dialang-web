@@ -711,7 +711,7 @@ button[disabled] {
     text-align: left;
 }
 
-.questionnaire-information {
+#questionnaire-information {
     font-style: italic;
     text-align: left;
     padding: 20px;
