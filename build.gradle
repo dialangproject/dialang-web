@@ -14,7 +14,6 @@ dependencies {
     compile 'commons-codec:commons-codec:1.11'
     compile 'commons-validator:commons-validator:1.6'
     compile 'org.dialang.common:dialang-common:1.1'
-    //compile 'net.oauth:oauth-core:20100601'
     compile 'net.oauth.core:oauth-provider:20100601'
     compile 'org.scalatra:scalatra_2.11:2.6.2'
     compile 'org.scalatra:scalatra-scalate_2.11:2.6.2'
