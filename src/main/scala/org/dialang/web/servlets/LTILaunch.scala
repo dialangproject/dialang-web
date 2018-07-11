@@ -62,6 +62,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
     val userId = params.get("userId")
     val consumerKey = params.get("consumerKey")
+    val instructor = params.getOrElse("instructor", "false")
     val hash = params.get("hash")
 
     if (userId.isEmpty || consumerKey.isEmpty || hash.isEmpty) {
@@ -69,6 +70,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     } else {
       logger.debug("userId: " + userId)
       logger.debug("consumerKey: " + consumerKey)
+      logger.debug("instructor: " + instructor)
       logger.debug("hash: " + hash)
 
       val secret = db.getSecret(consumerKey.get)
@@ -76,7 +78,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
       if (secret.isEmpty) {
         BadRequest("consumerKey not recognised")
       } else {
-        val testHash = new HmacUtils(HMAC_SHA_1, secret.get).hmacHex(consumerKey.get + userId.get);
+        val testHash = new HmacUtils(HMAC_SHA_1, secret.get).hmacHex(consumerKey.get + userId.get + instructor);
         if (testHash != hash.get) {
           logger.debug("Hashes don't match.")
           logger.debug("Theirs: " + hash)
@@ -86,7 +88,14 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           // Spoof an LTI launch so we can use a common method
           val launchParams
             = Map(BasicLTIConstants.USER_ID -> userId.get, OAuth.OAUTH_CONSUMER_KEY -> consumerKey.get) ++ params.toMap
-          launchNonInstructor(launchParams)
+          if (instructor == "false") launchNonInstructor(launchParams)
+          else {
+            val al = getLTILaunchLocale(params)
+            val instructorSession = new InstructorSession(consumerKey.get, "", getLTILaunchLocale(launchParams))
+            saveInstructorSession(instructorSession)
+            contentType = "text/html"
+            mustache("shell", "state" -> "instructormenu", "al" -> getLTILaunchLocale(launchParams))
+          }
         }
       }
     }
