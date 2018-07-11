@@ -8,5 +8,5 @@ object ValidityChecks {
 
   def adminLanguageExists(al: String): Boolean = db.adminLanguages.contains(al)
   def testLanguageExists(tl: String): Boolean = db.testLanguages.contains(tl)
-  def skillExists(skill: String): Boolean = db.skills.contains(skill)
+  def skillExists(skill: String): Boolean = db.skills.contains(skill.toLowerCase)
 }

@@ -83,6 +83,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
           logger.debug("Ours: " + testHash)
           Forbidden("Hashes don't match")
         } else {
+          // Spoof an LTI launch so we can use a common method
           val launchParams
             = Map(BasicLTIConstants.USER_ID -> userId.get, OAuth.OAUTH_CONSUMER_KEY -> consumerKey.get) ++ params.toMap
           launchNonInstructor(launchParams)
@@ -198,8 +199,8 @@ class LTILaunch extends DialangServlet with ScalateSupport {
             val initialState = {
                 if (!dialangSession.tes.hideVSPT) "vsptintro"
                 else if (!dialangSession.tes.hideSA) "saintro"
-                else if (!dialangSession.tes.hideTest) "endoftest"
-                else "testintro"
+                else if (!dialangSession.tes.hideTest) "testintro"
+                else "endoftest"
               }
 
             contentType = "text/html"
@@ -233,7 +234,7 @@ class LTILaunch extends DialangServlet with ScalateSupport {
 
     val al = params.getOrElse(AdminLanguageKey, getLTILaunchLocale(params))
     val tl = params.getOrElse(TestLanguageKey, "")
-    val skill = params.getOrElse(TestSkillKey, "")
+    val skill = params.getOrElse(TestSkillKey, "").toLowerCase
     val hideVSPT = params.get(HideVSPTKey) match {
         case Some("true") => true
         case _ => false
