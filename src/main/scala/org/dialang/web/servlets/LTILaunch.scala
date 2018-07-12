@@ -160,8 +160,6 @@ class LTILaunch extends DialangServlet with ScalateSupport {
     dialangSession.started = new Date
 
     dialangSession.userId = params.get(BasicLTIConstants.USER_ID).get
-    dialangSession.firstName = params.getOrElse(BasicLTIConstants.LIS_PERSON_NAME_GIVEN, "")
-    dialangSession.lastName = params.getOrElse(BasicLTIConstants.LIS_PERSON_NAME_FAMILY, "")
     dialangSession.consumerKey = params.get(OAuth.OAUTH_CONSUMER_KEY).get
     dialangSession.resourceLinkId = params.getOrElse(BasicLTIConstants.RESOURCE_LINK_ID, "")
     dialangSession.resourceLinkTitle = params.getOrElse(BasicLTIConstants.RESOURCE_LINK_TITLE, "")

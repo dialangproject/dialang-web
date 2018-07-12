@@ -661,7 +661,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     lazy val testST = conn.prepareStatement(testQuery)
 
     var passesQuery = 
-      """SELECT s.user_id,s.first_name,s.last_name,p.*,s.ip_address FROM sessions as s, passes as p
+      """SELECT s.user_id,p.*,s.ip_address FROM sessions as s, passes as p
             WHERE s.id = p.session_id
               AND s.consumer_key = ?
               AND s.resource_link_id = ?"""
@@ -686,7 +686,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
 
     lazy val passesST = conn.prepareStatement(passesQuery)
 
-    val list = new ListBuffer[Tuple9[String, String, String, String, String, String, String, String, Double]]
+    val list = new ListBuffer[Tuple7[String, String, String, String, String, String, Double]]
 
     try {
       passesST.setString(1, consumerKey)
@@ -707,14 +707,12 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
 
       while (passesRS.next) {
         val userId = passesRS.getString("user_id")
-        val firstName = passesRS.getString("first_name")
-        val lastName = passesRS.getString("last_name")
         val passId = passesRS.getString("id")
         val al = passesRS.getString("al")
         val tl = passesRS.getString("tl")
         val started = passesRS.getDouble("started")
 
-        logger.debug(userId + "," + firstName + "," + lastName + "," + passId + "," + al + "," + tl)
+        logger.debug(userId + "," + passId + "," + al + "," + tl)
 
         val vsptLevel = {
             vsptST.setString(1, passId)
@@ -747,8 +745,6 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
           }
 
         logger.debug("userId: " + userId)
-        logger.debug("firstName: " + firstName)
-        logger.debug("lastName: " + lastName)
         logger.debug("passId: " + passId)
         logger.debug("al: " + al)
         logger.debug("tl: " + tl)
@@ -757,12 +753,12 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
         logger.debug("saLevel: " + saLevel)
         logger.debug("testLevel: " + testLevel)
 
-        list += ((userId, firstName, lastName, al, tl, vsptLevel, saLevel, testLevel, started))
+        list += ((userId, al, tl, vsptLevel, saLevel, testLevel, started))
       }
       passesRS.close()
     } catch {
       case _: Throwable => {
-        logger.error("Caught exception whilst deleting token.")
+        logger.error("Caught exception whilst getting scores.")
       }
     } finally {
       if (passesST != null) {
@@ -778,41 +774,6 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
       }
     }
     list.toList
-  }
-
-  def getLTIUserNames(consumerKey: String) = {
-
-    lazy val conn = ds.getConnection
-
-    lazy val st = conn.prepareStatement("SELECT first_name, last_name, user_id FROM sessions WHERE consumer_key = ?")
-
-    val listBuffer = new ListBuffer[Tuple3[String, String, String]]()
-
-    try {
-      st.setString(1, consumerKey)
-      val rs = st.executeQuery
-      while (rs.next) {
-        listBuffer += ((rs.getString("first_name"), rs.getString("last_name"), rs.getString("user_id")))
-      }
-      rs.close()
-    } catch {
-      case e: Exception => {
-        logger.error("Failed to get LTI user names", e)
-      }
-    } finally {
-      if (st != null) {
-        try {
-          st.close()
-        } catch { case e: SQLException => { logger.error("Failed to close statement.", e) } }
-      }
-
-      if (conn != null) {
-        try {
-          conn.close()
-        } catch { case e: SQLException => { logger.error("Failed to close connection.", e) } }
-      }
-    }
-    listBuffer.toList
   }
 
   def storeQuestionnaire(sessionId: String, data: Map[String, String]) = {

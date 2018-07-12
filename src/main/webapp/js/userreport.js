@@ -34,7 +34,5 @@ $.get('/dialang-content/userreport/' + dialang.session.al + '.html', function (d
             altToDateField.val('');
             $('#dialang-user-id').val('');
         });
-
-        $.get('/getltiusernames', function (data) { $('#dialang-user-id').autocomplete({ source: data }); } );
     });
 });
