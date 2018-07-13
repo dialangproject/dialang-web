@@ -100,7 +100,7 @@ if (!dialang.session.reviewMode) {
 
     // We're not in review mode, so show the progress bar
     if (dialang.pass.items.length == 0 || dialang.pass.loading) {
-        $('#progressbar').css('display', 'inline-block').progressbar({max: parseInt(dialang.session.totalItems, 10), value: 0});
+        $('#progressbar').css('display', 'inline-block').progressbar({max: parseInt(dialang.session.totalItems, 10), value: 0}).height(26);
         $('#keyboard-button').show();
 
         if (dialang.pass.loading) {
@@ -171,7 +171,7 @@ if (!dialang.session.reviewMode) {
                 if (nextBasketData.redirect) {
                     window.location = nextBasketData.redirect;
                 } else {
-                    $('#save-button').prop('disabled', false);
+                    $('#save-button').show().prop('disabled', false);
 
                     var scoredBasket = nextBasketData.scoredBasket;
 
