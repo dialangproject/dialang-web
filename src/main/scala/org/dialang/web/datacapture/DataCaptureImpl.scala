@@ -34,7 +34,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
 
     lazy val conn = ds.getConnection
     lazy val sessionST
-      = conn.prepareStatement("INSERT INTO sessions (id,user_id,first_name, last_name, consumer_key,resource_link_id,resource_link_title,ip_address,browser_locale,referrer,started) VALUES(?,?,?,?,?,?,?,?,?,?,?)")
+      = conn.prepareStatement("INSERT INTO sessions (id,user_id, consumer_key,resource_link_id,resource_link_title,ip_address,browser_locale,referrer,started) VALUES(?,?,?,?,?,?,?,?,?)")
     lazy val updateResourceLinkTitleST
       = conn.prepareStatement("UPDATE sessions SET resource_link_title = ? WHERE resource_link_id = ?")
 
@@ -44,15 +44,13 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
 
       sessionST.setString(1, dialangSession.sessionId)
       sessionST.setString(2, dialangSession.userId)
-      sessionST.setString(3, dialangSession.firstName)
-      sessionST.setString(4, dialangSession.lastName)
-      sessionST.setString(5, dialangSession.consumerKey)
-      sessionST.setString(6, dialangSession.resourceLinkId)
-      sessionST.setString(7, dialangSession.resourceLinkTitle)
-      sessionST.setString(8, dialangSession.ipAddress)
-      sessionST.setString(9, dialangSession.browserLocale)
-      sessionST.setString(10, dialangSession.browserReferrer)
-      sessionST.setLong(11, dialangSession.started)
+      sessionST.setString(3, dialangSession.consumerKey)
+      sessionST.setString(4, dialangSession.resourceLinkId)
+      sessionST.setString(5, dialangSession.resourceLinkTitle)
+      sessionST.setString(6, dialangSession.ipAddress)
+      sessionST.setString(7, dialangSession.browserLocale)
+      sessionST.setString(8, dialangSession.browserReferrer)
+      sessionST.setLong(9, dialangSession.started)
       if (sessionST.executeUpdate != 1) {
         logger.error("Failed to insert session.")
       }
