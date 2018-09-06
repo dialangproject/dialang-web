@@ -539,17 +539,18 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logTestResult(dialangSession:DialangSession) {
+  def logTestResult(dialangSession: DialangSession) {
 
     lazy val conn = ds.getConnection
-    lazy val st = conn.prepareStatement("INSERT INTO test_results (pass_id,grade,level) VALUES(?,?,?)")
+    lazy val st = conn.prepareStatement("INSERT INTO test_results (pass_id,raw_score,grade,level) VALUES(?,?,?,?)")
 
     try {
 
       // Now insert the scores
       st.setString(1,dialangSession.passId)
-      st.setInt(2,dialangSession.itemGrade)
-      st.setString(3,dialangSession.itemLevel)
+      st.setInt(2,dialangSession.itemRawScore)
+      st.setInt(3,dialangSession.itemGrade)
+      st.setString(4,dialangSession.itemLevel)
       if (st.executeUpdate != 1) {
         logger.error("Failed to log test result.")
       }
@@ -654,7 +655,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
 
     lazy val saST = conn.prepareStatement(saQuery)
 
-    val testQuery = "SELECT level FROM test_results WHERE pass_id = ?"
+    val testQuery = "SELECT raw_score,level FROM test_results WHERE pass_id = ?"
 
     lazy val testST = conn.prepareStatement(testQuery)
 
@@ -684,7 +685,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
 
     lazy val passesST = conn.prepareStatement(passesQuery)
 
-    val list = new ListBuffer[Tuple9[String, String, String, Integer, String, Double, String, String, Double]]
+    val list = new ListBuffer[Tuple10[String, String, String, Integer, String, Double, String, Integer, String, Double]]
 
     try {
       passesST.setString(1, consumerKey)
@@ -732,13 +733,13 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
             }
           }
 
-        val testLevel = {
+        val (rawScore, testLevel) = {
             testST.setString(1, passId)
             val testRS = testST.executeQuery
             if (testRS.next) {
-              testRS.getString("level")
+              (testRS.getInt("raw_score"), testRS.getString("level"))
             } else {
-              ""
+              (-1, "-1")
             }
           }
 
@@ -750,9 +751,10 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
         logger.debug("vsptLevel: " + vsptLevel)
         logger.debug("saScore: " + saScore)
         logger.debug("saLevel: " + saLevel)
+        logger.debug("rawScore: " + rawScore)
         logger.debug("testLevel: " + testLevel)
 
-        list += ((userId, al, tl, vsptScore, vsptLevel, saScore, saLevel, testLevel, started))
+        list += ((userId, al, tl, vsptScore, vsptLevel, saScore, saLevel, rawScore, testLevel, started))
       }
       passesRS.close()
     } catch {

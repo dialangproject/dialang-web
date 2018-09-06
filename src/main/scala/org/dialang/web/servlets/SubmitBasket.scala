@@ -286,7 +286,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
 
     if (nextBasketNumber >= basketIds.length) {
       // The test has finished. Grade it.
-      val (itemGrade:Int,itemLevel:String)
+      val (rawScore:Int,itemGrade:Int,itemLevel:String)
         = scoringMethods.getItemGrade(dialangSession.tes.tl,
                                         dialangSession.tes.skill,
                                         dialangSession.bookletId,
@@ -294,6 +294,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
 
       logger.debug("ITEM GRADE: " + itemGrade)
 
+      dialangSession.itemRawScore = rawScore
       dialangSession.itemGrade = itemGrade
       dialangSession.itemLevel = itemLevel
 

@@ -29,14 +29,14 @@ class GetLTIStudentReport extends DialangServlet with ScalateSupport {
         logger.debug("userId: " + userId)
 
         val csv = new StringBuilder
-        csv.append("user_id,al,tl,vspt_score,vspt_level,sa_score,sa_level,test_level,started\n")
+        csv.append("user_id,al,tl,vspt_score,vspt_level,sa_score,sa_level,raw_score,test_level,started\n")
 
         val formatter = DateFormat.getInstance
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"))
 
         dataCapture.getScores(session.consumerKey, fromDate, toDate, userId, session.resourceLinkId).foreach(t => {
 
-          val startedDate = formatter.format(new Date(t._9.asInstanceOf[Long]*1000L)) + " UTC"
+          val startedDate = formatter.format(new Date(t._10.asInstanceOf[Long]*1000L)) + " UTC"
 
           csv.append(t._1).append(",")
             .append(t._2) .append(",")
@@ -46,6 +46,7 @@ class GetLTIStudentReport extends DialangServlet with ScalateSupport {
             .append(t._6) .append(",")
             .append(t._7) .append(",")
             .append(t._8) .append(",")
+            .append(t._9) .append(",")
             .append(startedDate) .append("\n")
         })
         contentType = "text/csv"
