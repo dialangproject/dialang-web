@@ -646,11 +646,11 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
 
     lazy val conn = ds.getConnection
 
-    val vsptQuery = "SELECT level FROM vsp_test_scores WHERE pass_id = ?"
+    val vsptQuery = "SELECT meara_score,level FROM vsp_test_scores WHERE pass_id = ?"
 
     lazy val vsptST = conn.prepareStatement(vsptQuery)
 
-    val saQuery = "SELECT level FROM sa_scores WHERE pass_id = ?"
+    val saQuery = "SELECT ppe,level FROM sa_scores WHERE pass_id = ?"
 
     lazy val saST = conn.prepareStatement(saQuery)
 
@@ -684,7 +684,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
 
     lazy val passesST = conn.prepareStatement(passesQuery)
 
-    val list = new ListBuffer[Tuple7[String, String, String, String, String, String, Double]]
+    val list = new ListBuffer[Tuple9[String, String, String, Integer, String, Double, String, String, Double]]
 
     try {
       passesST.setString(1, consumerKey)
@@ -712,23 +712,23 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
 
         logger.debug(userId + "," + passId + "," + al + "," + tl)
 
-        val vsptLevel = {
+        val (vsptScore, vsptLevel) = {
             vsptST.setString(1, passId)
             val vsptRS = vsptST.executeQuery
             if (vsptRS.next) {
-              vsptRS.getString("level")
+              (vsptRS.getInt("meara_score"), vsptRS.getString("level"))
             } else {
-              ""
+              (-1, "-1")
             }
           }
 
-        val saLevel = {
+        val (saScore, saLevel) = {
             saST.setString(1, passId)
             val saRS = saST.executeQuery
             if (saRS.next) {
-              saRS.getString("level")
+              (saRS.getDouble("ppe"), saRS.getString("level"))
             } else {
-              ""
+              (-1.0, "-1")
             }
           }
 
@@ -748,15 +748,16 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
         logger.debug("tl: " + tl)
         logger.debug("started: " + started)
         logger.debug("vsptLevel: " + vsptLevel)
+        logger.debug("saScore: " + saScore)
         logger.debug("saLevel: " + saLevel)
         logger.debug("testLevel: " + testLevel)
 
-        list += ((userId, al, tl, vsptLevel, saLevel, testLevel, started))
+        list += ((userId, al, tl, vsptScore, vsptLevel, saScore, saLevel, testLevel, started))
       }
       passesRS.close()
     } catch {
-      case _: Throwable => {
-        logger.error("Caught exception whilst getting scores.")
+      case t: Throwable => {
+        logger.error("Caught exception whilst getting scores.", t)
       }
     } finally {
       if (passesST != null) {
