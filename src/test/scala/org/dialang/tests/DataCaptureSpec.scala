@@ -9,8 +9,10 @@ import java.sql.SQLException
 import org.dialang.web.datacapture.DataCaptureImpl
 
 import org.scalatest._
+import matchers.should.Matchers._
+import flatspec.AnyFlatSpec
 
-class DataCaptureSpec extends FlatSpec with Matchers {
+class DataCaptureSpec extends AnyFlatSpec {
 
   "createSessionAndPass" should "take a DialangSession and create new session and pass records" in {
 
@@ -55,7 +57,7 @@ class DataCaptureSpec extends FlatSpec with Matchers {
     } catch {
       case s:SQLException => {
         println(s.getMessage)
-        fail
+        fail()
       }
     }
   }

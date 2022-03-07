@@ -54,7 +54,7 @@ object VSPTScoringAlgorithms {
     }
   }
 
-  def main(args:Array[String]) {
+  def main(args: Array[String]): Unit = {
 
     require(args.size == 4)
 

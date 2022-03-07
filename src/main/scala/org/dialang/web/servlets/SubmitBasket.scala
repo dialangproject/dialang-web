@@ -4,9 +4,9 @@ import org.dialang.db.DBFactory
 import org.dialang.scoring.ScoringMethods
 import org.dialang.common.model.{Answer, Basket, DialangSession, ImmutableItem, ScoredItem}
 
-import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ListBuffer
+import scala.jdk.CollectionConverters._
 
 import org.json4s.{DefaultFormats, Formats}
 
@@ -106,7 +106,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
           if(itemOption.isDefined) {
             val item: ScoredItem = itemOption.get
             item.responseId = t._2
-            item.positionInBasket = params.get(item.id + "-position") match {
+            item.positionInBasket = params.get(s"${item.id}-position") match {
                 case Some(s: String) => s.toInt
                 case None => {
                   logger.error("No position supplied for item '" + item.id + "'. Returning 400 (Bad Request) ...")
@@ -150,7 +150,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
             val item = itemOption.get
             item.basketId = currentBasketId
             item.responseText = t._2
-            item.positionInBasket = params.get(item.id + "-position") match {
+            item.positionInBasket = params.get(s"${item.id}-position") match {
                 case Some(s:String) => s.toInt
                 case None => {
                   logger.error("No position supplied for item '" + item.id + "'. Returning 400 (Bad Request) ...")
@@ -192,7 +192,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
             val item: ScoredItem = itemOption.get
             item.basketId = currentBasketId
             item.responseText = t._2
-            item.positionInBasket = params.get(item.id + "-position") match {
+            item.positionInBasket = params.get(s"${item.id}-position") match {
                 case Some(s:String) => s.toInt
                 case None => {
                   logger.error("No position supplied for item '" + item.id + "'. Returning 400 (Bad Request) ...")
@@ -234,7 +234,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
             item.basketId = currentBasketId
             item.responseId = t._2
 
-            item.positionInBasket = params.get(item.id + "-position") match {
+            item.positionInBasket = params.get(s"${item.id}-position") match {
                 case Some(s: String) => s.toInt
                 case None => {
                   logger.error("No position supplied for item '" + item.id + "'. Returning 400 (Bad Request) ...")
@@ -318,7 +318,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
         returnMap.toMap
       } else {
         // We set testDone to true so the client js knows to enable the sa feedback and advice buttons
-        returnMap += (("itemLevel" -> itemLevel),("testDone" -> "true"))
+        returnMap ++= List("itemLevel" -> itemLevel, "testDone" -> "true")
 
         contentType = formats("json")
         returnMap.toMap
@@ -331,7 +331,7 @@ class SubmitBasket extends DialangServlet with JacksonJsonSupport {
       dialangSession.currentBasketNumber = nextBasketNumber
       saveDialangSession(dialangSession)
 
-      returnMap += (("nextBasketId" -> nextBasketId.toString),("itemsCompleted" -> itemList.length.toString))
+      returnMap ++= List("nextBasketId" -> nextBasketId.toString,"itemsCompleted" -> itemList.length.toString)
 
       contentType = formats("json")
       returnMap.toMap

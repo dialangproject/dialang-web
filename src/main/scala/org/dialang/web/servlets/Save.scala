@@ -1,6 +1,5 @@
 package org.dialang.web.servlets
 
-import scala.collection.JavaConversions._
 
 import org.dialang.web.datacapture.Saver
 import org.dialang.common.model.DialangSession

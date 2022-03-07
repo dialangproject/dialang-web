@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 apply plugin: 'scala'
 apply plugin: 'war'
 
@@ -7,43 +9,51 @@ repositories {
 }
 
 dependencies {
-    compile 'org.scala-lang:scala-library:2.12.6'
+    compile 'org.scala-lang:scala-library:2.13.8'
     compile 'log4j:log4j:1.2.8'
-    compile 'ch.qos.logback:logback-classic:1.2.3'
-    compile 'org.clapper:grizzled-slf4j_2.12:1.3.1'
-    compile 'commons-codec:commons-codec:1.11'
-    compile 'commons-validator:commons-validator:1.6'
+    compile 'ch.qos.logback:logback-classic:1.2.11'
+    compile 'org.clapper:grizzled-slf4j_2.13:1.3.4'
+    compile 'commons-codec:commons-codec:1.15'
+    compile 'commons-validator:commons-validator:1.7'
     compile 'org.dialang.common:dialang-common:1.1'
-    compile 'net.oauth.core:oauth-provider:20100601'
-    compile 'org.scalatra:scalatra_2.12:2.6.3'
-    compile 'org.scalatra:scalatra-scalate_2.12:2.6.3'
-    compile 'org.scalatra:scalatra-json_2.12:2.6.3'
-    compile 'org.json4s:json4s-jackson_2.12:3.5.4'
-    compile 'org.json4s:json4s-native_2.12:3.5.4'
-    compile 'org.scalaj:scalaj-http_2.12:2.4.0'
+    compile 'org.scalatra:scalatra_2.13:2.8.2'
+    compile 'org.scalatra:scalatra-scalate_2.13:2.8.2'
+    compile 'org.scalatra:scalatra-json_2.13:2.8.2'
+    compile 'org.json4s:json4s-jackson_2.13:4.0.4'
+    compile 'org.json4s:json4s-native_2.13:4.0.4'
 
-    providedCompile 'javax.servlet:servlet-api:2.5'
+    providedCompile 'javax.servlet:javax.servlet-api:4.0.1'
     providedCompile 'org.postgresql:postgresql:9.3-1102-jdbc41'
 
-    testCompile 'org.scala-lang:scala-library:2.12.6'
-    testCompile 'org.scalatest:scalatest_2.12:3.0.5'
+    testCompile 'org.scala-lang:scala-library:2.13.8'
+    testCompile 'org.scalatest:scalatest_2.13:3.2.11'
     testCompile 'simple-jndi:simple-jndi:0.11.4.1'
 }
 
-if (hasProperty('profile')) {
-    apply from: "${profile}-profile.gradle"
-} else {
-    apply from: "dev-profile.gradle"
+war.eachFile {
+
+    if (name == 'context.xml') {
+        filter(ReplaceTokens, tokens: ['dbUser': dbUser, 'dbPassword': dbPassword, 'dbHost': dbHost])
+    } else if (name == 'web.xml') {
+        filter(ReplaceTokens, tokens: ['ltiLaunchUrl': ltiLaunchUrl, 'baseContentUrl': baseContentUrl])
+    }
 }
 
 war.doLast {
     ant.unzip(src: war.archivePath, dest: "${buildDir}/exploded")
 }
 
-test << {
+test {
+    doLast {
 
-    ant.taskdef(name: 'scalatest', classname: 'org.scalatest.tools.ScalaTestAntTask', classpath: classpath.asPath)
-    ant.scalatest(runpath: testClassesDir, haltonfailure: 'true', fork: 'false') {
-        reporter(type: 'stdout')
+        ant.taskdef(name: 'scalatest', classname: 'org.scalatest.tools.ScalaTestAntTask', classpath: classpath.asPath)
+        /*
+        ant.scalatest(runpath: testClassesDir, haltonfailure: 'true', fork: 'false') {
+            reporter(type: 'stdout')
+        }
+        */
+        ant.scalatest(haltonfailure: 'true', fork: 'false') {
+            reporter(type: 'stdout')
+        }
     }
 }

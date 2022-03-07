@@ -3,10 +3,10 @@
          name="jdbc/dialang"
          auth="Container"
          type="javax.sql.DataSource"
-         username="@db.user@"
-         password="@db.password@"
+         username="@dbUser@"
+         password="@dbPassword@"
          driverClassName="org.postgresql.Driver"
-         url="jdbc:postgresql://@db.host@:5432/DIALANG"
+         url="jdbc:postgresql://@dbHost@:5432/DIALANG"
          maxTotal="20"
          maxIdle="10"
          validationQuery="select 1" />
@@ -14,15 +14,12 @@
          name="jdbc/dialangdatacapture"
          auth="Container"
          type="javax.sql.DataSource"
-         username="@db.user@"
-         password="@db.password@"
+         username="@dbUser@"
+         password="@dbPassword@"
          driverClassName="org.postgresql.Driver"
-         url="jdbc:postgresql://@db.host@:5432/DIALANGDATACAPTURE"
+         url="jdbc:postgresql://@dbHost@:5432/DIALANGDATACAPTURE"
          maxTotal="50"
          maxIdle="10"
          validationQuery="select 1" />
-    <!--Manager className="de.javakaffee.web.msm.MemcachedBackupSessionManager"
-        memcachedNodes="n1:@memcached.host@:@memcached.port@"
-        requestUriIgnorePattern=".*\.(ico|png|gif|jpg|css|js)$"
     /-->
  </Context>

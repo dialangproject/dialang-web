@@ -3,5 +3,6 @@
 tags
 build
 .gradle
+gradle.properties
 dialang-content
 content.tgz

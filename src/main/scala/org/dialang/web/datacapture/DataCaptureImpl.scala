@@ -5,8 +5,6 @@ import java.util.Date
 import javax.naming.InitialContext
 import javax.sql.DataSource
 
-import net.oauth.OAuth
-
 import org.dialang.common.model.{DialangSession, ImmutableItem}
 
 import scala.collection.mutable.ListBuffer
@@ -28,7 +26,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
   val ctx = new InitialContext
   val ds = ctx.lookup(dsUrl).asInstanceOf[DataSource]
 
-  def createSessionAndPass(dialangSession: DialangSession) {
+  def createSessionAndPass(dialangSession: DialangSession): Unit = {
 
     if (dialangSession.browserReferrer == null) dialangSession.browserReferrer = ""
 
@@ -162,7 +160,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def createPass(dialangSession: DialangSession, suppliedConn: Connection = null) {
+  def createPass(dialangSession: DialangSession, suppliedConn: Connection = null): Unit = {
 
     lazy val st = conn.prepareStatement("INSERT INTO passes (id,session_id,al,tl,skill,started) VALUES(?,?,?,?,?,?)")
 
@@ -199,7 +197,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logVSPTResponses(dialangSession: DialangSession, responses: Map[String,Boolean]) {
+  def logVSPTResponses(dialangSession: DialangSession, responses: Map[String,Boolean]): Unit = {
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("INSERT INTO vsp_test_responses (pass_id,word_id,response) VALUES(?,?,?)")
@@ -239,7 +237,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logVSPTScores(dialangSession: DialangSession) {
+  def logVSPTScores(dialangSession: DialangSession): Unit = {
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("INSERT INTO vsp_test_scores (pass_id,z_score,meara_score,level) VALUES(?,?,?,?)")
@@ -275,7 +273,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logSAResponses(dialangSession: DialangSession, responses: Map[String, Boolean]) {
+  def logSAResponses(dialangSession: DialangSession, responses: Map[String, Boolean]): Unit = {
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("INSERT INTO sa_responses (pass_id,statement_id,response) VALUES(?,?,?)")
@@ -316,7 +314,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logSAScores(dialangSession: DialangSession) {
+  def logSAScores(dialangSession: DialangSession): Unit = {
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("INSERT INTO sa_scores (pass_id,ppe,level) VALUES(?,?,?)")
@@ -348,7 +346,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logTestStart(passId: String, bookletId: Int, bookletLength: Int) {
+  def logTestStart(passId: String, bookletId: Int, bookletLength: Int): Unit = {
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("INSERT INTO test_durations (pass_id,start) VALUES(?,?)")
@@ -386,7 +384,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logBasket(passId: String, basketId: Int, basketNumber: Int) {
+  def logBasket(passId: String, basketId: Int, basketNumber: Int): Unit = {
 
     logger.debug("logBasket(" + passId + "," + basketId + "," + basketNumber+ ")")
 
@@ -419,7 +417,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logSingleIdResponse(passId: String, item: ImmutableItem) {
+  def logSingleIdResponse(passId: String, item: ImmutableItem): Unit = {
 
     logger.debug("PASS ID: " + passId + ". BASKET ID: " + item.basketId + ". ITEM ID: " + item.id + ". ANSWER ID: " + item.responseId)
 
@@ -457,7 +455,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logMultipleTextualResponses(passId: String, items: List[ImmutableItem]) {
+  def logMultipleTextualResponses(passId: String, items: List[ImmutableItem]): Unit = {
 
     lazy val conn = ds.getConnection
     lazy val st:PreparedStatement = conn.prepareStatement("INSERT INTO item_responses (pass_id,basket_id,item_id,answer_text,score,correct,pass_order) VALUES(?,?,?,?,?,?,?)")
@@ -497,7 +495,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logMultipleIdResponses(passId: String, items: List[ImmutableItem]) {
+  def logMultipleIdResponses(passId: String, items: List[ImmutableItem]): Unit = {
 
     logger.debug("PASS ID: " + passId + ". BASKET ID: " + items.last.basketId)
 
@@ -539,7 +537,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logTestResult(dialangSession: DialangSession) {
+  def logTestResult(dialangSession: DialangSession): Unit = {
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("INSERT INTO test_results (pass_id,raw_score,grade,level) VALUES(?,?,?,?)")
@@ -574,7 +572,7 @@ class DataCaptureImpl(dsUrl: String) extends Logging {
     }
   }
 
-  def logTestFinish(passId:String) {
+  def logTestFinish(passId: String): Unit = {
 
     lazy val conn = ds.getConnection
     lazy val st = conn.prepareStatement("UPDATE test_durations SET finish = ? WHERE pass_id = ?")

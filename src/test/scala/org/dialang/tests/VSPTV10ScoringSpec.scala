@@ -9,18 +9,20 @@ import java.sql.SQLException
 import scala.collection.mutable.HashMap
 
 import org.scalatest._
+import flatspec.AnyFlatSpec
+import matchers.should.Matchers._
 
-class VSPTV10ScoringSpec extends FlatSpec with Matchers {
+class VSPTV10ScoringSpec extends AnyFlatSpec {
 
   "getVersion10ZScore(H=50,X=0,F=25,Y=0)" should " result in an IllegalArgumentException" in {
 
     // 10 of the real words hit and 11 false alarms.
     try {
       val zScore = VSPTScoringAlgorithms.getVersion10ZScore(50,0,25,0)
-      fail
+      fail()
     } catch {
       case ile:IllegalArgumentException => {}
-      case e : Exception => fail
+      case e : Exception => fail()
     }
   }
 
