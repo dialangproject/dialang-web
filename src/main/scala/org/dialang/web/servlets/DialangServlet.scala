@@ -22,7 +22,7 @@ class DialangServlet extends ScalatraServlet with Logging {
 
   protected def getInstructorSession = session.get(instructorSessionKey)
 
-  protected def saveInstructorSession(instructorSession: InstructorSession) {
+  protected def saveInstructorSession(instructorSession: InstructorSession): Unit = {
 
     session += (instructorSessionKey -> instructorSession)
   }
@@ -38,7 +38,7 @@ class DialangServlet extends ScalatraServlet with Logging {
       }
   }
 
-  protected def saveDialangSession(dialangSession: DialangSession) {
+  protected def saveDialangSession(dialangSession: DialangSession): Unit = {
 
     session += (dialangSessionKey -> dialangSession)
   }

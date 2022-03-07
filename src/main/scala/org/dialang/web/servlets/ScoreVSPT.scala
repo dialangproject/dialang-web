@@ -1,6 +1,6 @@
 package org.dialang.web.servlets
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.HashMap
 
 import org.dialang.db.DBFactory

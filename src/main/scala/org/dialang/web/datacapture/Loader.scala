@@ -55,7 +55,7 @@ class Loader(dUrl: String, dcUrl: String) extends Logging {
           val vsptRS = vsptST.executeQuery
           if (vsptRS.next) {
             dialangSession.vsptSubmitted = true
-            dialangSession.vsptZScore = vsptRS.getInt("z_score")
+            dialangSession.vsptZScore = vsptRS.getFloat("z_score")
             dialangSession.vsptMearaScore = vsptRS.getInt("meara_score")
             dialangSession.vsptLevel = vsptRS.getString("level")
           }
@@ -68,7 +68,7 @@ class Loader(dUrl: String, dcUrl: String) extends Logging {
           val saRS = saST.executeQuery
           if (saRS.next) {
             dialangSession.saSubmitted = true
-            dialangSession.saPPE = saRS.getInt("ppe")
+            dialangSession.saPPE = saRS.getFloat("ppe")
             dialangSession.saLevel = saRS.getString("level")
           }
           saRS.close()

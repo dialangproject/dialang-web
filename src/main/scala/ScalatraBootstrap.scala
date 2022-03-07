@@ -5,10 +5,10 @@ import org.dialang.dr.servlets._
 
 class ScalatraBootstrap extends LifeCycle {
 
-  override def init(context: ServletContext) {
+  override def init(context: ServletContext): Unit = {
 
     context.mount(new GetALS, "/getals/*")
-    context.mount(new LTILaunch, "/lti/*")
+    //context.mount(new LTILaunch, "/lti/*")
     context.mount(new Save, "/save/*")
     context.mount(new Load, "/load/*")
     context.mount(new SetALS, "/setals/*")
@@ -21,7 +21,7 @@ class ScalatraBootstrap extends LifeCycle {
     context.mount(new SubmitBasket, "/submitbasket/*")
     context.mount(new SubmitQuestionnaire, "/submitquestionnaire/*")
     context.mount(new Results, "/data/*")
-    context.mount(new GetLTIStudentReport, "/getltistudentreport/*")
-    context.mount(new GetStudentReport, "/getstudentreport/*")
+    //context.mount(new GetLTIStudentReport, "/getltistudentreport/*")
+    //context.mount(new GetStudentReport, "/getstudentreport/*")
   }
 }

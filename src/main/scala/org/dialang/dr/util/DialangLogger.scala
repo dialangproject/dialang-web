@@ -5,17 +5,11 @@ import org.slf4j.LoggerFactory;
 
 trait DialangLogger {
 
- private val logger = LoggerFactory.getLogger(getClass)
+  private val logger = LoggerFactory.getLogger(getClass)
 
- def debug(message:String) {
-  logger.debug(message)
- }
+  def debug(message: String): Unit = logger.debug(message)
 
- def error(message:String) {
-  logger.error(message)
- }
+  def error(message:String): Unit = logger.error(message)
 
- def error(message:String,t:Throwable) {
-  logger.error(message,t)
- }
+  def error(message: String, t: Throwable): Unit = logger.error(message,t)
 }

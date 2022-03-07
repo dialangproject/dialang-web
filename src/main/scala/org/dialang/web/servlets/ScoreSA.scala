@@ -1,7 +1,7 @@
 package org.dialang.web.servlets
 
-import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
+import scala.jdk.CollectionConverters._
 
 import org.dialang.common.model.DialangSession
 import org.dialang.scoring.ScoringMethods

@@ -1,6 +1,5 @@
 package org.dialang.web.servlets
 
-import scala.collection.JavaConversions._
 import org.json4s.{DefaultFormats, Formats}
 
 import org.scalatra.json._
@@ -24,7 +23,7 @@ class Load extends DialangServlet with JacksonJsonSupport {
           saveDialangSession(dialangSession)
 
           //if (dataCapture.deleteToken(token)) {
-            dialangSession.toCase
+            dialangSession.toCase()
           /*} else {
             "{\"error\": \"Failed to delete saved session\"}"
           }*/
