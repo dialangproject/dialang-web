@@ -1,4 +1,2 @@
-$('#navbar').hide();
-$.get('/dialang-content/als.html', function (data) {
-    $('#content').html(data);
-});
+document.getElementById("navbar").style.display = "none";
+fetch(dataUrl).then(r => r.html()).then(html => document.getElementById("content").innerHTML = html);

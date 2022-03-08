@@ -42,4 +42,6 @@ class DialangServlet extends ScalatraServlet with Logging {
 
     session += (dialangSessionKey -> dialangSession)
   }
+
+  protected def getBaseContentUrl: String = config.getServletContext.getInitParameter("baseContentUrl");
 }

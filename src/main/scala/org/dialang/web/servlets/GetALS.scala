@@ -7,6 +7,6 @@ class GetALS extends DialangServlet with ScalateSupport {
   get("/") {
 
     contentType = "text/html"
-    mustache("shell", "state" -> "als")
+    mustache("shell", "dataUrl" -> "${getBaseContentUrl()}/getals", "state" -> "als")
   }
 }
