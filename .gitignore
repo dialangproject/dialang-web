@@ -6,3 +6,7 @@ build
 gradle.properties
 dialang-content
 content.tgz
+node_modules
+cdk.out
+cdk.context.json
+content
