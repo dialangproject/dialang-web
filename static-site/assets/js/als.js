@@ -1,6 +1,12 @@
 document.getElementById('al-dropdown').addEventListener("change", e => {
 
   const al = e.target.value;
+
+  dialang.session.al = al;
+  console.log(`Session ID: ${sessionId}`);
+  dialang.switchState("legend");
+
+  /*
   const url = `/prod/setal?al=${al}`;
   fetch(url)
   .then(r => {
@@ -21,5 +27,6 @@ document.getElementById('al-dropdown').addEventListener("change", e => {
   .catch(err => {
     console.error(`Failed to set admin language to ${al}`, err);
   });
+  */
 });
 

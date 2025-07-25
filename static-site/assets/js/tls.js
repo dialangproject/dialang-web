@@ -16,7 +16,7 @@ $('#back').prop('disabled', false).click(function (e) {
     return dialang.navigation.backRules.tls();
 });
 
-$.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
+$.get('/prod/content/tls/' + dialang.session.al + '.html', function (data) {
 
     $('#content').html(data);
 
@@ -55,9 +55,9 @@ $.get('/dialang-content/tls/' + dialang.session.al + '.html', function (data) {
         $('#confirm-yes').off('click').click(function (e) {
 
             $.ajax({
-                url: '/settls',
+                url: '/prod/settls',
                 type: 'POST',
-                data: {'tl':tl,'skill':skill},
+                data: { tl, skill },
                 dataType: 'text',
                 timeout: dialang.uploadTimeout,
                 success: function (response, textStatus, jqXHR) {
