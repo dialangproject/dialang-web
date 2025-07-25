@@ -94,7 +94,7 @@ dialang.navigation.backRules = {
         return dialang.switchState('instructormenu');
     },
     legend: function () {
-        return dialang.switchState('als');
+        location.href = "/prod/content/als.html";
     },
     loadsaved: function () {
         return dialang.switchState('legend');

@@ -13,6 +13,6 @@ $('#next').prop('disabled', false).click(function (e) {
 
 $('#skipforward').prop('disabled', true);
 
-$.get('/dialang-content/legend/' + dialang.session.al + '.html', function (data) {
+$.get(`/prod/content/legend/${dialang.session.al}.html`, function (data) {
     $('#content').html(data);
 });

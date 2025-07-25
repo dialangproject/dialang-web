@@ -6,10 +6,20 @@ document.getElementById('al-dropdown').addEventListener("change", e => {
   .then(r => {
 
     if (r.ok) {
-      location.href = `./legend/legend_${al}.html`;
-    } else {
-      console.error(`Failed to set admin language to ${al}`);
+      return r.text();
     }
+
+    throw new Error(`Failed to set admin language to ${al}`);
+  })
+  .then(sessionId => {
+
+    dialang.session.id = sessionId;
+    dialang.session.al = al;
+    console.log(`Session ID: ${sessionId}`);
+    dialang.switchState("legend");
+  })
+  .catch(err => {
+    console.error(`Failed to set admin language to ${al}`, err);
   });
 });
 

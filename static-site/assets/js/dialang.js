@@ -8,7 +8,7 @@ dialang.uploadTimeout = 30000; // 30 seconds
 window.console = window.console || { log: function (m) { alert(m); } };
 
 if (typeof dialang === 'undefined') {
-    console.log("No dialang object defined. Returning prematurely from dialang.js ...");
+  console.log("No dialang object defined. Returning prematurely from dialang.js ...");
 }
 
 dialang.keyboardMappings = {
@@ -189,38 +189,48 @@ dialang.attachGapCompletionTest = function () {
 
 dialang.switchState = function (state) {
 
-    if ('als' == state && dialang.flags.hideALS) {
-        return false;
-    }
+  console.debug(`Switching to state ${state} ...`);
 
-    if ('tls' == state && dialang.flags.hideTLS) {
-        return false;
-    }
-
-    if ('test' !== state) {
-        $.get('/dialang-content/' + state + '/' + dialang.session.al + '-toolbarTooltips.json', function (tips) {
-
-            dialang.currentToolbarTooltips = tips;
-
-            $('#skipback').attr('title', tips.skipback);
-            $('#back').attr('title', tips.back);
-            $('#next').attr('title', tips.next);
-            $('#skipforward').attr('title', tips.skipforward);
-            $('#save-button').attr('title', tips.save);
-        });
-    }
-
-    $('#skipback,#back,#next,#skipforward').off('click').prop('disabled', true);
-    $('#confirm-skip-dialog').remove();
-
-    $.getScript('/js/' + state + '.js');
-
-    // Google Analytics
-    ga('set', 'page', '/' + state + '.html');
-    ga('send', 'pageview');
-
+  if ('als' == state && dialang.flags.hideALS) {
     return false;
-}; 
+  }
+
+  if ('tls' == state && dialang.flags.hideTLS) {
+    return false;
+  }
+
+  if ('test' !== state) {
+    $.get('/prod/content/' + state + '/' + dialang.session.al + '-toolbarTooltips.json', function (tips) {
+
+      dialang.currentToolbarTooltips = tips;
+
+      $('#skipback').attr('title', tips.skipback);
+      $('#back').attr('title', tips.back);
+      $('#next').attr('title', tips.next);
+      $('#skipforward').attr('title', tips.skipforward);
+      $('#save-button').attr('title', tips.save);
+    });
+  }
+
+  $('#skipback,#back,#next,#skipforward').off('click').prop('disabled', true);
+  $('#confirm-skip-dialog').remove();
+
+  dialang.getScript('/prod/assets/js/' + state + '.js');
+
+  // Google Analytics
+  ga('set', 'page', '/' + state + '.html');
+  ga('send', 'pageview');
+
+  return false;
+};
+
+dialang.getScript = path => {
+
+  const scriptTag = document.createElement("script"); // create a script tag
+  const firstScriptTag = document.getElementsByTagName("script")[0]; // find the first script tag in the document
+  scriptTag.src = path;
+  firstScriptTag.parentNode.insertBefore(scriptTag, firstScriptTag); // append the script to the DOM
+};
 /*
 // TEST MODE ONLY !!!!!!!
 dialang.state = 'questionnaire';
@@ -232,7 +242,9 @@ dialang.session.skill = 'writing';
 // TEST MODE ONLY !!!!!!!
 */
 
-dialang.switchState(dialang.state);
+if (dialang.state !== "als") {
+  dialang.switchState(dialang.state);
+}
 
 $.get('/dialang-content/help/' + dialang.session.al + '.html', function (helpDialogMarkup) {
 
