@@ -55,7 +55,7 @@ $.get('/prod/content/tls/' + dialang.session.al + '.html', function (data) {
         $('#confirm-yes').off('click').click(function (e) {
 
             $.ajax({
-                url: '/prod/settls',
+                url: '/prod/settl',
                 type: 'POST',
                 data: { tl, skill },
                 dataType: 'text',
