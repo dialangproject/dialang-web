@@ -14,7 +14,7 @@ $('#skipforward').prop('disabled', false).click(function (e) {
     return false;
 });
 
-$.get('/dialang-content/vsptintro/' + dialang.session.al + '.html', function (data) {
+$.get(`/prod/content/vsptintro/${dialang.session.al}.html`, function (data) {
 
     $('#content').html(data);
     $('#confirm-skip-dialog').dialog({

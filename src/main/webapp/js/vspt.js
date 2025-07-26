@@ -4,7 +4,7 @@ $('#skipforward').prop('disabled', false).click(function (e) {
     return false;
 });
 
-$.get('/dialang-content/vspt/' + dialang.session.al + '/' + dialang.session.tl + '.html', function (data) {
+$.get(`/prod/content/vspt/${dialang.session.al}/${dialang.session.tl}.html`, function (data) {
 
     $('#content').html(data);
 

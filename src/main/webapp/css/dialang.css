@@ -219,19 +219,19 @@ button[disabled] {
 }
 
 .ui-icon-closethick {
-    background-image: url(/images/cross.png) !important;
+    background-image: url(/prod/assets/prod/assets/images/cross.png) !important;
     background-position: left top !important;
     margin: 0 !important;
 }
 
 .ui-icon-prevButton {
-    background-image: url(/images/prev.gif) !important;
+    background-image: url(/prod/assets/images/prev.gif) !important;
     background-position: left top !important;
     margin: 0 !important;
 }
 
 .ui-icon-nextButton {
-    background-image: url(/images/next.gif) !important;
+    background-image: url(/prod/assets/images/next.gif) !important;
     background-position: left top !important;
     margin: 0 !important;
 }

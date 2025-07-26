@@ -39,7 +39,7 @@ $('#save-button').click(function (e) {
     });
 });
 
-$.get('/dialang-content/iso_lang_mappings.json', function (mappings) {
+$.get('/prod/content/iso_lang_mappings.json', function (mappings) {
     dialang.isoLangMappings = mappings;
 });
 
@@ -198,7 +198,7 @@ dialang.switchState = function (state) {
     }
 
     if ('test' !== state) {
-        $.get('/dialang-content/' + state + '/' + dialang.session.al + '-toolbarTooltips.json', function (tips) {
+        $.get(`/prod/content/${state}/${dialang.session.al}-toolbarTooltips.json`, function (tips) {
 
             dialang.currentToolbarTooltips = tips;
 
@@ -234,7 +234,7 @@ dialang.session.skill = 'writing';
 
 dialang.switchState(dialang.state);
 
-$.get('/dialang-content/help/' + dialang.session.al + '.html', function (helpDialogMarkup) {
+$.get(`/prod/content/help/${dialang.session.al}.html`, function (helpDialogMarkup) {
 
     $('#help-dialog').html(helpDialogMarkup);
     $('#help-tabs').tabs();
@@ -247,7 +247,7 @@ $.get('/dialang-content/help/' + dialang.session.al + '.html', function (helpDia
     });
 });
 
-$.get('/dialang-content/save/' + dialang.session.al + '.html', function (saveDialogMarkup) {
+$.get(`/prod/content/save/${dialang.session.al}.html`, function (saveDialogMarkup) {
 
     $('#save-dialog').html(saveDialogMarkup);
     $('#save-dialog').dialog({
