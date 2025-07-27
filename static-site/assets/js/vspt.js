@@ -64,30 +64,43 @@ $.get(`/prod/content/vspt/${dialang.session.al}/${dialang.session.tl}.html`, fun
 
     $('#confirm-send-yes').click(function (e) {
 
-        $('#vsptform').ajaxSubmit({
-            dataType: 'json',
-            timeout: dialang.uploadTimeout,
-            success: function (scores, textStatus, jqXHR, jqFormElement) {
+      const formData = new FormData(document.getElementById('vsptform'));
+      formData.append("tl", dialang.session.tl);
 
-                if (scores.redirect) {
-                    window.location = scores.redirect;
-                } else {
-                    dialang.session.vsptMearaScore = scores.vsptMearaScore;
-                    dialang.session.vsptLevel = scores.vsptLevel;
-                    $('#confirm-send-dialog').dialog('destroy');
+      const url = "/prod/scorevspt";
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify(Object.fromEntries(formData)),
+      })
+      .then(r => {
 
-                    dialang.session.vsptDone[dialang.session.tl] = true;
+        if (r.ok) {
+          return r.json();
+        }
 
-                    $('#save-button').prop('disabled', false);
+        throw new Error(`Failed to score VSPT at ${url}`);
+      })
+      .then(scores => {
 
-                    dialang.navigation.nextRules.vspt();
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert('Failed to submit vspt. Reason: ' + textStatus);
-            }
-        }); // ajaxSubmit
-        return false;
+        if (scores.redirect) {
+          window.location = scores.redirect;
+        } else {
+          dialang.session.vsptMearaScore = scores.vsptMearaScore;
+          dialang.session.vsptLevel = scores.vsptLevel;
+          $('#confirm-send-dialog').dialog('destroy');
+
+          dialang.session.vsptDone[dialang.session.tl] = true;
+
+          $('#save-button').prop('disabled', false);
+
+          dialang.navigation.nextRules.vspt();
+        }
+      })
+      .catch(error => {
+        alert(`Failed to submit vspt. Reason: ${error}`);
+      });
+
+      return false;
     });
 
     $('#confirm-send-no').click(function (e) {

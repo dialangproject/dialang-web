@@ -54,17 +54,10 @@ $.get('/prod/content/tls/' + dialang.session.al + '.html', function (data) {
     $('#confirmation_langskill').html(langskill);
     $('#confirm-yes').off('click').click(function (e) {
 
-      const formData = new FormData();
-      formData.append('sessionId', dialang.session.id);
-      formData.append('al', dialang.session.al);
-      formData.append('tl', tl);
-      formData.append('skill', skill);
-
       const url = "/prod/settl";
       fetch(url, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        //body: formData
         body: JSON.stringify({ sessionId: dialang.session.id, al: dialang.session.al, tl, skill }),
       })
         .then(r => {
