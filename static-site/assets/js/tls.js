@@ -5,100 +5,115 @@ dialang.session.feedbackMode = false;
 dialang.session.testDone = false;
 
 if (!dialang.flags.hideALS) {
-    $('#skipback').prop('disabled', false).click(function (e) {
+  $('#skipback').prop('disabled', false).click(function (e) {
 
-        dialang.switchState('als');
-        return false;
-    });
+    dialang.switchState('als');
+    return false;
+  });
 }
 
 $('#back').prop('disabled', false).click(function (e) {
-    return dialang.navigation.backRules.tls();
+  return dialang.navigation.backRules.tls();
 });
 
 $.get('/prod/content/tls/' + dialang.session.al + '.html', function (data) {
 
-    $('#content').html(data);
+  $('#content').html(data);
 
-    $('#disclaimer-dialog').dialog({
-        modal: true,
-        width: 'auto',
-        resizable: false
-    });
+  $('#disclaimer-dialog').dialog({
+    modal: true,
+    width: 'auto',
+    resizable: false
+  });
 
-    $('#disclaimer-button').click(function (e) {
+  $('#disclaimer-button').click(function (e) {
 
-        $('#disclaimer-dialog').dialog('destroy');
-        return false;
-    });
+    $('#disclaimer-dialog').dialog('destroy');
+    return false;
+  });
 
-    $('#confirm-dialog').dialog({
-        modal: true,
-        width: 'auto',
-        autoOpen: false,
-        resizable: false
-    });
+  $('#confirm-dialog').dialog({
+    modal: true,
+    width: 'auto',
+    autoOpen: false,
+    resizable: false
+  });
 
-    $('#confirm-no').click(function (e) {
+  $('#confirm-no').click(function (e) {
 
-        $('#confirm-dialog').dialog('close');
-        return false;
-    });
+    $('#confirm-dialog').dialog('close');
+    return false;
+  });
 
-    $('.tls-link').click(function () {
+  $('.tls-link').click(function () {
 
-        var langskill = $(this).attr('title');
-        var tl = $(this).attr('tl');
-        var skill = $(this).attr('skill');
+    var langskill = $(this).attr('title');
+    var tl = $(this).attr('tl');
+    var skill = $(this).attr('skill');
 
-        $('#confirmation_langskill').html(langskill);
-        $('#confirm-yes').off('click').click(function (e) {
+    $('#confirmation_langskill').html(langskill);
+    $('#confirm-yes').off('click').click(function (e) {
 
-            $.ajax({
-                url: '/prod/settl',
-                type: 'POST',
-                data: { tl, skill },
-                dataType: 'text',
-                timeout: dialang.uploadTimeout,
-                success: function (response, textStatus, jqXHR) {
+      const formData = new FormData();
+      formData.append('sessionId', dialang.session.id);
+      formData.append('al', dialang.session.al);
+      formData.append('tl', tl);
+      formData.append('skill', skill);
 
-                    dialang.pass = { baskets: [], itemToBasketMap: {}, items: [], subskills: {} };
-                    dialang.session.tl = tl;
-                    dialang.session.skill = skill;
-                    $('#confirm-dialog').dialog('destroy');
+      const url = "/prod/settl";
+      fetch(url, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        //body: formData
+        body: JSON.stringify({ sessionId: dialang.session.id, al: dialang.session.al, tl, skill }),
+      })
+        .then(r => {
 
-                    // If the vspt hasn't been done yet for this test language, switch
-                    // to the vsptintro screen.
-                    if (!dialang.session.vsptDone.hasOwnProperty(tl)) {
-                        dialang.navigation.nextRules.tls();
-                    } else {
-                        // Pretend we are already on the vspt feedback screen
-                        dialang.navigation.nextRules.vsptfeedback();
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
+          if (r.ok) {
+            return r.json();
+          }
 
-                    alert('Failed to set test language and skill. Reason: ' + textStatus);
-                    $('#confirm-dialog').dialog('destroy');
-                }
-            });
-            return false;
+          throw new Error(`Failed to set test language at ${url}`);
+        })
+        .then(data => {
+
+          dialang.pass = { id: data.passId, sessionId: data.sessionId, baskets: [], itemToBasketMap: {}, items: [], subskills: {} };
+          dialang.session = { ...dialang.session, id: data.sessionId, tl, skill };
+          console.log(dialang);
+          $('#confirm-dialog').dialog('destroy');
+
+          // If the vspt hasn't been done yet for this test language, switch
+          // to the vsptintro screen.
+          if (!dialang.session.vsptDone.hasOwnProperty(tl)) {
+            dialang.navigation.nextRules.tls();
+          } else {
+            // Pretend we are already on the vspt feedback screen
+            dialang.navigation.nextRules.vsptfeedback();
+          }
+        })
+        .catch(error => {
+
+          alert(`Failed to set test language and skill. Reason: ${error}`);
+          $('#confirm-dialog').dialog('destroy');
         });
-        $('#confirm-dialog').dialog('open');
-        return false;
-    }); // tls-link click
 
-    // Disable the completed tests
-    var testsDone = dialang.session.testsDone;
+      return false;
+    });
+    $('#confirm-dialog').dialog('open');
+    return false;
+  }); // tls-link click
 
-    if (testsDone) {
-        testsDone.forEach(function (test) {
+  // Disable the completed tests
+  var testsDone = dialang.session.testsDone;
 
-            $('#' + test)
-                .off('click')
-                .attr('href','')
-                .children('img')
-                .attr('src','/images/done.gif');
-        });
-    }
+  if (testsDone) {
+    testsDone.forEach(function (test) {
+
+      $('#' + test)
+        .off('click')
+        .attr('href','')
+        .children('img')
+        .attr('src','/images/done.gif');
+    });
+  }
 });

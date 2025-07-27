@@ -11,7 +11,7 @@ const dynamo = DynamoDBDocumentClient.from(client);
 
 export const handler = async (event, context) => {
 
-  let { sessionId, al, tl, skill } = event.body;
+  let { sessionId, al, tl, skill } = JSON.parse(event.body);
 
   if (!sessionId) {
     // No session yet. Create one.
@@ -21,8 +21,7 @@ export const handler = async (event, context) => {
         TableName: "dialang-sessions",
         Item: {
           "session_id": sessionId,
-          "ip_address": event.headers["x-forwarded-for"],
-          "browser_locale": "balls",
+          "ip_address": event.requestContext.identity.sourceIp,
         },
       })
     );
@@ -46,7 +45,7 @@ export const handler = async (event, context) => {
 
   return {
     statusCode: 200,
-    headers: { "Content-Type": "text/plain" },
-    body: "success",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sessionId, passId }),
   };
 };
