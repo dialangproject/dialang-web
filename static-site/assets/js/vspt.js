@@ -66,6 +66,7 @@ $.get(`/prod/content/vspt/${dialang.session.al}/${dialang.session.tl}.html`, fun
 
       const formData = new FormData(document.getElementById('vsptform'));
       formData.append("tl", dialang.session.tl);
+      formData.append("sessionId", dialang.session.id);
 
       const url = "/prod/scorevspt";
       fetch(url, {
@@ -81,6 +82,8 @@ $.get(`/prod/content/vspt/${dialang.session.al}/${dialang.session.tl}.html`, fun
         throw new Error(`Failed to score VSPT at ${url}`);
       })
       .then(scores => {
+
+        console.log(scores);
 
         if (scores.redirect) {
           window.location = scores.redirect;

@@ -1,18 +1,20 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  PutCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from 'crypto'
 
 const client = new DynamoDBClient({});
 
-const dynamo = DynamoDBDocumentClient.from(client);
+const docClient = DynamoDBDocumentClient.from(client);
 
 export const handler = async (event, context) => {
 
+  const body = JSON.parse(event.body);
+
   const responses = {};
-  Object.entries(JSON.parse(event.body)).forEach(pair => {
+  Object.entries(body).forEach(pair => {
     const name = pair[0];
     if (name.startsWith("word:")) {
       const id = name.split(":")[1]
@@ -21,11 +23,16 @@ export const handler = async (event, context) => {
     }
   });
 
-  console.log(responses);
-
+  await docClient.send(
+    new UpdateCommand({
+      TableName: "dialang-data-capture",
+      Key: { "session_id": body.sessionId },
+      ExpressionAttributeValues: { ":vr": JSON.stringify(responses) },
+      UpdateExpression: "set vspt_responses_json = :vr",
+      ReturnValues: "ALL_NEW",
+    })
+  );
   /*
-  val dialangSession = getDialangSession
-
   // This is a Tuple3 of zscore, meara score and level.
   val (zScore,mearaScore,level) = vsptUtils.getBand(dialangSession.tes.tl,responses.toMap)
 
@@ -58,41 +65,14 @@ export const handler = async (event, context) => {
       "{ \"vsptMearaScore\":\"" + mearaScore.toString + "\",\"vsptLevel\":\"" + level + "\",\"vsptDone\": \"true\" }"
     }
   }
-
-  if (!sessionId) {
-    // No session yet. Create one.
-    sessionId = randomUUID();
-    await dynamo.send(
-      new PutCommand({
-        TableName: "dialang-sessions",
-        Item: {
-          "session_id": sessionId,
-          "ip_address": event.requestContext.identity.sourceIp,
-        },
-      })
-    );
-  }
-
-  const passId = randomUUID();
-
-  await dynamo.send(
-    new PutCommand({
-      TableName: "dialang-passes",
-      Item: {
-        "session_id": sessionId,
-        "pass_id": passId,
-        al,
-        tl,
-        skill,
-        started: Date.now(),
-      },
-    })
-  );
   */
+
+  const mearaScore = 905;
+  const level = "UNKNOWN";
 
   return {
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ "ape": "monkey" }),
+    body: `{ "vsptMearaScore": ${mearaScore}, "vsptLevel": "${level}" }`,
   };
 };

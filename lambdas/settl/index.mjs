@@ -16,29 +16,22 @@ export const handler = async (event, context) => {
   if (!sessionId) {
     // No session yet. Create one.
     sessionId = randomUUID();
-    await dynamo.send(
-      new PutCommand({
-        TableName: "dialang-sessions",
-        Item: {
-          "session_id": sessionId,
-          "ip_address": event.requestContext.identity.sourceIp,
-        },
-      })
-    );
   }
 
   const passId = randomUUID();
 
   await dynamo.send(
     new PutCommand({
-      TableName: "dialang-passes",
+      TableName: "dialang-data-capture",
       Item: {
         "session_id": sessionId,
+        "ip_address": event.requestContext.identity.sourceIp,
         "pass_id": passId,
         al,
         tl,
         skill,
         started: Date.now(),
+        vspt_responses_json: "",
       },
     })
   );
