@@ -74,7 +74,7 @@ export const handler = async (event, context) => {
   }
   */
 
-  const result = { zScore, mearaScore, level };
+  const result = { vsptMearaScore: mearaScore, vsptLevel: level };
 
   return {
     statusCode: 200,
@@ -147,7 +147,6 @@ var getZScore = async (tl, responses) => {
   }
 };
 
-
 var getScore = async (tl, responses) => {
 
   const Z = await getZScore(tl, responses);
@@ -177,4 +176,4 @@ var getBand = async (tl, responses) => {
     console.error(`No bands for test language '${tl}'. Returning empty array ...`);
     return [];
   }
-}
+};

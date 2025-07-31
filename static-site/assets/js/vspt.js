@@ -83,8 +83,6 @@ $.get(`/prod/content/vspt/${dialang.session.al}/${dialang.session.tl}.html`, fun
       })
       .then(scores => {
 
-        console.log(scores);
-
         if (scores.redirect) {
           window.location = scores.redirect;
         } else {
