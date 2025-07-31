@@ -10,7 +10,7 @@ if (dialang.session.feedbackMode) {
     });
 }
 
-$.get('/dialang-content/vsptfeedback/' + dialang.session.al + '.html', function (data) {
+$.get(`/prod/content/vsptfeedback/${dialang.session.al}.html`, function (data) {
 
     var levelToTab = {V1: 5, V2: 4, V3: 3, V4: 2, V5: 1, V6: 0};
 
