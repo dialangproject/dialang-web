@@ -2,6 +2,7 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   QueryCommand,
+  ScanCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from 'crypto'
@@ -10,59 +11,24 @@ const client = new DynamoDBClient({});
 
 const docClient = DynamoDBDocumentClient.from(client);
 
-val cacheVSPTBands = () => {
+const cacheVSPTBands = async () => {
 
-  const bands = await docClient.send(
-    new QueryCommand({
-      TableName: "dialang-content",
-      KeyConditionExpression: "pk = :pk",
-      ExpressionAttributeValues: { ":pk": "vspt_band" },
-      ConsistentRead: true,
-    })
-  );
+  const bands = await docClient.send(new ScanCommand({ TableName: "dialang-vspt-bands" }));
 
-  bands.forEach(band => {
-  });
+  return bands.Items.reduce((acc, band) => {
 
-  debug("Caching VSPT bands ...")
+    const tl = band["test_language"];
 
-  lazy val conn = ds.getConnection
-  lazy val st = conn.createStatement
+    const value = [ band.level, band.low, band.high ];
 
-  try {
-    var rs = st.executeQuery("SELECT * FROM vsp_bands")
+    if (!acc[tl]) acc[tl] = [];
 
-    val temp = rs.foldLeft(new HashMap[String, ArrayBuffer[(String, Int, Int)]]())((map,r) => {
-        val locale = r.getString("locale")
-        val level = r.getString("level")
-        val low = r.getInt("low")
-        val high = r.getInt("high")
-        if (!map.contains(locale)) {
-          map += (locale -> new ArrayBuffer[(String, Int, Int)])
-        }
-        map.get(locale).get += ((level,low,high))
-        map
-      }).toMap
+    acc[tl].push(value);
+    return acc;
+  }, {});
+};
 
-    // Make it all immutable and return it
-    temp.map(t => (t._1 -> t._2.toVector)).toMap
-  } finally {
-    if (st != null) {
-      try {
-        st.close()
-      } catch { case e:SQLException => }
-    }
-
-    if (conn != null) {
-      try {
-        conn.close()
-      } catch { case e:SQLException => }
-    }
-
-    debug("VSPT bands cached.")
-  }
-}
-
+var vsptBands = await cacheVSPTBands();
 
 export const handler = async (event, context) => {
 
@@ -78,33 +44,19 @@ export const handler = async (event, context) => {
     }
   });
 
+  const [ zScore, mearaScore, level ] = await getBand(body.tl, responses);
+
   await docClient.send(
     new UpdateCommand({
       TableName: "dialang-data-capture",
       Key: { "session_id": body.sessionId },
-      ExpressionAttributeValues: { ":vr": JSON.stringify(responses) },
-      UpdateExpression: "set vspt_responses_json = :vr",
+      ExpressionAttributeValues: { ":vr": JSON.stringify(responses), ":vs": JSON.stringify([zScore, mearaScore, level]) },
+      UpdateExpression: "set vspt_responses_json = :vr, vspt_scores = :vs",
       ReturnValues: "ALL_NEW",
     })
   );
+
   /*
-  // This is a Tuple3 of zscore, meara score and level.
-  val (zScore,mearaScore,level) = vsptUtils.getBand(dialangSession.tes.tl,responses.toMap)
-
-  dialangSession.vsptZScore = zScore.toFloat
-  dialangSession.vsptMearaScore = mearaScore
-  dialangSession.vsptLevel = level
-  dialangSession.vsptSubmitted = true
-
-  logger.debug("VSPT Z Score: " + dialangSession.vsptZScore)
-  logger.debug("VSPT Meara Score: " + dialangSession.vsptMearaScore)
-  logger.debug("VSPT Level: " + dialangSession.vsptLevel)
-
-  saveDialangSession(dialangSession)
-
-  dataCapture.logVSPTResponses(dialangSession, responses.toMap)
-  dataCapture.logVSPTScores(dialangSession)
-
   if (dialangSession.tes.hideSA && dialangSession.tes.hideTest && dialangSession.resultUrl != "") {
       val url = {
           val parts = dialangSession.resultUrl.split("\\?")
@@ -122,23 +74,17 @@ export const handler = async (event, context) => {
   }
   */
 
-  const mearaScore = 905;
-  const level = "UNKNOWN";
+  const result = { zScore, mearaScore, level };
 
   return {
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
-    body: `{ "vsptMearaScore": ${mearaScore}, "vsptLevel": "${level}" }`,
+    body: JSON.stringify(result),
   };
 };
 
 var getVersion10ZScore = (hits, realWordsAnswered, falseAlarms, fakeWordsAnswered) => {
 
-  //require(hits >= 0 && realWordsAnswered > 0 && falseAlarms >= 0 && fakeWordsAnswered > 0
-   //         , "One of these conditions failed. hits >= 0, realWordsAnswered > 0, falseAlarms >= 0, fakeWordsAnswered > 0")
-
-  // The observed hit rate. Hits divided by the  total number of real words answered.
-  //const h =  hits.toDouble / realWordsAnswered.toDouble
   const h =  hits / realWordsAnswered;
 
   // The false alarm rate. False alarms divided by the total number of fake words answered.
@@ -146,7 +92,7 @@ var getVersion10ZScore = (hits, realWordsAnswered, falseAlarms, fakeWordsAnswere
 
   if (h === 1 && f === 1) {
     // This means the test taker has just clicked green for all the words
-    return -1
+    return -1;
   } else {
     try {
       const rhs = (( 4 * h * (1 - f) ) - (2 * (h - f) * (1 + h - f))) / ((4 * h * (1 - f)) - ((h - f) * (1 + h - f)));
@@ -157,7 +103,7 @@ var getVersion10ZScore = (hits, realWordsAnswered, falseAlarms, fakeWordsAnswere
   }
 };
 
-var getZScore = (tl, responses) => {
+var getZScore = async (tl, responses) => {
 
   const REAL = 1
   const FAKE = 0
@@ -166,39 +112,32 @@ var getZScore = (tl, responses) => {
 
   const words = await docClient.send(
     new QueryCommand({
-      TableName: "dialang-content",
-      Key: { "pk": "vspt_word", "sk": tl },
+      TableName: "dialang-vspt-words",
+      KeyConditionExpression: "test_language = :tl",
+      ExpressionAttributeValues: { ":tl": tl },
     })
   );
 
-  words.forEach(word => {
+  words.Items.forEach(word => {
 
-    const wordType = word.valid ?  REAL : FAKE
+    const wordType = word.valid === "1" ?  REAL : FAKE
 
-    if (responses.contains(word.id)) {
-      if (responses(word.id)) {
-        yesResponses[wordType] += 1
-      } else {
-        noResponses[wordType] += 1
-      }
+    if (responses[word.word_id]) {
+      yesResponses[wordType] += 1
     } else {
-      console.error(`The responses did not contain the word with id '${word.id}'. This is incorrect.`)
+      noResponses[wordType] += 1
     }
   });
 
-  const realWordsAnswered = yesResponses[REAL] + noResponses[REAL]
-  console.debug(`realWordsAnswered: ${realWordsAnswered}`)
+  const realWordsAnswered = yesResponses[REAL] + noResponses[REAL];
 
-  const fakeWordsAnswered = yesResponses[FAKE] + noResponses[FAKE]
-  console.debug(`fakeWordsAnswered: ${fakeWordsAnswered}`)
+  const fakeWordsAnswered = yesResponses[FAKE] + noResponses[FAKE];
 
   // Hits. The number of yes responses to real words.
-  const hits = yesResponses[REAL]
-  console.debug(`hits: ${hits}`);
+  const hits = yesResponses[REAL];
 
   // False alarms. The number of yes responses to fake words.
-  const falseAlarms = yesResponses[FAKE]
-  console.debug(`falseAlarms: ${falseAlarms}`)
+  const falseAlarms = yesResponses[FAKE];
 
   if (hits == 0) {
     // No hits whatsoever results in a zero score
@@ -209,37 +148,33 @@ var getZScore = (tl, responses) => {
 };
 
 
-var getScore = (tl, responses) => {
+var getScore = async (tl, responses) => {
 
-  const Z = getZScore(tl, responses);
+  const Z = await getZScore(tl, responses);
 
   if (Z <= 0) {
-    return ((Z,0));
+    return [Z, 0];
   } else {
-    return ((Z,(Z * 1000)));
+    return [Z, Z * 1000];
   }
 };
 
-var getBand = (tl, responses) => {
+var getBand = async (tl, responses) => {
 
-  const val (zScore,mearaScore) = getScore(tl,responses);
+  const [zScore, mearaScore] = await getScore(tl, responses);
 
-  console.debug(`zScore: ${zScore}. mearaScore: ${mearaScore}`)
+  const bands = vsptBands[tl];
 
-  val level = db.vsptBands.get(tl) match {
-      case Some(band: Vector[(String, Int, Int)]) => {
-        val filtered = band.filter(t => mearaScore >= t._2 && mearaScore <= t._3)
-        if(filtered.length == 1) {
-          filtered(0)._1
-        } else {
-          logger.error("No level for test language '" + tl + "' and meara score: " + mearaScore + ". Returning UNKNOWN ...")
-          "UNKNOWN"
-        }
-      }
+  if (bands) {
+    const filtered = bands.filter(b => mearaScore >= b[1] && mearaScore <= b[2]);
+    if (filtered.length == 1) {
+      return [ zScore, mearaScore, filtered[0][0] ];
+    } else {
+      console.error(`No level for test language '${tl}' and meara score: ${mearaScore}. Returning empty array ...`);
+      return [];
     }
-
-  console.debug(`Level: ${level}`)
-
-  return ((zScore,mearaScore,level));
+  } else {
+    console.error(`No bands for test language '${tl}'. Returning empty array ...`);
+    return [];
+  }
 }
-
