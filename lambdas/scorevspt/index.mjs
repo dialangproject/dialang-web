@@ -44,14 +44,14 @@ export const handler = async (event, context) => {
     }
   });
 
-  const [ zScore, mearaScore, level ] = await getBand(body.tl, responses);
+  const [ vsptZScore, vsptMearaScore, vsptLevel ] = await getBand(body.tl, responses);
 
   await docClient.send(
     new UpdateCommand({
       TableName: "dialang-data-capture",
       Key: { "session_id": body.sessionId },
-      ExpressionAttributeValues: { ":vr": JSON.stringify(responses), ":vs": JSON.stringify([zScore, mearaScore, level]) },
-      UpdateExpression: "set vspt_responses_json = :vr, vspt_scores = :vs",
+      UpdateExpression: "set vspt_responses_json = :vr, vspt_z_score = :vzs, vspt_meara_score = :vms, vspt_level = :vl",
+      ExpressionAttributeValues: { ":vr": JSON.stringify(responses), ":vzs": vsptZScore, ":vms": vsptMearaScore, ":vl": vsptLevel },
       ReturnValues: "ALL_NEW",
     })
   );
@@ -74,7 +74,7 @@ export const handler = async (event, context) => {
   }
   */
 
-  const result = { vsptMearaScore: mearaScore, vsptLevel: level };
+  const result = { vsptZScore, vsptMearaScore, vsptLevel };
 
   return {
     statusCode: 200,

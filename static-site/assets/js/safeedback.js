@@ -6,7 +6,7 @@ $('#back').prop('disabled', false).click(function () {
     return false;
 });
 
-$.get('/dialang-content/safeedback/' + dialang.session.al + '/' + dialang.session.itemLevel + '/' + dialang.session.saLevel + '.html', function (data) {
+$.get(`/prod/content/safeedback/${dialang.session.al}/${dialang.session.itemLevel}/${dialang.session.saLevel}.html`, function (data) {
 
     $('#content').html(data);
     $('#about-sa-button').click(function (e) {

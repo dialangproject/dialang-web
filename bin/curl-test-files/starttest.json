@@ -1,0 +1,12 @@
+{
+  "session": {
+    "id": "1234567890",
+    "al": "en_gb",
+    "tl": "spa_es",
+    "skill": "reading",
+    "vsptSubmitted": 1,
+    "saSubmitted": 1,
+    "vsptZScore": 1.0,
+    "saPPE": 2.085
+  }
+}

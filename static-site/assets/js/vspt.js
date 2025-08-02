@@ -86,7 +86,9 @@ $.get(`/prod/content/vspt/${dialang.session.al}/${dialang.session.tl}.html`, fun
         if (scores.redirect) {
           window.location = scores.redirect;
         } else {
+          dialang.session.vsptSubmitted = 1;
           dialang.session.vsptMearaScore = scores.vsptMearaScore;
+          dialang.session.vsptZScore = scores.vsptZScore;
           dialang.session.vsptLevel = scores.vsptLevel;
           $('#confirm-send-dialog').dialog('destroy');
 

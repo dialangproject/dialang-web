@@ -8,7 +8,7 @@ $('#skipforward').prop('disabled', false).click(function () {
     return false;
 });
 
-$.get('/dialang-content/saintro/' + dialang.session.al + '/' + dialang.session.skill + '.html', function (data) {
+$.get(`/prod/content/saintro/${dialang.session.al}/${dialang.session.skill}.html`, function (data) {
 
     $('#content').html(data);
 

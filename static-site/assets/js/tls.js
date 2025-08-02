@@ -72,7 +72,6 @@ $.get('/prod/content/tls/' + dialang.session.al + '.html', function (data) {
 
           dialang.pass = { id: data.passId, sessionId: data.sessionId, baskets: [], itemToBasketMap: {}, items: [], subskills: {} };
           dialang.session = { ...dialang.session, id: data.sessionId, tl, skill };
-          console.log(dialang);
           $('#confirm-dialog').dialog('destroy');
 
           // If the vspt hasn't been done yet for this test language, switch
