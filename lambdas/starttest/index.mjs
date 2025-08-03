@@ -11,8 +11,6 @@ const docClient = DynamoDBDocumentClient.from(client);
 
 var cachePreestWeights = async () => {
 
-  console.debug("Caching pre-estimation weights ...");
-
   const weights = await docClient.send(new ScanCommand({ TableName: "dialang-preest-weights" }));
 
   return weights.Items.reduce((acc, weight) => {
@@ -28,12 +26,7 @@ var cachePreestWeights = async () => {
 
 var preestWeights = await cachePreestWeights();
 
-console.debug("PREEST WEIGHTS CACHED");
-console.debug(preestWeights);
-
 var cachePreestAssign = async () => {
-
-  console.debug("Caching pre-estimation assignments ...");
 
   const assignments = await docClient.send(new ScanCommand({ TableName: "dialang-preest-assignments" }));
 
@@ -54,8 +47,20 @@ var cachePreestAssign = async () => {
 
 var preestAssign = await cachePreestAssign();
 
-console.debug("PREEST ASSIGN CACHED");
-console.debug(preestAssign);
+var cacheBookletLengths = async () => {
+
+  return (await docClient.send(new ScanCommand({ TableName: "dialang-booklet-data" }))).Items
+};
+
+var bookletLengths = await cacheBookletLengths();
+
+var cacheBookletBaskets = async () => {
+
+  const items = (await docClient.send(new ScanCommand({ TableName: "dialang-booklet-baskets" }))).Items
+  return Object.fromEntries(items.map(item => [ item.booklet_id, item.basket_ids.split(",") ]));
+};
+
+var bookletBaskets = await cacheBookletBaskets();
 
 export const handler = async (event, context) => {
 
@@ -63,9 +68,9 @@ export const handler = async (event, context) => {
 
   session.bookletId = calculateBookletId(session);
 
-  /*
-  const bookletLength = getBookletLength(bookletId);
+  const bookletLength = bookletLengths[session.bookletId];
 
+  /*
   const firstBasketId = getBasketIdsForBooklet(bookletId);
 
   console.debug(`BOOKLET ID: ${bookletId}`);
@@ -118,56 +123,27 @@ var calculateBookletId = session => {
     if (session.testDifficulty) {
       switch (session.testDifficulty) {
         case "easy":
-          //return db.preestAssign.getEasyBookletId(session.tl, session.skill);
-          return "easy";
+          return preestAssign[`${session.tl}#${session.skill}`][0].bookletId;
         case "hard":
-          //return db.preestAssign.getHardBookletId(session.tl, session.skill);
-          return "hard";
+          return preestAssign[`${session.tl}#${session.skill}`][2].bookletId;
         default:
-          //return db.preestAssign.getMediumBookletId(session.tl, session.skill);
-          return "medium";
+          return preestAssign[`${session.tl}#${session.skill}`][1].bookletId;
       }
     }
 
     if (!session.vsptSubmitted && !session.saSubmitted) {
       // No sa or vspt, request the default assignment.
-      //db.preestAssign.getMediumBookletId(session.tl, session.skill);
-      return "medium";
+      return preestAssign[`${session.tl}#${session.skill}`][1].bookletId;
     } else {
       // if either test is done, then we need to get the grade 
       // associated with that test:
 
       const vsptZScore = session.vsptSubmitted ? session.vsptZScore : 0.0;
-
-      console.debug(`VSPT Z SCORE: ${vsptZScore}`);
-
       const saPPE = session.saSubmitted ? session.saPPE : 0.0;
-      console.debug(`SA PPE: ${saPPE}`);
-
       const weight = preestWeights[`${session.tl}#${session.skill}#${session.vsptSubmitted}#${session.saSubmitted}`];
-      console.debug("WEIGHT");
-      console.debug(weight);
       const pe = (saPPE * weight.sa) + (vsptZScore * weight.vspt) + weight.coe;
-      console.debug(`PE: ${pe}`);
-      const bookletId = preestAssign[`${session.tl}#${session.skill}`].find(t => pe <= t.pe).bookletId;
-      console.debug(`Booklet ID: ${bookletId}`);
 
-      return bookletId;
-
-      // get the appropriate weight for the given context:
-      /*
-      db.preestWeights.get(session.tl, session.skill, session.vsptSubmitted, session.saSubmitted) match {
-        case Some(m: Map[String, Float]) => {
-          val pe =  (saPPE * m.get("sa").get) + (vsptZScore * m.get("vspt").get) + m.get("coe").get
-          // finaly look up the assignment for the resulting values:
-          db.preestAssign.getBookletId(session.tes.tl, session.tes.skill, pe)
-        }
-        case _ => {
-          if (logger.isInfoEnabled) logger.info("No weight returned. The medium booklet will be returned.")
-          db.preestAssign.getMediumBookletId(session.tes.tl,session.tes.skill)
-        }
-      }
-      */
+      return preestAssign[`${session.tl}#${session.skill}`].find(t => pe <= t.pe).bookletId;
     }
   }
 
