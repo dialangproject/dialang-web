@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  web:
+    container_name: container-web
+    image: adrianfish/dialang-web
+    hostname: localhost
+    ports:
+      - "80:8080"
+    restart: unless-stopped
+  db:
+    container_name: container-db
+    image: adrianfish/dialang-db
+    hostname: localhost
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: dialangadmin
+      POSTGRES_PASSWORD: e785598fffccc098afda8eb6e42494e5
+      POSTGRES_DB: dialang
+      POSTGRES_HOST_AUTH_METHOD: md5
+    restart: unless-stopped
