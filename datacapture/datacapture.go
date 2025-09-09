@@ -2,6 +2,7 @@ package datacapture
 
 import (
 	"log"
+	"os"
 	"database/sql"
 	"time"
 
@@ -13,9 +14,13 @@ var db *sql.DB
 
 func init() {
 
+	dbHost := os.Getenv("DIALANG_DB_HOST")
+	if dbHost == "" {
+		dbHost = "host.docker.internal"
+	}
+
 	pw := "e785598fffccc098afda8eb6e42494e5"
-	//connStr := "postgres://dialangadmin:" + pw + "@localhost/dialang-data-capture?sslmode=disable"
-	connStr := "postgres://dialangadmin:" + pw + "@host.docker.internal/dialang-data-capture?sslmode=disable"
+	connStr := "postgres://dialangadmin:" + pw + "@" + dbHost + "/dialang-data-capture?sslmode=disable"
 	thisDb, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)

@@ -11,6 +11,7 @@ COPY handlers/ handlers/
 COPY models/ models/
 COPY utils/ utils/
 COPY datacapture/ datacapture/
+COPY data/ data/
 RUN CGO_ENABLED=0 GOOS=linux go build -o dialang-web
 RUN chmod o+x dialang-web
 

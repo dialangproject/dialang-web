@@ -11,3 +11,17 @@ type SetTLParams struct {
 	Referrer string
 }
 
+type VSPTBand struct {
+	Locale string
+	Level string
+	Low int
+	High int
+}
+
+type VSPTWord struct {
+	WordId string
+	Word string
+	Valid int32
+	Weight int32
+}
+
