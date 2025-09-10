@@ -47,12 +47,13 @@ func getBand(tl string, responses map[string]bool) (float64, float64, string, er
 	}
 
 	for _, b := range bands {
+		log.Println(b)
 		if mearaScore >= float64(b.Low) && mearaScore <= float64(b.High) {
 			return zScore, mearaScore, b.Level, nil
 		}
 	}
 
-	return 0, 0, "", errors.New(fmt.Sprintf("No level for test language '%s' and meara score: %d.", tl, mearaScore))
+	return 0, 0, "", errors.New(fmt.Sprintf("No level for test language '%s' and meara score: %f.", tl, mearaScore))
 }
 
 func getScore(tl string, responses map[string]bool) (float64, float64) {

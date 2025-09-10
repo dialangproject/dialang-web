@@ -1,18 +1,35 @@
 version: '3.8'
 services:
-  web:
-    container_name: container-web
-    image: adrianfish/dialang-web
-    hostname: localhost
+  proxy:
+    image: adrianfish/dialang-proxy
+    depends_on:
+      web:
+        condition: service_started
+      content:
+        condition: service_started
     ports:
-      - "80:8080"
+      - "80:80"
+    restart: unless-stopped
+  content:
+    #container_name: container-content
+    image: adrianfish/dialang-content
+    #ports:
+    #  - "80:80"
+    restart: unless-stopped
+  web:
+    #container_name: container-web
+    image: adrianfish/dialang-web
+    depends_on:
+      db:
+        condition: service_started
+    #ports:
+    #  - "80:8080"
     restart: unless-stopped
   db:
-    container_name: container-db
+    #container_name: container-db
     image: adrianfish/dialang-db
-    hostname: localhost
-    ports:
-      - "5432:5432"
+    #ports:
+    #  - "5432:5432"
     environment:
       POSTGRES_USER: dialangadmin
       POSTGRES_PASSWORD: e785598fffccc098afda8eb6e42494e5

@@ -17,7 +17,8 @@ func init() {
 
 	dbHost := os.Getenv("DIALANG_DB_HOST")
 	if dbHost == "" {
-		dbHost = "host.docker.internal"
+		//dbHost = "host.docker.internal"
+		dbHost = "dialang-web-db-1"
 	}
 
 	pw := "e785598fffccc098afda8eb6e42494e5"
@@ -76,7 +77,7 @@ func cacheVSPTBands(db *sql.DB) {
 		}
 		var bands, ok = VSPTBands[band.Locale]
 		if !ok {
-			VSPTBands[band.Locale] = []models.VSPTBand{}
+			VSPTBands[band.Locale] = []models.VSPTBand{band}
 		} else {
 			VSPTBands[band.Locale] = append(bands, band)
 		}

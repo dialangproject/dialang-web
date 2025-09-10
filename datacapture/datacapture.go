@@ -16,7 +16,7 @@ func init() {
 
 	dbHost := os.Getenv("DIALANG_DB_HOST")
 	if dbHost == "" {
-		dbHost = "host.docker.internal"
+		dbHost = "dialang-web-db-1"
 	}
 
 	pw := "e785598fffccc098afda8eb6e42494e5"
