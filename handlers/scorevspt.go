@@ -33,8 +33,6 @@ func ScoreVSPT(c echo.Context) error {
 		log.Fatal(err)
 	}
 
-	log.Println(level)
-
 	return c.JSON(200, map[string]any{"vsptZScore": zScore, "vsptMearaScore": mearaScore, "vsptLevel": level})
 }
 

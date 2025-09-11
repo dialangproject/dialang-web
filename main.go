@@ -15,5 +15,7 @@ func main()  {
 	})
 	e.POST("/settl", handlers.SetTL)
 	e.POST("/scorevspt", handlers.ScoreVSPT)
+	e.POST("/scoresa", handlers.ScoreSA)
+	e.POST("/starttest", handlers.StartTest)
 	e.Logger.Fatal(e.Start(":80"))
 }
